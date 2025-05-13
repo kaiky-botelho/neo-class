@@ -1,0 +1,45 @@
+.fundo{
+    background-color: #333C56;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loginContainer{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.loginInputs{
+    background-color: #A0BFE8;
+    border-radius: 80px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.loginInputs img{
+    width: 30%;
+}
+
+.loginInputs h1{
+    color: #FFFCF5;
+}
+
+.loginInputs button{
+    background-color: #EA9216;
+    color: #FFFCF5;
+    border-radius: 10px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.inputLabel{
+    color: #FFFCF5;
+}
