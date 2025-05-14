@@ -1,0 +1,11 @@
+.gridTemplate{
+  display: grid;
+  grid-template-columns: 350px 1fr; 
+  height: 100vh;
+}
+
+.gridTemplate-content{
+  background-color: #F4F4F4;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
