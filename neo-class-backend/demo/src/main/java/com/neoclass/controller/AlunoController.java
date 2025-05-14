@@ -1,10 +1,15 @@
+// src/main/java/com/neoclass/controller/AlunoController.java
 package com.neoclass.controller;
 
+import com.neoclass.dto.AlunoDTO;
 import com.neoclass.model.Aluno;
+import com.neoclass.model.Turma;
 import com.neoclass.service.AlunoService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/alunos")
@@ -13,20 +18,52 @@ public class AlunoController {
     public AlunoController(AlunoService service) { this.service = service; }
 
     @GetMapping
-    public List<Aluno> listar() { return service.listarTodos(); }
+    public List<AlunoDTO> listar() {
+        return service.listarTodos().stream()
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+    }
 
     @GetMapping("/{id}")
-    public Aluno buscar(@PathVariable Long id) { return service.buscarPorId(id); }
+    public AlunoDTO buscar(@PathVariable Long id) {
+        return toDTO(service.buscarPorId(id));
+    }
 
     @PostMapping
-    public Aluno criar(@RequestBody Aluno t) { return service.salvar(t); }
+    public AlunoDTO criar(@RequestBody AlunoDTO dto) {
+        Aluno entidade = toEntity(dto);
+        Aluno salvo   = service.salvar(entidade);
+        return toDTO(salvo);
+    }
 
     @PutMapping("/{id}")
-    public Aluno atualizar(@PathVariable Long id, @RequestBody Aluno t) {
-        t.setId(id);
-        return service.salvar(t);
+    public AlunoDTO atualizar(@PathVariable Long id, @RequestBody AlunoDTO dto) {
+        Aluno entidade = toEntity(dto);
+        entidade.setId(id);
+        return toDTO(service.salvar(entidade));
     }
 
     @DeleteMapping("/{id}")
-    public void excluir(@PathVariable Long id) { service.excluir(id); }
+    public void excluir(@PathVariable Long id) {
+        service.excluir(id);
+    }
+
+    // --- Helpers de mapeamento ---
+    private AlunoDTO toDTO(Aluno a) {
+        AlunoDTO dto = new AlunoDTO();
+        BeanUtils.copyProperties(a, dto);
+        if (a.getTurma() != null) dto.setTurmaId(a.getTurma().getId());
+        return dto;
+    }
+
+    private Aluno toEntity(AlunoDTO dto) {
+        Aluno a = new Aluno();
+        BeanUtils.copyProperties(dto, a);
+        if (dto.getTurmaId() != null) {
+            Turma t = new Turma();
+            t.setId(dto.getTurmaId());
+            a.setTurma(t);
+        }
+        return a;
+    }
 }
