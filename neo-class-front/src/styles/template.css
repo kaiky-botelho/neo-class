@@ -9,3 +9,74 @@
   padding-top: 80px;
   padding-bottom: 80px;
 }
+
+.gridTemplate-content-principal{
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.title{
+  font-size: 28px;
+  font-weight: bold;
+  color: #2d2d2d;
+}
+
+.subtitle{
+  font-size: 24px;
+  font-weight: bold;
+  color: #2d2d2d;
+  margin-bottom: 20px;
+}
+
+.acoes-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #ffff;
+  width: 100%;
+  padding: 20px;
+  border-radius: 12px;
+}
+.link-buttons-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  border-radius: 12px;
+}
+
+.calendario-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background-color: #A0BFE8;
+  border-radius: 12px;
+}
+
+.acoes-title {
+  color: #8FABD0;
+  font-size: 20px;
+  font-weight: 500;
+  text-transform: uppercase; 
+  width: 80%;
+  display: flex;
+  align-items: center;
+}
+
+
+.acoes-title::before {
+  content: '';
+  display: inline-block; 
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+  background: url('../assets/icons/acoes.svg') no-repeat center center;
+  background-size: contain;
+  vertical-align: middle;
+}
+

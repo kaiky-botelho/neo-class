@@ -1,0 +1,34 @@
+.link-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center ;
+  padding: 10px;
+  width: 200px;
+  height: 200px;
+  background-color: #A0BFE8;  
+  border-radius: 10%;
+  position: relative;
+  text-decoration: none;
+}
+
+.link-button::after {
+  content: '';
+  background: url('../../assets/triangulo_inferior.svg') no-repeat center center;
+  background-size: contain;
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.link-button-text{
+  z-index: 1;
+  font-size: 20px;
+  white-space: pre-line;
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #333C56;
+}

@@ -5,6 +5,8 @@ import { ReactComponent as TurmaIcon } from "../../assets/icons/turma.svg";
 import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
 import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg";
 import "../../styles/homeSecretaria.css";
+import LinkButton from "../../components/linkButtons/linkButtons";
+
 
 const navItems = [
   {
@@ -37,10 +39,33 @@ const HomeSecretaria: React.FC = () => {
       </div>
       <div className="gridTemplate-content">
         <div className="container">
-        <h1>Teste</h1>
-        <p>Esta é a página de teste.</p>
-        <p>Você pode adicionar mais conteúdo aqui.</p>
-        <p>Teste de conteúdo adicional.</p>
+          <h1 className="title">Seja Bem-Vindo(a)!</h1>
+          <h2 className="subtitle">O que deseja fazer hoje?</h2>
+          <div className="gridTemplate-content-principal">
+            <div className="acoes-container">
+              <div className="acoes-title">
+              <h2>Ações</h2>
+              </div>
+              <div className="link-buttons-container">
+              <LinkButton
+                text={"Cadastrar\nAluno"}
+                href={"/cadastrarAluno"}
+                image={require("../../assets/chapeu.png")}
+              />
+              <LinkButton
+                text={"Cadastrar\nPofessor"}
+                href={"/cadastrarProfessor"}
+                image={require("../../assets/lousa.png")}
+              />
+              <LinkButton
+                text={"Cadastrar\nTurma"}
+                href={"/cadastrarTurma"}
+                image={require("../../assets/turma.png")}
+              />
+              </div>
+            </div>
+            <div className="calendario-container"></div>
+          </div>
         </div>
       </div>
     </div>
