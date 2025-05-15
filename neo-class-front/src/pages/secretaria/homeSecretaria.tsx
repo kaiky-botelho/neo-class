@@ -37,11 +37,11 @@ const HomeSecretaria: React.FC = () => {
       <div>
         <SideBar buttonText={"Sair"} navItems={navItems} />
       </div>
-      <div className="gridTemplate-content">
-        <div className="container">
+      <div className="home-container">
+        <div className="container-h">
           <h1 className="title">Seja Bem-Vindo(a)!</h1>
           <h2 className="subtitle">O que deseja fazer hoje?</h2>
-          <div className="gridTemplate-content-principal">
+          <div className="home-container-principal">
             <div className="acoes-container">
               <div className="acoes-title">
               <h2>Ações</h2>
@@ -65,6 +65,14 @@ const HomeSecretaria: React.FC = () => {
               </div>
             </div>
             <div className="calendario-container"></div>
+          </div>
+          <div className="home-container-secundario">
+            <div className="notificacao-container">
+
+            </div>
+            <div className="estatistica-container">
+
+            </div>
           </div>
         </div>
       </div>

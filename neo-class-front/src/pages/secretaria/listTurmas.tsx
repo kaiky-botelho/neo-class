@@ -35,7 +35,7 @@ const ListTurmas: React.FC = () => {
       <div>
         <SideBar buttonText={"Sair"} navItems={navItems} />
       </div>
-      <div className="gridTemplate-content">
+      <div className="home-container">
         <div className="container">
         <h1>Turmas</h1>
         <p>Esta é a página de teste.</p>
