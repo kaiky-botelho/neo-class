@@ -1,32 +1,37 @@
-import axios, { AxiosInstance } from "axios";
+import ApiService from "../apiService";
+import type { AxiosResponse } from "axios";
 
-type TurmaDTO = {
+export type TurmaDTO = {
   id: number;
   nome: string;
   serie: string;
   turno: string;
 };
 
-
-export default class TurmaService {
-  private http: AxiosInstance;
-
+class TurmaService extends ApiService {
   constructor() {
-    this.http = axios.create({
-      baseURL: "http://localhost:8080/api", // ajuste para sua URL base da API
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    super("/api/turmas");
   }
 
-  listarTodos() {
-    return this.http.get<TurmaDTO[]>("/turmas");
+  listarTodos(): Promise<AxiosResponse<TurmaDTO[]>> {
+    return this.get<TurmaDTO[]>(""); 
   }
 
-  // Se precisar, pode adicionar mais métodos aqui, ex:
-  // buscarPorId(id: number) { return this.http.get<TurmaDTO>(`/turmas/${id}`); }
-  // salvar(turma: TurmaDTO) { return this.http.post("/turmas", turma); }
-  // editar(turma: TurmaDTO) { return this.http.put(`/turmas/${turma.id}`, turma); }
-  // excluir(id: number) { return this.http.delete(`/turmas/${id}`); }
+  buscarPorId(id: number): Promise<AxiosResponse<TurmaDTO>> {
+    return this.get<TurmaDTO>(`/${id}`);
+  }
+
+  salvar(turma: TurmaDTO): Promise<AxiosResponse<TurmaDTO>> {
+    return this.post<TurmaDTO>("", turma);
+  }
+
+  editar(turma: TurmaDTO): Promise<AxiosResponse<TurmaDTO>> {
+    return this.put<TurmaDTO>(`/${turma.id}`, turma);
+  }
+
+  excluir(id: number): Promise<AxiosResponse<void>> {
+    return this.delete<void>(`/${id}`);
+  }
 }
+
+export default TurmaService;

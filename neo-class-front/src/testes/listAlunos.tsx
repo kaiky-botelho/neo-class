@@ -50,7 +50,7 @@ const ListAlunos: React.FC = () => {
 
   function handleEditar(id?: number) {
     if (!id) return;
-    navigate(`/cadastroAluno/${id}`);
+    navigate(`/cadastrarAluno/${id}`);
   }
 
   function handleDeletar(id?: number) {
@@ -108,7 +108,7 @@ const ListAlunos: React.FC = () => {
                   <p><strong>ALUNO:</strong> <span style={{ fontWeight: "normal" }}>{aluno.nome ?? "N/A"}</span></p>
                   <p><strong>GÊNERO</strong> <span style={{ fontWeight: "normal" }}>{aluno.genero ?? "N/A"}</span></p>
                   <p>
-                    <strong>data Matricula:</strong> <span style={{ fontWeight: "normal" }}>{aluno.dataMatricula ?? "N/A"}</span>{" "}
+                    <strong>sintuação Matricula:</strong> <span style={{ fontWeight: "normal" }}>{aluno.situacaoMatricula ?? "N/A"}</span>{" "}
                     | <strong>TURNO</strong> <span style={{ fontWeight: "normal" }}>{aluno.turno ?? "N/A"}</span>
                   </p>
                 </div>
@@ -116,7 +116,7 @@ const ListAlunos: React.FC = () => {
                   <button
                     onClick={() => handleEditar(aluno.id)}
                     style={{
-                      backgroundColor: "#f39c12",
+                      backgroundColor: "#EA9216",
                       border: "none",
                       borderRadius: "5px",
                       padding: "5px 10px",
@@ -129,12 +129,12 @@ const ListAlunos: React.FC = () => {
                       gap: "5px"
                     }}
                   >
-                    ✏️ Editar
+                    Editar
                   </button>
                   <button
                     onClick={() => handleDeletar(aluno.id)}
                     style={{
-                      backgroundColor: "#ff6b6b",
+                      backgroundColor: "#F07878",
                       border: "none",
                       borderRadius: "5px",
                       padding: "5px 10px",
@@ -147,7 +147,7 @@ const ListAlunos: React.FC = () => {
                       gap: "5px"
                     }}
                   >
-                    🗑️ Deletar
+                    Deletar
                   </button>
                 </div>
               </div>

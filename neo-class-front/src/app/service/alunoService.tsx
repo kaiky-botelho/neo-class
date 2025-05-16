@@ -9,6 +9,7 @@ class AlunoService extends ApiService {
 
   listarTodos(): Promise<AxiosResponse<AlunoDTO[]>> {
     return this.get<AlunoDTO[]>(""); 
+   
   }
 
   salvar(aluno: AlunoDTO): Promise<AxiosResponse<AlunoDTO>> {

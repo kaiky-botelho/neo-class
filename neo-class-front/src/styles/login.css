@@ -39,8 +39,18 @@
     border: none;
     cursor: pointer;
     font-weight: 700;
+    width: 30%;
+    display: block;
 }
 
 .inputLabel{
     color: #FFFCF5;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 80%;
+    align-items: center;
 }
