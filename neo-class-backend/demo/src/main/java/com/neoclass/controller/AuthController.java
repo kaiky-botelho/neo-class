@@ -3,41 +3,74 @@ package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
 import com.neoclass.dto.AuthResponseDTO;
-import com.neoclass.model.Secretaria;
-import com.neoclass.service.SecretariaService;
 import com.neoclass.security.JwtUtil;
+import com.neoclass.service.SecretariaService;
+import com.neoclass.service.AlunoService;
+import com.neoclass.service.ProfessorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+<<<<<<< HEAD
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
+=======
+@RequestMapping("/api/login")
+>>>>>>> master
 public class AuthController {
 
     private final SecretariaService secretariaService;
-    private final JwtUtil jwtUtil;
+    private final AlunoService      alunoService;
+    private final ProfessorService  professorService;
+    private final JwtUtil           jwtUtil;
 
-    public AuthController(SecretariaService service, JwtUtil jwtUtil) {
-        this.secretariaService = service;
-        this.jwtUtil = jwtUtil;
+    public AuthController(
+        SecretariaService secretariaService,
+        AlunoService alunoService,
+        ProfessorService professorService,
+        JwtUtil jwtUtil
+    ) {
+        this.secretariaService = secretariaService;
+        this.alunoService      = alunoService;
+        this.professorService  = professorService;
+        this.jwtUtil           = jwtUtil;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequestDTO req) {
-        var maybeSec = secretariaService.autenticar(req.getEmail(), req.getSenha());
-
-        if (maybeSec.isEmpty()) {
-            // 401 se não encontrou
+    @PostMapping("/secretaria")
+    public ResponseEntity<?> loginSecretaria(@RequestBody AuthRequestDTO req) {
+        var opt = secretariaService.autenticar(req.getEmail(), req.getSenha());
+        if (opt.isEmpty()) {
             return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("E-mail ou senha inválidos");
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("E-mail ou senha inválidos");
         }
+        String token = jwtUtil.gerarToken(opt.get().getEmail());
+        return ResponseEntity.ok(new AuthResponseDTO(token));
+    }
 
-        // gerou o token e retorna o DTO
-        Secretaria sec = maybeSec.get();
-        String token = jwtUtil.gerarToken(sec.getEmail());
-        var resp = new AuthResponseDTO(token);
-        return ResponseEntity.ok(resp);
+    @PostMapping("/aluno")
+    public ResponseEntity<?> loginAluno(@RequestBody AuthRequestDTO req) {
+        var opt = alunoService.autenticar(req.getEmail(), req.getSenha());
+        if (opt.isEmpty()) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("E-mail ou senha inválidos");
+        }
+        // para o aluno usamos o emailInstitucional
+        String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
+        return ResponseEntity.ok(new AuthResponseDTO(token));
+    }
+
+    @PostMapping("/professor")
+    public ResponseEntity<?> loginProfessor(@RequestBody AuthRequestDTO req) {
+        var opt = professorService.autenticar(req.getEmail(), req.getSenha());
+        if (opt.isEmpty()) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("E-mail ou senha inválidos");
+        }
+        String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
+        return ResponseEntity.ok(new AuthResponseDTO(token));
     }
 }
