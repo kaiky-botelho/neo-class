@@ -8,7 +8,7 @@ class SecretariaService extends ApiService {
 
     login(email: string, senha: string): Promise<any> {
         // O backend espera "email" e "senha"
-        return this.post("/login", { email, senha });
+        return this.post("/login/secretaria", { email, senha });
     }
 }
 

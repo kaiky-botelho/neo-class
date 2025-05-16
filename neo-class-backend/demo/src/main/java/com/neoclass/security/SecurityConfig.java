@@ -22,37 +22,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-          .cors() // <-- HABILITA O CORS COM A CONFIG ABAIXO
-          .and()
-          .csrf().disable()
-          .authorizeHttpRequests(auth -> auth
-<<<<<<< HEAD
-              .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
-              .requestMatchers("/api/login", "/h2-console/**").permitAll()
-              .anyRequest().authenticated()
-          )
-          .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .addFilterBefore(new JwtFilter(jwtUtil),
-                           UsernamePasswordAuthenticationFilter.class)
-=======
-              // permite criar secretaria e fazer login em todas as três rotas:
-              .requestMatchers(HttpMethod.POST,
-                  "/api/secretarias",
-                  "/api/login/**"
-              ).permitAll()
-              // tudo o mais exige JWT
-              .anyRequest().authenticated()
-          )
-          .sessionManagement(sm ->
-              sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-          )
-          .addFilterBefore(
-              new JwtFilter(jwtUtil),
-              UsernamePasswordAuthenticationFilter.class
-          )
-          // libera console H2
->>>>>>> master
-          .headers(headers -> headers.frameOptions().disable());
+            .cors()
+            .and()
+            .csrf().disable()
+            .authorizeHttpRequests(auth -> auth
+                // permite criar secretaria e fazer login em todas as três rotas:
+                .requestMatchers(HttpMethod.POST,
+                    "/api/secretarias",
+                    "/api/login/**"
+                ).permitAll()
+                // tudo o mais exige JWT
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+            // libera console H2
+            .headers(headers -> headers.frameOptions().disable());
 
         return http.build();
     }
@@ -61,10 +46,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // sua origem React
+        config.setAllowedOrigins(List.of("http://localhost:3000")); // origem React
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // se usar autenticação com cookie ou Authorization header
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

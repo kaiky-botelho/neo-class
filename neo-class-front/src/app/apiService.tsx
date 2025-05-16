@@ -1,14 +1,19 @@
-// src/app/service/apiService.ts
-
 import axios, { AxiosResponse } from "axios";
 
 export const httpClient = axios.create({
-  baseURL: "http://localhost:8080", 
+  baseURL: "http://localhost:8080",
 });
 
 // INTERCEPTOR PARA ADICIONAR O TOKEN AUTOMATICAMENTE
 httpClient.interceptors.request.use(
   (config) => {
+    // NÃO adicionar Authorization em rotas de login ou cadastro de secretaria
+    if (
+      config.url?.includes("/api/login") ||
+      config.url?.includes("/api/secretarias")
+    ) {
+      return config;
+    }
     const token = localStorage.getItem("token");
     if (token) {
       config.headers = config.headers || {};

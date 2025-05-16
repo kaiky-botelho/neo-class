@@ -47,7 +47,7 @@
     color: #FFFCF5;
 }
 
-form{
+.form-login{
     display: flex;
     flex-direction: column;
     gap: 30px;

@@ -12,12 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-<<<<<<< HEAD
-@RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000")
-=======
 @RequestMapping("/api/login")
->>>>>>> master
 public class AuthController {
 
     private final SecretariaService secretariaService;

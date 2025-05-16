@@ -6,6 +6,7 @@ import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
 import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg";
 import "../../styles/homeSecretaria.css";
 import LinkButton from "../../components/linkButtons/linkButtons";
+import Input from "../../components/input/input";
 
 
 const navItems = [
@@ -47,9 +48,10 @@ const HomeSecretaria: React.FC = () => {
               <h2>Ações</h2>
               </div>
               <div className="link-buttons-container">
+
               <LinkButton
                 text={"Cadastrar\nAluno"}
-                href={"/cadastrarAluno"}
+                href={"/cadastroAluno"}
                 image={require("../../assets/chapeu.png")}
               />
               <LinkButton

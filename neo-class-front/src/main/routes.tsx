@@ -6,7 +6,7 @@ import HomeSecretaria from "../pages/secretaria/homeSecretaria";
 import ListTurmas from "../pages/secretaria/listTurmas";
 import ListAlunos from "../testes/listAlunos";
 import ListProfessores from "../pages/secretaria/listProfessores";
-import CadastroAlunoCompleto from "../testes/cadastroAluno";
+import CadastroAluno from "../pages/secretaria/cadastroAluno";
 
 
 function AppRoutes() {
@@ -19,7 +19,7 @@ function AppRoutes() {
         <Route path="/turmas" element={<ListTurmas />} />
         <Route path="/alunos" element={<ListAlunos />} />
         <Route path="/professores" element={<ListProfessores />} />
-        <Route path="/cadastrarAluno/:id?" element={<CadastroAlunoCompleto />} />
+        <Route path="/cadastroAluno/:id?" element={<CadastroAluno />} />
       </Routes>
     </HashRouter>
   );

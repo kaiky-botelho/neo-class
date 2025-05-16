@@ -38,7 +38,7 @@ const Login: React.FC = () => {
                         <h1>LOGIN</h1>
                         {error && <div className="login-error">{error}</div>}
                         {/* FORMULARIO COMEÇA AQUI */}
-                        <form onSubmit={handleLogin}>
+                        <form className="form-login" onSubmit={handleLogin}>
                             <Input
                                 label={"E-mail"}
                                 type={"email"}
