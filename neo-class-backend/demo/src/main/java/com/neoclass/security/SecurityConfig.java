@@ -22,17 +22,22 @@ public class SecurityConfig {
         http
           .csrf().disable()
           .authorizeHttpRequests(auth -> auth
-              // libera o cadastro de secretaria
-              .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
-              // libera login e console
-              .requestMatchers("/api/login", "/h2-console/**").permitAll()
-              // todo o resto fica protegido
+              // permite criar secretaria e fazer login em todas as três rotas:
+              .requestMatchers(HttpMethod.POST,
+                  "/api/secretarias",
+                  "/api/login/**"
+              ).permitAll()
+              // tudo o mais exige JWT
               .anyRequest().authenticated()
           )
-          .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .addFilterBefore(new JwtFilter(jwtUtil),
-                           UsernamePasswordAuthenticationFilter.class)
-          // pra permitir o frame do H2
+          .sessionManagement(sm ->
+              sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+          )
+          .addFilterBefore(
+              new JwtFilter(jwtUtil),
+              UsernamePasswordAuthenticationFilter.class
+          )
+          // libera console H2
           .headers(headers -> headers.frameOptions().disable());
 
         return http.build();
