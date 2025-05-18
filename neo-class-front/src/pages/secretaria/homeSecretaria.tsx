@@ -4,9 +4,9 @@ import { ReactComponent as HomeIcon } from "../../assets/icons/home.svg";
 import { ReactComponent as TurmaIcon } from "../../assets/icons/turma.svg";
 import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
 import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg";
-import "../../styles/homeSecretaria.css";
+import "../../styles/home.css";
 import LinkButton from "../../components/linkButtons/linkButtons";
-import Input from "../../components/input/input";
+
 
 
 const navItems = [
@@ -56,12 +56,12 @@ const HomeSecretaria: React.FC = () => {
               />
               <LinkButton
                 text={"Cadastrar\nPofessor"}
-                href={"/cadastrarProfessor"}
+                href={"/cadastroProfessor"}
                 image={require("../../assets/lousa.png")}
               />
               <LinkButton
                 text={"Cadastrar\nTurma"}
-                href={"/cadastrarTurma"}
+                href={"/cadastroTurma"}
                 image={require("../../assets/turma.png")}
               />
               </div>

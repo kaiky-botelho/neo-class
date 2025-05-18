@@ -1,7 +1,17 @@
-h1{
+.form-cadastro h1{
     font-size: 32px;
     margin-bottom: 20px;
+    color: #333C56;
+    text-transform: uppercase;
 }
+
+.center{
+    padding-top: 150px;
+}
+
+.relative{
+    position: relative;
+}   
 
 .grid-2e1{
     display: grid;
@@ -22,4 +32,74 @@ h1{
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-bottom: 20px;
+}
+
+.grid-rep4{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.buttons{
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+    
+}
+
+.btn-cadastrar{
+    background-color: #333C56;
+    color: #f4f4f4;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 20px;
+    width: 12%;
+}
+
+.btn-voltar{
+    background-color: #EA9216;
+    color: #f4f4f4;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 20px;
+    width: 10%;
+    text-align: center;
+}
+
+
+.avisos{
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+
+.msg-sucesso,
+.msg-erro,
+.msg-vazio{
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    position: absolute;
+    width: 400px;
+    right: 20px;
+    top: 20px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    color: #f4f4f4;
+    font-size: 18px;
+    text-align: center;
+}
+
+.msg-sucesso{
+    background-color: #60d164;
+}
+
+.msg-erro{
+    background-color: #c43737;
+}
+
+.msg-vazio{
+    background-color: #EA9216;
 }

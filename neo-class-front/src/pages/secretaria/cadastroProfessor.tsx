@@ -1,28 +1,40 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import AlunoService from "../../app/service/alunoService";
+import type { AxiosResponse } from "axios";
+import ProfessorService from "../../app/service/professorService";
 import TurmaService from "../../app/service/turmaService";
-import type { AlunoDTO } from "../../app/service/type";
+import type { ProfessorDTO, TurmaDTO } from "../../app/service/type";
 import Header from "../../components/header/header";
 import Input from "../../components/input/input";
-import "../../styles/cadastro.css";
 import Select from "../../components/select/select";
+import "../../styles/cadastro.css";
 import { buscaEnderecoPorCep } from "../../utils/buscaEnderecoPorCep";
-import type { TurmaDTO } from "../../app/service/type";
 
-const alunoService = new AlunoService();
+const professorService = new ProfessorService();
 const turmaService = new TurmaService();
 
 const estadosCivis = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"];
 const generos = ["Masculino", "Feminino", "Outro"];
-const situacoesMatricula = ["Ativo", "Inativo", "Trancado"];
+const tiposContrato = ["CLT", "Estatutário", "Temporário", "Outro"];
+const materiasFixas = [
+  "Matemática",
+  "Português",
+  "História",
+  "Geografia",
+  "Física",
+  "Química",
+  "Biologia",
+  "Inglês",
+  "Espanhol",
+  "Artes",
+  "Educação Física",
+  "Outra",
+];
 
-
-
-const CadastroAluno: React.FC = () => {
+const CadastroProfessor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-  const [aluno, setAluno] = useState<AlunoDTO>({
+  const [professor, setProfessor] = useState<ProfessorDTO>({
     nome: "",
     dataNascimento: "",
     rg: "",
@@ -39,10 +51,12 @@ const CadastroAluno: React.FC = () => {
     numero: "",
     complemento: "",
     bairro: "",
+    areaFormacao: "",
+    dataAdmissao: "",
+    tipoContrato: "",
     serie: "",
+    materia: "",
     turno: "",
-    dataMatricula: "",
-    situacaoMatricula: "",
     emailInstitucional: "",
     senha: "",
     turmaId: undefined,
@@ -56,16 +70,18 @@ const CadastroAluno: React.FC = () => {
   useEffect(() => {
     turmaService
       .listarTodos()
-      .then((response) => setTurmas(response.data))
+      .then((response: AxiosResponse<TurmaDTO[]>) => setTurmas(response.data))
       .catch((error) => console.error("Erro ao carregar turmas:", error));
   }, []);
 
   useEffect(() => {
     if (id) {
-      alunoService
+      professorService
         .buscarPorId(Number(id))
-        .then((response) => setAluno(response.data))
-        .catch(() => setMsgErro("Erro ao carregar dados do aluno."));
+        .then((response: AxiosResponse<ProfessorDTO>) =>
+          setProfessor(response.data)
+        )
+        .catch(() => setMsgErro("Erro ao carregar dados do professor."));
     }
   }, [id]);
 
@@ -79,11 +95,11 @@ const CadastroAluno: React.FC = () => {
     const { name, value } = e.target;
 
     if (name === "cep") {
-      setAluno((prev) => ({ ...prev, cep: value }));
+      setProfessor((prev) => ({ ...prev, cep: value }));
       if (value.replace(/\D/g, "").length === 8) {
         buscaEnderecoPorCep(value).then((endereco) => {
           if (endereco) {
-            setAluno((prev) => ({
+            setProfessor((prev) => ({
               ...prev,
               uf: endereco.uf,
               cidade: endereco.cidade,
@@ -95,14 +111,14 @@ const CadastroAluno: React.FC = () => {
       }
     } else if (name === "turmaId") {
       const turmaSelecionada = turmas.find((t) => t.id === Number(value));
-      setAluno((prev) => ({
+      setProfessor((prev) => ({
         ...prev,
         turmaId: value ? Number(value) : undefined,
         serie: turmaSelecionada?.serie ?? "",
         turno: turmaSelecionada?.turno ?? "",
       }));
     } else {
-      setAluno((prev) => ({ ...prev, [name]: value }));
+      setProfessor((prev) => ({ ...prev, [name]: value }));
     }
   }
 
@@ -112,53 +128,32 @@ const CadastroAluno: React.FC = () => {
     setMsgErro(null);
     setMsgCampoVazio(null);
 
-    const camposObrigatorios = [
-      aluno.nome,
-      aluno.dataNascimento,
-      aluno.rg,
-      aluno.cpf,
-      aluno.estadoCivil,
-      aluno.celular,
-      aluno.telefone,
-      aluno.email,
-      aluno.genero,
-      aluno.cep,
-      aluno.uf,
-      aluno.cidade,
-      aluno.rua,
-      aluno.numero,
-      aluno.complemento,
-      aluno.bairro,
-      aluno.serie,
-      aluno.turno,
-      aluno.dataMatricula,
-      aluno.situacaoMatricula,
-      aluno.emailInstitucional,
-      aluno.senha,
-      aluno.turmaId,
-    ];
+// Pega todas as chaves de professor, exceto 'id'
+const camposObrigatorios = Object.keys(professor).filter(key => key !== "id");
 
-    const camposPreenchidos = camposObrigatorios.every((valor) =>
-      typeof valor === "string"
-        ? valor.trim() !== ""
-        : valor !== undefined && valor !== null
-    );
+// Verifica se todos os campos obrigatórios estão preenchidos
+const camposPreenchidos = camposObrigatorios.every(key => {
+  const valor = (professor as any)[key];
+  if (typeof valor === "string") {
+    return valor.trim() !== "";
+  }
+  return valor !== undefined && valor !== null;
+});
 
-    if (!camposPreenchidos) {
-      setMsgCampoVazio(
-        "Preencha todos os campos obrigatórios antes de salvar."
-      );
-      return;
-    }
+if (!camposPreenchidos) {
+  setMsgCampoVazio("Preencha todos os campos obrigatórios antes de salvar.");
+  return;
+}
+
 
     try {
-      if (aluno.id) {
-        await alunoService.editar(aluno);
-        setMsgSucesso("Aluno atualizado com sucesso!");
+      if (professor.id) {
+        await professorService.editar(professor);
+        setMsgSucesso("Professor atualizado com sucesso!");
       } else {
-        await alunoService.salvar(aluno);
-        setMsgSucesso("Aluno cadastrado com sucesso!");
-        setAluno({
+        await professorService.salvar(professor);
+        setMsgSucesso("Professor cadastrado com sucesso!");
+        setProfessor({
           nome: "",
           dataNascimento: "",
           rg: "",
@@ -175,17 +170,19 @@ const CadastroAluno: React.FC = () => {
           numero: "",
           complemento: "",
           bairro: "",
+          areaFormacao: "",
+          dataAdmissao: "",
+          tipoContrato: "",
           serie: "",
+          materia: "",
           turno: "",
-          dataMatricula: "",
-          situacaoMatricula: "",
           emailInstitucional: "",
           senha: "",
           turmaId: undefined,
         });
       }
     } catch (error) {
-      setMsgErro("Erro ao salvar aluno.");
+      setMsgErro("Erro ao salvar professor.");
       console.error(error);
     }
   }
@@ -195,14 +192,15 @@ const CadastroAluno: React.FC = () => {
       if (msgSucesso) setMsgSucesso(null);
       if (msgErro) setMsgErro(null);
       if (msgCampoVazio) setMsgCampoVazio(null);
-    }, 1000);
-
+    }, 1500);
     return () => clearTimeout(timer);
   }, [msgSucesso, msgErro, msgCampoVazio]);
 
   return (
     <div>
-      <Header title={aluno.id ? "Editar Aluno" : "Cadastro de Aluno"} />
+      <Header
+        title={professor.id ? "Editar Professor" : "Cadastro de Professor"}
+      />
       <div className="container relative">
         <form className="form-cadastro" onSubmit={handleSubmit}>
           <h1>INFORMAÇÕES PESSOAIS</h1>
@@ -210,7 +208,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="NOME COMPLETO*"
               name="nome"
-              value={aluno.nome ?? ""}
+              value={professor.nome ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o nome completo"
@@ -218,7 +216,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="DATA DE NASCIMENTO*"
               name="dataNascimento"
-              value={aluno.dataNascimento ?? ""}
+              value={professor.dataNascimento ?? ""}
               onChange={handleChange}
               type="date"
             />
@@ -227,7 +225,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="CPF*"
               name="cpf"
-              value={aluno.cpf ?? ""}
+              value={professor.cpf ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o CPF"
@@ -235,7 +233,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="RG*"
               name="rg"
-              value={aluno.rg ?? ""}
+              value={professor.rg ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o RG"
@@ -245,7 +243,7 @@ const CadastroAluno: React.FC = () => {
             <Select
               label="ESTADO CIVIL*"
               name="estadoCivil"
-              value={aluno.estadoCivil ?? ""}
+              value={professor.estadoCivil ?? ""}
               onChange={handleChange}
               options={estadosCivis}
               title="o estado civil"
@@ -253,7 +251,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="CELULAR*"
               name="celular"
-              value={aluno.celular ?? ""}
+              value={professor.celular ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o celular"
@@ -261,7 +259,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="TELEFONE*"
               name="telefone"
-              value={aluno.telefone ?? ""}
+              value={professor.telefone ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o telefone"
@@ -271,7 +269,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="EMAIL*"
               name="email"
-              value={aluno.email ?? ""}
+              value={professor.email ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o email"
@@ -279,19 +277,18 @@ const CadastroAluno: React.FC = () => {
             <Select
               label="GÊNERO*"
               name="genero"
-              value={aluno.genero ?? ""}
+              value={professor.genero ?? ""}
               onChange={handleChange}
               options={generos}
               title="o gênero"
             />
           </div>
-
           <h1>ENDEREÇO</h1>
           <div className="grid-rep3">
             <Input
               label="CEP*"
               name="cep"
-              value={aluno.cep ?? ""}
+              value={professor.cep ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o CEP"
@@ -299,7 +296,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="UF*"
               name="uf"
-              value={aluno.uf ?? ""}
+              value={professor.uf ?? ""}
               onChange={handleChange}
               placeholder="Digite a UF"
               type="text"
@@ -307,7 +304,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="CIDADE*"
               name="cidade"
-              value={aluno.cidade ?? ""}
+              value={professor.cidade ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite a cidade"
@@ -317,7 +314,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="RUA*"
               name="rua"
-              value={aluno.rua ?? ""}
+              value={professor.rua ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite a rua"
@@ -325,7 +322,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="NÚMERO*"
               name="numero"
-              value={aluno.numero ?? ""}
+              value={professor.numero ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o número"
@@ -335,7 +332,7 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="BAIRRO*"
               name="bairro"
-              value={aluno.bairro ?? ""}
+              value={professor.bairro ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o bairro"
@@ -343,19 +340,43 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="COMPLEMENTO*"
               name="complemento"
-              value={aluno.complemento ?? ""}
+              value={professor.complemento ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite o complemento"
             />
           </div>
-
-          <h1>INFORMAÇÕES ACADÊMICAS</h1>
+          <h1>INFORMAÇÕES PROFISSIONAIS</h1>
           <div className="grid-rep3">
+            <Input
+              label="ÁREA DE FORMAÇÃO*"
+              name="areaFormacao"
+              value={professor.areaFormacao ?? ""}
+              onChange={handleChange}
+              type="text"
+              placeholder="Ex: Letras, Matemática..."
+            />
+            <Input
+              label="DATA DE ADMISSÃO*"
+              name="dataAdmissao"
+              value={professor.dataAdmissao ?? ""}
+              onChange={handleChange}
+              type="date"
+            />
+            <Select
+              label="TIPO DE CONTRATO*"
+              name="tipoContrato"
+              value={professor.tipoContrato ?? ""}
+              onChange={handleChange}
+              options={tiposContrato}
+              title="o tipo de contrato"
+            />
+          </div>
+          <div className="grid-2e1">
             <Select
               label="TURMA*"
               name="turmaId"
-              value={aluno.turmaId?.toString() ?? ""}
+              value={professor.turmaId?.toString() ?? ""}
               onChange={handleChange}
               options={turmas
                 .filter((t) => t.id !== undefined)
@@ -365,46 +386,38 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="SÉRIE*"
               name="serie"
-              value={aluno.serie ?? ""}
+              value={professor.serie ?? ""}
               onChange={handleChange}
               type="text"
               placeholder="Digite a série"
               readonly
             />
-            <Input
-              label="TURNO*"
-              name="turno"
-              value={aluno.turno ?? ""}
-              onChange={handleChange}
-              placeholder="Turno do Aluno"
-              readonly
-              type="text"
-            />
           </div>
           <div className="grid-1e1">
             <Input
-              label="DATA DE MATRÍCULA*"
-              name="dataMatricula"
-              value={aluno.dataMatricula ?? ""}
+              label="TURNO*"
+              name="turno"
+              value={professor.turno ?? ""}
               onChange={handleChange}
-              type="date"
+              placeholder="Turno do professor"
+              type="text"
+              readonly
             />
             <Select
-              label="SITUAÇÃO DA MATRÍCULA*"
-              name="situacaoMatricula"
-              value={aluno.situacaoMatricula ?? ""}
+              label="MATÉRIA*"
+              name="materia"
+              value={professor.materia ?? ""}
               onChange={handleChange}
-              options={situacoesMatricula}
-              title="a situação"
+              options={materiasFixas}
+              title="a matéria"
             />
           </div>
-
           <h1>INFORMAÇÕES DE LOGIN</h1>
           <div className="grid-1e1">
             <Input
               label="E-MAIL INSTITUCIONAL*"
               name="emailInstitucional"
-              value={aluno.emailInstitucional ?? ""}
+              value={professor.emailInstitucional ?? ""}
               onChange={handleChange}
               type="email"
               placeholder="Digite o e-mail"
@@ -412,19 +425,18 @@ const CadastroAluno: React.FC = () => {
             <Input
               label="SENHA*"
               name="senha"
-              value={aluno.senha ?? ""}
+              value={professor.senha ?? ""}
               onChange={handleChange}
               type="password"
               placeholder="Digite a senha"
             />
           </div>
-
           <div className="buttons">
             <a href="/#/homeSecretaria" className="btn-voltar">
               Voltar
             </a>
             <button type="submit" className="btn-cadastrar">
-              {aluno.id ? "Atualizar" : "Cadastrar"}
+              {professor.id ? "Atualizar" : "Cadastrar"}
             </button>
           </div>
         </form>
@@ -438,4 +450,4 @@ const CadastroAluno: React.FC = () => {
   );
 };
 
-export default CadastroAluno;
+export default CadastroProfessor;

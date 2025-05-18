@@ -4,7 +4,7 @@ import { ReactComponent as HomeIcon } from "../../assets/icons/home.svg";
 import { ReactComponent as TurmaIcon } from "../../assets/icons/turma.svg";
 import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
 import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg";
-import "../../styles/homeSecretaria.css";
+import "../../styles/home.css";
 
 const navItems = [
   {

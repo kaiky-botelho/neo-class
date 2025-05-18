@@ -1,12 +1,6 @@
 import ApiService from "../apiService";
 import type { AxiosResponse } from "axios";
-
-export type TurmaDTO = {
-  id: number;
-  nome: string;
-  serie: string;
-  turno: string;
-};
+import type { TurmaDTO } from "./type";
 
 class TurmaService extends ApiService {
   constructor() {
@@ -29,7 +23,7 @@ class TurmaService extends ApiService {
     return this.put<TurmaDTO>(`/${turma.id}`, turma);
   }
 
-  excluir(id: number): Promise<AxiosResponse<void>> {
+  deletar(id: number): Promise<AxiosResponse<void>> {
     return this.delete<void>(`/${id}`);
   }
 }

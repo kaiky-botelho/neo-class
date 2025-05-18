@@ -25,7 +25,6 @@ const Login: React.FC = () => {
         }
     };
 
-    // O retorno do JSX deve estar AQUI, fora do handleLogin!
     return (
         <div className="fundo">
             <div className="container">
