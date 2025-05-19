@@ -1,11 +1,12 @@
 // src/main/java/com/neoclass/security/SecurityConfig.java
 package com.neoclass.security;
 
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.*;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -22,7 +23,7 @@ public class SecurityConfig {
         http
           .csrf().disable()
           .authorizeHttpRequests(auth -> auth
-              // permite criar secretaria e fazer login em todas as três rotas:
+              // libera cadastro de secretaria e login
               .requestMatchers(HttpMethod.POST,
                   "/api/secretarias",
                   "/api/login/**"
