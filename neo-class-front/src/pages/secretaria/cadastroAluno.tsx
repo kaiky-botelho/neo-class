@@ -112,44 +112,21 @@ const CadastroAluno: React.FC = () => {
     setMsgErro(null);
     setMsgCampoVazio(null);
 
-    const camposObrigatorios = [
-      aluno.nome,
-      aluno.dataNascimento,
-      aluno.rg,
-      aluno.cpf,
-      aluno.estadoCivil,
-      aluno.celular,
-      aluno.telefone,
-      aluno.email,
-      aluno.genero,
-      aluno.cep,
-      aluno.uf,
-      aluno.cidade,
-      aluno.rua,
-      aluno.numero,
-      aluno.complemento,
-      aluno.bairro,
-      aluno.serie,
-      aluno.turno,
-      aluno.dataMatricula,
-      aluno.situacaoMatricula,
-      aluno.emailInstitucional,
-      aluno.senha,
-      aluno.turmaId,
-    ];
+const camposObrigatorios = Object.keys(aluno).filter(key => key !== "id");
 
-    const camposPreenchidos = camposObrigatorios.every((valor) =>
-      typeof valor === "string"
-        ? valor.trim() !== ""
-        : valor !== undefined && valor !== null
-    );
+// Verifica se todos os campos obrigatórios estão preenchidos
+const camposPreenchidos = camposObrigatorios.every(key => {
+  const valor = (aluno as any)[key];
+  if (typeof valor === "string") {
+    return valor.trim() !== "";
+  }
+  return valor !== undefined && valor !== null;
+});
 
-    if (!camposPreenchidos) {
-      setMsgCampoVazio(
-        "Preencha todos os campos obrigatórios antes de salvar."
-      );
-      return;
-    }
+if (!camposPreenchidos) {
+  setMsgCampoVazio("Preencha todos os campos obrigatórios antes de salvar.");
+  return;
+}
 
     try {
       if (aluno.id) {

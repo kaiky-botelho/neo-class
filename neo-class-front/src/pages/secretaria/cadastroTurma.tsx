@@ -167,7 +167,7 @@ const CadastroTurma: React.FC = () => {
         </form>
                 <div className="avisos">
           {msgSucesso && <div className="msg-sucesso">{msgSucesso}</div>}
-          {msgErro && <div className="msg-erro">{msgErro}</div>}
+          {msgErro && <div className="msg-erro"><p>{msgErro}</p></div>}
           {msgCampoVazio && <div className="msg-vazio">{msgCampoVazio}</div>}
         </div>
       </div>

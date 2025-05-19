@@ -1,55 +1,55 @@
-.form-cadastro h1{
+.form-cadastro h1 {
     font-size: 32px;
     margin-bottom: 20px;
     color: #333C56;
     text-transform: uppercase;
 }
 
-.center{
+.center {
     padding-top: 150px;
 }
 
-.relative{
+.relative {
     position: relative;
-}   
+}
 
-.grid-2e1{
+.grid-2e1 {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
 }
 
-.grid-1e1{
+.grid-1e1 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
 }
 
-.grid-rep3{
+.grid-rep3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-bottom: 20px;
 }
 
-.grid-rep4{
+.grid-rep4 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     margin-bottom: 20px;
 }
 
-.buttons{
+.buttons {
     display: flex;
     justify-content: center;
     gap: 40px;
     margin-top: 20px;
-    
+
 }
 
-.btn-cadastrar{
+.btn-cadastrar {
     background-color: #333C56;
     color: #f4f4f4;
     padding: 10px 20px;
@@ -58,7 +58,7 @@
     width: 12%;
 }
 
-.btn-voltar{
+.btn-voltar {
     background-color: #EA9216;
     color: #f4f4f4;
     padding: 10px 20px;
@@ -70,7 +70,7 @@
 }
 
 
-.avisos{
+.avisos {
     position: fixed;
     top: 0;
     right: 0;
@@ -78,7 +78,7 @@
 
 .msg-sucesso,
 .msg-erro,
-.msg-vazio{
+.msg-vazio {
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -92,14 +92,35 @@
     text-align: center;
 }
 
-.msg-sucesso{
+.msg-sucesso {
     background-color: #60d164;
+    display: flex;
+    align-items: center;
 }
 
-.msg-erro{
+.msg-sucesso::before {
+    content: "✔";
+    font-size: 30px;
+}
+
+.msg-erro {
     background-color: #c43737;
+    display: flex;
+    align-items: center;
 }
 
-.msg-vazio{
+.msg-erro::before {
+    content: "✖";
+    font-size: 30px;
+}
+
+.msg-vazio {
     background-color: #EA9216;
+    display: flex;
+    align-items: center;
+}
+
+.msg-vazio::before {
+    content: "⚠";
+    font-size: 30px;
 }
