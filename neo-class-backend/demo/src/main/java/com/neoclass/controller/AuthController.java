@@ -3,9 +3,6 @@ package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
 import com.neoclass.dto.AuthResponseDTO;
-import com.neoclass.model.Secretaria;
-import com.neoclass.model.Aluno;
-import com.neoclass.model.Professor;
 import com.neoclass.security.JwtUtil;
 import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
