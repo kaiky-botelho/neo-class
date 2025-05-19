@@ -23,10 +23,13 @@ public class SecurityConfig {
         http
           .csrf().disable()
           .authorizeHttpRequests(auth -> auth
-              // libera cadastro de secretaria e login
-              .requestMatchers(HttpMethod.POST,
-                  "/api/secretarias",
-                  "/api/login/**"
+              // libera criação de secretaria e todas as rotas de login
+              .requestMatchers(HttpMethod.POST, "/api/secretarias", "/api/login/**").permitAll()
+              // libera endpoints do OpenAPI/Swagger
+              .requestMatchers(
+                  "/v3/api-docs/**",
+                  "/swagger-ui.html",
+                  "/swagger-ui/**"
               ).permitAll()
               // tudo o mais exige JWT
               .anyRequest().authenticated()
@@ -38,7 +41,7 @@ public class SecurityConfig {
               new JwtFilter(jwtUtil),
               UsernamePasswordAuthenticationFilter.class
           )
-          // libera console H2
+          // libera o frame do H2 console
           .headers(headers -> headers.frameOptions().disable());
 
         return http.build();
