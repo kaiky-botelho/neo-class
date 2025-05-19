@@ -14,14 +14,19 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/alunos")
 public class AlunoController {
+
     private final AlunoService service;
-    public AlunoController(AlunoService service) { this.service = service; }
+
+    public AlunoController(AlunoService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public List<AlunoDTO> listar() {
-        return service.listarTodos().stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
+        return service.listarTodos()
+                      .stream()
+                      .map(this::toDTO)
+                      .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -37,7 +42,10 @@ public class AlunoController {
     }
 
     @PutMapping("/{id}")
-    public AlunoDTO atualizar(@PathVariable Long id, @RequestBody AlunoDTO dto) {
+    public AlunoDTO atualizar(
+        @PathVariable Long id,
+        @RequestBody AlunoDTO dto
+    ) {
         Aluno entidade = toEntity(dto);
         entidade.setId(id);
         return toDTO(service.salvar(entidade));
@@ -48,11 +56,13 @@ public class AlunoController {
         service.excluir(id);
     }
 
-    // --- Helpers de mapeamento ---
+    // —–– Conversores entre entidade e DTO —––
     private AlunoDTO toDTO(Aluno a) {
         AlunoDTO dto = new AlunoDTO();
         BeanUtils.copyProperties(a, dto);
-        if (a.getTurma() != null) dto.setTurmaId(a.getTurma().getId());
+        if (a.getTurma() != null) {
+            dto.setTurmaId(a.getTurma().getId());
+        }
         return dto;
     }
 
