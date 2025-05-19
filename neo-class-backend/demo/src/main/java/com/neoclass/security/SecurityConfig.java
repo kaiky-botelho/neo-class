@@ -1,5 +1,6 @@
-// src/main/java/com/neoclass/security/SecurityConfig.java
 package com.neoclass.security;
+
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
@@ -21,17 +25,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+          .cors()                       // <-- habilita CORS no Spring Security
+          .and()
           .csrf().disable()
           .authorizeHttpRequests(auth -> auth
-              // libera criação de secretaria e todas as rotas de login
               .requestMatchers(HttpMethod.POST, "/api/secretarias", "/api/login/**").permitAll()
-              // libera endpoints do OpenAPI/Swagger
               .requestMatchers(
                   "/v3/api-docs/**",
                   "/swagger-ui.html",
                   "/swagger-ui/**"
               ).permitAll()
-              // tudo o mais exige JWT
               .anyRequest().authenticated()
           )
           .sessionManagement(sm ->
@@ -41,9 +44,23 @@ public class SecurityConfig {
               new JwtFilter(jwtUtil),
               UsernamePasswordAuthenticationFilter.class
           )
-          // libera o frame do H2 console
-          .headers(headers -> headers.frameOptions().disable());
+          .headers(headers ->
+              headers.frameOptions().disable()
+          );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:3000")); // seu frontend
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);                         // se usar cookies/autenticação
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
