@@ -8,6 +8,8 @@ import ListProfessores from "../pages/secretaria/listProfessores";
 import CadastroAluno from "../pages/secretaria/cadastroAluno";
 import CadastroProfessor from "../pages/secretaria/cadastroProfessor";
 import CadastroTurma from "../pages/secretaria/cadastroTurma"; 
+import CadastroMateria from "../pages/secretaria/cadastroMateria";
+import ListMateria from "../pages/secretaria/listMateria";
 
 function AppRoutes() {
   return (
@@ -24,6 +26,8 @@ function AppRoutes() {
         <Route path="/cadastroAluno/:id?" element={<CadastroAluno />} />
         <Route path="/cadastroProfessor/:id?" element={<CadastroProfessor />} />
         <Route path="/cadastroTurma/:id?" element={<CadastroTurma />} />
+        <Route path="/cadastroMateria/:id?" element={<CadastroMateria />} />
+        <Route path="/materias" element={<ListMateria />} />
       </Routes>
     </HashRouter>
   );

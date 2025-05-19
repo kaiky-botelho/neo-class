@@ -8,7 +8,7 @@ import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg
 import AlunoService from "../../app/service/alunoService";
 import type { AlunoDTO } from "../../app/service/type";
 import "../../styles/home.css";
-import CardList from "../../components/cardsList/cardList"; // ajuste o caminho se necessário
+import CardList from "../../components/cardsList/cardList"; 
 
 const navItems = [
   {
@@ -31,6 +31,11 @@ const navItems = [
     text: "Professores",
     href: "/professores",
   },
+    {
+      icon: <ProfesorIcon className="sideBar-icon" />,
+      text: "Materias",
+      href: "/materias",
+    },
 ];
 
 const ListAlunos: React.FC = () => {
@@ -77,7 +82,7 @@ const ListAlunos: React.FC = () => {
       </div>
       <div className="home-container">
         <div className="container">
-          <h1>ALUNO</h1>
+          <h1>ALUNOS</h1>
           <div className="grid-rep3" >
             {alunos.length === 0 && (
               <p>Nenhum aluno cadastrado.</p>

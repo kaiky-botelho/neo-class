@@ -31,6 +31,11 @@ const navItems = [
     text: "Professores",
     href: "/professores",
   },
+    {
+      icon: <ProfesorIcon className="sideBar-icon" />,
+      text: "Materias",
+      href: "/materias",
+    },
 ];
 
 
@@ -82,10 +87,10 @@ const ListTurmas: React.FC = () => {
               <CardList
                 key={turma.id}
                 data={[
-                  { label: "ID", value: turma.id },
                   { label: "Nome", value: turma.nome },
                   { label: "Série", value: turma.serie },
                   { label: "Turno", value: turma.turno },
+                  
                 ]}
                 onEditar={() => handleEditar(turma.id)}
                 onDeletar={() => handleDeletar(turma.id)}

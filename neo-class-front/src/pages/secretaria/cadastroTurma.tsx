@@ -19,7 +19,7 @@ const CadastroTurma: React.FC = () => {
 
   const [turma, setTurma] = useState<TurmaDTO>({
     nome: "",
-    ano_letivo: undefined,
+    anoLetivo: undefined,
     serie: "",
     turno: "",
     capacidade: undefined,
@@ -49,7 +49,7 @@ const CadastroTurma: React.FC = () => {
     setTurma((prevState) => ({
       ...prevState,
       [name]:
-        name === "ano_letivo" || name === "capacidade"
+        name === "anoLetivo" || name === "capacidade"
           ? parseInt(value)
           : value,
     }));
@@ -90,6 +90,16 @@ const CadastroTurma: React.FC = () => {
     }
   }
 
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        if (msgSucesso) setMsgSucesso(null);
+        if (msgErro) setMsgErro(null);
+        if (msgCampoVazio) setMsgCampoVazio(null);
+      }, 1000);
+  
+      return () => clearTimeout(timer);
+    }, [msgSucesso, msgErro, msgCampoVazio]);
+
   return (
     <div>
       <Header title={turma.id ? "editar Turma" : "Cadastro de Turma"} />
@@ -107,11 +117,11 @@ const CadastroTurma: React.FC = () => {
             />
             <Input
               label="ANO LETIVO*"
-              name="ano_letivo"
+              name="anoLetivo"
               value={
-                turma.ano_letivo === undefined
+                turma.anoLetivo === undefined
                   ? ""
-                  : turma.ano_letivo.toString()
+                  : turma.anoLetivo.toString()
               }
               onChange={handleChange}
               type="number"

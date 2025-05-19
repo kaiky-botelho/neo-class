@@ -4,8 +4,8 @@
   justify-content: center;
   align-items: center ;
   padding: 10px;
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   background-color: #A0BFE8;  
   border-radius: 8px;
   position: relative;
@@ -36,11 +36,12 @@
 
 .link-button-image{
   z-index: 1;
+  width: 50%;
 }
 
 .link-button-text{
   z-index: 1;
-  font-size: 20px;
+  font-size: 18px;
   white-space: pre-line;
   text-align: center;
   font-weight: 700;

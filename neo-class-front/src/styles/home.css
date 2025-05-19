@@ -1,8 +1,4 @@
-.gridTemplate {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  height: 100vh;
-}
+
 
 .home-container {
   background-color: #f9f9f9;

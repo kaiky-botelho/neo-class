@@ -59,9 +59,17 @@ export interface ProfessorDTO {
 export type TurmaDTO = {
   id?: undefined | number; 
   nome: string;
-  ano_letivo?: number;
+  anoLetivo?: number;
   serie: string;
   turno: string;
   capacidade?: number;
   sala: string;
+};
+
+export type MateriaDTO = {
+  id?: number;
+  nome: string;
+  bimestre: number;
+  professorId?: number;
+  turmaId?: number;
 };

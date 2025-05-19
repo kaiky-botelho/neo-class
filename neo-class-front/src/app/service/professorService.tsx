@@ -10,7 +10,7 @@ class ProfessorService extends ApiService {
   loginProfessor(email: string, senha: any): Promise<AxiosResponse<ProfessorDTO>> {
     return this.post<ProfessorDTO>("/login/professor", { email, senha });
   }
-  listarTods(): Promise<AxiosResponse<ProfessorDTO[]>>{
+  listarTodos(): Promise<AxiosResponse<ProfessorDTO[]>>{
     return this.get<ProfessorDTO[]>(""); 
   }
 
