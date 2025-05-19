@@ -23,13 +23,12 @@ public class JwtUtil {
         @Value("${jwt.secret}") String secret,
         @Value("${jwt.expiration-ms}") long expirationMs
     ) {
-        // Usa UTF-8 para converter a String em bytes
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }
 
     /**
-     * Gera um JWT assinado com HS256 contendo o 'subject' (e-mail da secretária).
+     * Gera um JWT assinado com HS256 contendo o 'subject'.
      */
     public String gerarToken(String subject) {
         Date now = new Date();
@@ -44,15 +43,14 @@ public class JwtUtil {
     }
 
     /**
-     * Valida o token e retorna o 'subject' (e-mail) se válido,
-     * ou lança JwtException se o token for inválido ou expirado.
+     * Valida o token e retorna o 'subject' se válido,
+     * ou lança JwtException se inválido ou expirado.
      */
     public String validarToken(String token) {
         Jws<Claims> claimsJws = Jwts.parserBuilder()
                                    .setSigningKey(key)
                                    .build()
                                    .parseClaimsJws(token);
-
         return claimsJws.getBody().getSubject();
     }
 }

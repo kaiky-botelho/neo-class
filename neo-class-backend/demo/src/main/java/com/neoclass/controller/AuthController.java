@@ -3,6 +3,9 @@ package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
 import com.neoclass.dto.AuthResponseDTO;
+import com.neoclass.model.Secretaria;
+import com.neoclass.model.Aluno;
+import com.neoclass.model.Professor;
 import com.neoclass.security.JwtUtil;
 import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
@@ -33,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/secretaria")
-    public ResponseEntity<?> loginSecretaria(@RequestBody AuthRequestDTO req) {
+    public ResponseEntity<Object> loginSecretaria(@RequestBody AuthRequestDTO req) {
         var opt = secretariaService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
@@ -41,24 +44,25 @@ public class AuthController {
                 .body("E-mail ou senha inválidos");
         }
         String token = jwtUtil.gerarToken(opt.get().getEmail());
-        return ResponseEntity.ok(new AuthResponseDTO(token));
+        AuthResponseDTO dto = new AuthResponseDTO(token, "SECRETARIA");
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/aluno")
-    public ResponseEntity<?> loginAluno(@RequestBody AuthRequestDTO req) {
+    public ResponseEntity<Object> loginAluno(@RequestBody AuthRequestDTO req) {
         var opt = alunoService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body("E-mail ou senha inválidos");
         }
-        // para o aluno usamos o emailInstitucional
         String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
-        return ResponseEntity.ok(new AuthResponseDTO(token));
+        AuthResponseDTO dto = new AuthResponseDTO(token, "ALUNO");
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/professor")
-    public ResponseEntity<?> loginProfessor(@RequestBody AuthRequestDTO req) {
+    public ResponseEntity<Object> loginProfessor(@RequestBody AuthRequestDTO req) {
         var opt = professorService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
@@ -66,6 +70,7 @@ public class AuthController {
                 .body("E-mail ou senha inválidos");
         }
         String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
-        return ResponseEntity.ok(new AuthResponseDTO(token));
+        AuthResponseDTO dto = new AuthResponseDTO(token, "PROFESSOR");
+        return ResponseEntity.ok(dto);
     }
 }
