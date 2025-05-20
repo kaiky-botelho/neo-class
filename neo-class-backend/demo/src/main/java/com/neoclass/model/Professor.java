@@ -27,9 +27,7 @@ public class Professor {
     private String complemento;
     private String bairro;
     @Column(name = "area_formacao") private String areaFormacao;
-    private String turno;
-    @Column(name = "data_admissao") private LocalDate dataAdmissao;
-    @Column(name = "tipo_contrato") private String tipoContrato;
+    @Column(name = "situacao_contrato") private String situacaoContrato;
     @Column(name = "email_institucional") private String emailInstitucional;
     private String senha;
 

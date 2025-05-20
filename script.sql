@@ -9,8 +9,6 @@ CREATE TABLE turma (
   sala        VARCHAR(50)
 );
 
-SELECT * FROM turma
-
 -- Tabela de Alunos
 CREATE TABLE aluno (
   id                  SERIAL PRIMARY KEY,
@@ -18,7 +16,6 @@ CREATE TABLE aluno (
   data_nascimento     DATE,
   rg                  VARCHAR(20),
   cpf                 VARCHAR(14),
-  estado_civil        VARCHAR(20),
   celular             VARCHAR(20),
   telefone            VARCHAR(20),
   email               VARCHAR(100),
@@ -30,8 +27,6 @@ CREATE TABLE aluno (
   numero              VARCHAR(10),
   complemento         VARCHAR(50),
   bairro              VARCHAR(50),
-  serie               VARCHAR(20),
-  turno               VARCHAR(20),
   data_matricula      DATE,
   situacao_matricula  VARCHAR(20),
   email_institucional VARCHAR(100),
@@ -59,9 +54,7 @@ CREATE TABLE professor (
   complemento         VARCHAR(50),
   bairro              VARCHAR(50),
   area_formacao       VARCHAR(100),
-  turno               VARCHAR(20),
-  data_admissao       DATE,
-  tipo_contrato       VARCHAR(50),
+  situacao_contrato   VARCHAR(50),
   email_institucional VARCHAR(100),
   senha               VARCHAR(100),
   turma_id            INTEGER REFERENCES turma(id)
@@ -83,7 +76,8 @@ CREATE TABLE trabalho (
   bimestre     INTEGER       NOT NULL,
   data         DATE,
   nota         NUMERIC(5,2),
-  professor_id INTEGER REFERENCES professor(id)
+  materia_id   INTEGER REFERENCES materia(id),
+  turma_id     INTEGER REFERENCES turma(id)
 );
 
 -- Tabela de Provas
@@ -93,7 +87,8 @@ CREATE TABLE prova (
   data         DATE,
   nota         NUMERIC(5,2),
   professor_id INTEGER REFERENCES professor(id),
-  materia_id   INTEGER REFERENCES materia(id)
+  materia_id   INTEGER REFERENCES materia(id),
+  turma_id     INTEGER REFERENCES turma(id)
 );
 
 -- Tabela de Notas
@@ -115,11 +110,21 @@ CREATE TABLE secretaria (
 -- Tabela de Notificações (ida e volta aluno ↔ secretaria)
 CREATE TABLE notificacao (
   id              SERIAL PRIMARY KEY,
-  texto           TEXT        NOT NULL,                        -- mensagem enviada pelo aluno
+  texto           TEXT        NOT NULL,    
   data_envio      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
   aluno_id        INTEGER     NOT NULL REFERENCES aluno(id),
-  resposta        TEXT,                                       -- resposta da secretaria
-  data_resposta   TIMESTAMP,                                  -- timestamp da resposta
-  secretaria_id   INTEGER   REFERENCES secretaria(id),        -- quem respondeu
-  status          VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'    -- PENDENTE ou RESPONDIDA
+  resposta        TEXT,       
+  data_resposta   TIMESTAMP,  
+  secretaria_id   INTEGER     REFERENCES secretaria(id),
+  status          VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'
+);
+
+-- Tabela de Frequência
+CREATE TABLE frequencia (
+  id         SERIAL PRIMARY KEY,
+  data       DATE       NOT NULL,
+  presente   BOOLEAN    NOT NULL,
+  aluno_id   INTEGER    NOT NULL REFERENCES aluno(id),
+  turma_id   INTEGER    NOT NULL REFERENCES turma(id),
+  materia_id INTEGER    NOT NULL REFERENCES materia(id)
 );
