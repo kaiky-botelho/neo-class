@@ -17,4 +17,5 @@ public class Nota {
 
     @ManyToOne @JoinColumn(name = "aluno_id")
     private Aluno aluno;
+    
 }

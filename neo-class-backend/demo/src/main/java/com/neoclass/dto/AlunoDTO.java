@@ -11,7 +11,6 @@ public class AlunoDTO {
     private LocalDate dataNascimento;
     private String rg;
     private String cpf;
-    private String estadoCivil;
     private String celular;
     private String telefone;
     private String email;
@@ -24,7 +23,6 @@ public class AlunoDTO {
     private String complemento;
     private String bairro;
     private String serie;
-    private String turno;
     private LocalDate dataMatricula;
     private String situacaoMatricula;
     private String emailInstitucional;
