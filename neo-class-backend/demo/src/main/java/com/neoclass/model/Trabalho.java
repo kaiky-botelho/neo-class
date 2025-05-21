@@ -18,4 +18,8 @@ public class Trabalho {
     @ManyToOne
     @JoinColumn(name = "professor_id")
     private Professor professor;
+
+    @ManyToOne
+    @JoinColumn(name = "turma_id")
+    private Turma turma;
 }

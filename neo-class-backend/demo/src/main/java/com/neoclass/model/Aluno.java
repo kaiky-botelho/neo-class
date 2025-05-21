@@ -24,9 +24,6 @@ public class Aluno {
     private String rg;
     private String cpf;
 
-    @Column(name = "estado_civil")
-    private String estadoCivil;
-
     private String celular;
     private String telefone;
     private String email;
@@ -39,7 +36,6 @@ public class Aluno {
     private String complemento;
     private String bairro;
     private String serie;
-    private String turno;
 
     @Column(name = "data_matricula")
     private LocalDate dataMatricula;

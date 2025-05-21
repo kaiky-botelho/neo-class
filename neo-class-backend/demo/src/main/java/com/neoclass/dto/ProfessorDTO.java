@@ -24,10 +24,7 @@ public class ProfessorDTO {
     private String complemento;
     private String bairro;
     private String areaFormacao;
-    private String turno;
-    private LocalDate dataAdmissao;
-    private String tipoContrato;
+    private String situacaoContrato;
     private String emailInstitucional;
     private String senha;
-    private Long turmaId;
 }

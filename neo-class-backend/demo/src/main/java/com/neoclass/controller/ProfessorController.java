@@ -1,9 +1,7 @@
-// src/main/java/com/neoclass/controller/ProfessorController.java
 package com.neoclass.controller;
 
 import com.neoclass.dto.ProfessorDTO;
 import com.neoclass.model.Professor;
-import com.neoclass.model.Turma;
 import com.neoclass.service.ProfessorService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +13,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/professores")
 public class ProfessorController {
     private final ProfessorService service;
-    public ProfessorController(ProfessorService service) { this.service = service; }
+
+    public ProfessorController(ProfessorService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public List<ProfessorDTO> listar() {
@@ -32,7 +33,7 @@ public class ProfessorController {
     @PostMapping
     public ProfessorDTO criar(@RequestBody ProfessorDTO dto) {
         Professor entidade = toEntity(dto);
-        Professor salvo   = service.salvar(entidade);
+        Professor salvo = service.salvar(entidade);
         return toDTO(salvo);
     }
 
@@ -40,7 +41,8 @@ public class ProfessorController {
     public ProfessorDTO atualizar(@PathVariable Long id, @RequestBody ProfessorDTO dto) {
         Professor entidade = toEntity(dto);
         entidade.setId(id);
-        return toDTO(service.salvar(entidade));
+        Professor atualizado = service.salvar(entidade);
+        return toDTO(atualizado);
     }
 
     @DeleteMapping("/{id}")
@@ -48,21 +50,16 @@ public class ProfessorController {
         service.excluir(id);
     }
 
+    // Mapeamento entre entidade e DTO
     private ProfessorDTO toDTO(Professor p) {
         ProfessorDTO dto = new ProfessorDTO();
         BeanUtils.copyProperties(p, dto);
-        if (p.getTurma() != null) dto.setTurmaId(p.getTurma().getId());
         return dto;
     }
 
     private Professor toEntity(ProfessorDTO dto) {
         Professor p = new Professor();
         BeanUtils.copyProperties(dto, p);
-        if (dto.getTurmaId() != null) {
-            Turma t = new Turma();
-            t.setId(dto.getTurmaId());
-            p.setTurma(t);
-        }
         return p;
     }
 }
