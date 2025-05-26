@@ -13,6 +13,13 @@
     position: relative;
 }
 
+.grid-1{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
 .grid-2e1 {
     display: grid;
     grid-template-columns: 2fr 1fr;

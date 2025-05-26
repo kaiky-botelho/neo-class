@@ -97,6 +97,17 @@
   vertical-align: middle;
 }
 
+.estat::before {
+  content: '';
+  display: inline-block; 
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+  background: url('../assets/icons/estati.svg') no-repeat center center;
+  background-size: contain;
+  vertical-align: middle;
+}
+
 .home-container-secundario{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -117,18 +128,31 @@
   box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 
+.noti-list{
+    overflow-y: auto;
+
+}
+
 .estatistica-container{
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
   background-color: #ffff;
   width: 100%;
   height: 400px;
   padding: 20px;
   border-radius: 12px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+.estatistica-cards{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
 
 @media (max-width: 1600px){

@@ -15,7 +15,7 @@ const turmaService = new TurmaService();
 
 const estadosCivis = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"];
 const generos = ["Masculino", "Feminino", "Outro"];
-const situacaoContratos = ["Ativo", "Inativo", "Afastado", "Licença", "Demissão"];
+const situacaoContratos = ["Ativo", "Inativo"];
 
 const CadastroProfessor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -353,12 +353,12 @@ const CadastroProfessor: React.FC = () => {
               placeholder="Ex: Letras, Matemática..."
             />
             <Select
-              label="TIPO DE CONTRATO*"
+              label="SITUAÇÃO DO CONTRATO*"
               name="situacaoContrato"
               value={professor.situacaoContrato ?? ""}
               onChange={handleChange}
               options={situacaoContratos}
-              title="o tipo de contrato"
+              title="a sintuação do contrato"
             />
             <Select
               label="TURMA*"

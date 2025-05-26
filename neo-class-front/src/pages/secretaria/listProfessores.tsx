@@ -5,6 +5,7 @@ import { ReactComponent as HomeIcon } from "../../assets/icons/home.svg";
 import { ReactComponent as TurmaIcon } from "../../assets/icons/turma.svg";
 import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
 import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg";
+import { ReactComponent as MateriaIcon } from "../../assets/icons/materia.svg";
 import "../../styles/home.css";
 import CardList from "../../components/cardsList/cardList";
 import ProfessorService from "../../app/service/professorService";
@@ -32,7 +33,7 @@ const navItems = [
     href: "/professores",
   },
     {
-      icon: <ProfesorIcon className="sideBar-icon" />,
+      icon: <MateriaIcon className="sideBar-icon" />,
       text: "Materias",
       href: "/materias",
     },
@@ -94,7 +95,6 @@ const ListProfessores: React.FC = () => {
                   { label: "Área de Formação", value: professor.areaFormacao },
                 ]}
                 onEditar={() => handleEditar(professor.id)}
-                onDeletar={() => handleDeletar(professor.id)}
               />
               ))}
           </div>

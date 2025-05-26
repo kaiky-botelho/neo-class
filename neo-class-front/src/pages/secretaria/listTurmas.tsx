@@ -5,6 +5,7 @@ import { ReactComponent as HomeIcon } from "../../assets/icons/home.svg";
 import { ReactComponent as TurmaIcon } from "../../assets/icons/turma.svg";
 import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
 import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg";
+import { ReactComponent as MateriaIcon } from "../../assets/icons/materia.svg";
 import "../../styles/home.css";
 import TurmaService from "../../app/service/turmaService";
 import CardList from "../../components/cardsList/cardList";
@@ -32,7 +33,7 @@ const navItems = [
     href: "/professores",
   },
     {
-      icon: <ProfesorIcon className="sideBar-icon" />,
+      icon: <MateriaIcon className="sideBar-icon" />,
       text: "Materias",
       href: "/materias",
     },
@@ -93,7 +94,6 @@ const ListTurmas: React.FC = () => {
                   
                 ]}
                 onEditar={() => handleEditar(turma.id)}
-                onDeletar={() => handleDeletar(turma.id)}
               />
             ))}
           </div>

@@ -106,6 +106,7 @@ const CadastroTurma: React.FC = () => {
 
       <div className="container relative">
         <form className="form-cadastro center" onSubmit={handleSubmit}>
+          <h1>INFORMAÇÕES DA TURMA</h1>
           <div className="grid-2e1">
             <Input
               label="NOME DA TURMA*"
@@ -128,7 +129,7 @@ const CadastroTurma: React.FC = () => {
               placeholder="Digite o ano letivo"
             />
           </div>
-          <div className="grid-rep4">
+          <div className="grid-rep3">
             <Input
               label="SÉRIE*"
               name="serie"
@@ -144,18 +145,6 @@ const CadastroTurma: React.FC = () => {
               onChange={handleChange}
               options={Turno}
               title={"o Turno"}
-            />
-            <Input
-              label="CAPACIDADE*"
-              name="capacidade"
-              value={
-                turma.capacidade === undefined
-                  ? ""
-                  : turma.capacidade.toString()
-              }
-              onChange={handleChange}
-              type="number"
-              placeholder="Digite a capacidade da turma"
             />
             <Input
               label="SALA*"

@@ -66,3 +66,14 @@ export type MateriaDTO = {
   professorId?: number;
   turmaId?: number;
 };
+
+export type NotificacaoDTO = {
+  id?: number;
+  texto: string;
+  dataEnvio?: string;
+  alunoId: number;
+  resposta?: string;
+  dataResposta?: string;
+  secretariaId?: number;
+  status?: 'PENDENTE' | 'RESPONDIDA';
+};

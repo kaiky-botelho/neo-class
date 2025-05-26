@@ -116,67 +116,87 @@ const CadastroAluno: React.FC = () => {
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setMsgSucesso(null);
-    setMsgErro(null);
-    setMsgCampoVazio(null);
+  e.preventDefault();
+  setMsgSucesso(null);
+  setMsgErro(null);
+  setMsgCampoVazio(null);
 
-    // Defina aqui somente os campos visíveis/obrigatórios
- const camposObrigatorios = Object.keys(aluno).filter(key => key !== "id");
+  // Defina aqui somente os campos visíveis/obrigatórios para validação
+  const camposObrigatorios = [
+    "nome",
+    "dataNascimento",
+    "rg",
+    "cpf",
+    "celular",
+    "telefone",
+    "email",
+    "genero",
+    "cep",
+    "uf",
+    "cidade",
+    "rua",
+    "numero",
+    "complemento",
+    "bairro",
+    "dataMatricula",
+    "situacaoMatricula",
+    "emailInstitucional",
+    "senha",
+    "turmaId"
+  ];
 
-
-    // Verifica se todos os campos obrigatórios estão preenchidos
-    const camposPreenchidos = camposObrigatorios.every((key) => {
-      const valor = (aluno as any)[key];
-      if (typeof valor === "string") {
-        return valor.trim() !== "";
-      }
-      return valor !== undefined && valor !== null;
-    });
-
-    if (!camposPreenchidos) {
-      setMsgCampoVazio(
-        "Preencha todos os campos obrigatórios antes de salvar."
-      );
-      return;
+  // Verifica se todos os campos obrigatórios estão preenchidos
+  const camposPreenchidos = camposObrigatorios.every((key) => {
+    const valor = (aluno as any)[key];
+    if (typeof valor === "string") {
+      return valor.trim() !== "";
     }
+    return valor !== undefined && valor !== null;
+  });
 
-    try {
-      if (aluno.id) {
-        await alunoService.editar(aluno);
-        setMsgSucesso("Aluno atualizado com sucesso!");
-      } else {
-        await alunoService.salvar(aluno);
-        setMsgSucesso("Aluno cadastrado com sucesso!");
-        setAluno({
-          nome: "",
-          dataNascimento: "",
-          rg: "",
-          cpf: "",
-          celular: "",
-          telefone: "",
-          email: "",
-          genero: "",
-          cep: "",
-          uf: "",
-          cidade: "",
-          rua: "",
-          numero: "",
-          complemento: "",
-          bairro: "",
-          dataMatricula: "",
-          situacaoMatricula: "",
-          emailInstitucional: "",
-          senha: "",
-          turmaId: undefined,
-          turmaNome: "",
-        });
-      }
-    } catch (error) {
-      setMsgErro("Erro ao salvar aluno.");
-      console.error(error);
-    }
+  if (!camposPreenchidos) {
+    setMsgCampoVazio(
+      "Preencha todos os campos obrigatórios antes de salvar."
+    );
+    return;
   }
+
+  try {
+    if (aluno.id) {
+      await alunoService.editar(aluno);
+      setMsgSucesso("Aluno atualizado com sucesso!");
+    } else {
+      await alunoService.salvar(aluno);
+      setMsgSucesso("Aluno cadastrado com sucesso!");
+      setAluno({
+        nome: "",
+        dataNascimento: "",
+        rg: "",
+        cpf: "",
+        celular: "",
+        telefone: "",
+        email: "",
+        genero: "",
+        cep: "",
+        uf: "",
+        cidade: "",
+        rua: "",
+        numero: "",
+        complemento: "",
+        bairro: "",
+        dataMatricula: "",
+        situacaoMatricula: "",
+        emailInstitucional: "",
+        senha: "",
+        turmaId: undefined,
+        turmaNome: "",
+      });
+    }
+  } catch (error) {
+    setMsgErro("Erro ao salvar aluno.");
+    console.error(error);
+  }
+}
 
   useEffect(() => {
     const timer = setTimeout(() => {
