@@ -5,11 +5,10 @@ CREATE TABLE turma (
   ano_letivo  INTEGER       NOT NULL,
   serie       VARCHAR(50)    NOT NULL,
   turno       VARCHAR(20),
-  capacidade  INTEGER,
   sala        VARCHAR(50)
 );
 
-SELECT * FROM turma
+SELECT * FROM turma;
 
 -- Tabela de Alunos
 CREATE TABLE aluno (
@@ -78,7 +77,7 @@ CREATE TABLE trabalho (
   bimestre     INTEGER       NOT NULL,
   data         DATE,
   nota         NUMERIC(5,2),
-  materia_id   INTEGER REFERENCES materia(id)
+  materia_id   INTEGER REFERENCES materia(id),
   turma_id   INTEGER REFERENCES turma(id)
 );
 
@@ -89,7 +88,7 @@ CREATE TABLE prova (
   data         DATE,
   nota         NUMERIC(5,2),
   professor_id INTEGER REFERENCES professor(id),
-  materia_id   INTEGER REFERENCES materia(id)
+  materia_id   INTEGER REFERENCES materia(id),
   turma_id   INTEGER REFERENCES turma(id)
 );
 

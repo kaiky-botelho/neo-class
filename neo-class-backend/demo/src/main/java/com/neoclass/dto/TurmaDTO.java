@@ -10,6 +10,5 @@ public class TurmaDTO {
     private Integer anoLetivo;
     private String serie;
     private String turno;
-    private Integer capacidade;
     private String sala;
 }
