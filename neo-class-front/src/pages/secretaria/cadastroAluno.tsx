@@ -13,21 +13,18 @@ import type { TurmaDTO } from "../../app/service/type";
 const alunoService = new AlunoService();
 const turmaService = new TurmaService();
 
-const estadosCivis = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"];
 const generos = ["Masculino", "Feminino", "Outro"];
 const situacoesMatricula = ["Ativo", "Inativo", "Trancado"];
-
-
 
 const CadastroAluno: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-  const [aluno, setAluno] = useState<AlunoDTO>({
+  // Inclui o campo extra turmaNome
+  const [aluno, setAluno] = useState<AlunoDTO & { turmaNome?: string }>({
     nome: "",
     dataNascimento: "",
     rg: "",
     cpf: "",
-    estadoCivil: "",
     celular: "",
     telefone: "",
     email: "",
@@ -39,13 +36,12 @@ const CadastroAluno: React.FC = () => {
     numero: "",
     complemento: "",
     bairro: "",
-    serie: "",
-    turno: "",
     dataMatricula: "",
     situacaoMatricula: "",
     emailInstitucional: "",
     senha: "",
     turmaId: undefined,
+    turmaNome: "",
   });
 
   const [turmas, setTurmas] = useState<TurmaDTO[]>([]);
@@ -64,10 +60,23 @@ const CadastroAluno: React.FC = () => {
     if (id) {
       alunoService
         .buscarPorId(Number(id))
-        .then((response) => setAluno(response.data))
+        .then((response) => {
+          // Quando carrega para edição, já preenche turmaNome pelo nome da turma correspondente
+          const turmaSelecionada = turmas.find((t) => t.id === response.data.turmaId);
+          setAluno({
+            ...response.data,
+            turmaNome: turmaSelecionada ? turmaSelecionada.nome : "",
+          });
+        })
         .catch(() => setMsgErro("Erro ao carregar dados do aluno."));
     }
-  }, [id]);
+    // turmas na dependência para garantir turmaNome preenchido após as turmas serem carregadas
+  }, [id, turmas]);
+
+  // Monta lista só de nomes de turmas
+  const nomesTurmas = turmas
+    .filter((t) => t.id !== undefined)
+    .map((t) => t.nome);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -93,13 +102,13 @@ const CadastroAluno: React.FC = () => {
           }
         });
       }
-    } else if (name === "turmaId") {
-      const turmaSelecionada = turmas.find((t) => t.id === Number(value));
+    } else if (name === "turmaNome") {
+      // Busca o ID correspondente ao nome da turma selecionada
+      const turmaSelecionada = turmas.find((t) => t.nome === value);
       setAluno((prev) => ({
         ...prev,
-        turmaId: value ? Number(value) : undefined,
-        serie: turmaSelecionada?.serie ?? "",
-        turno: turmaSelecionada?.turno ?? "",
+        turmaNome: value,
+        turmaId: turmaSelecionada ? turmaSelecionada.id : undefined,
       }));
     } else {
       setAluno((prev) => ({ ...prev, [name]: value }));
@@ -112,21 +121,25 @@ const CadastroAluno: React.FC = () => {
     setMsgErro(null);
     setMsgCampoVazio(null);
 
-const camposObrigatorios = Object.keys(aluno).filter(key => key !== "id");
+    // Defina aqui somente os campos visíveis/obrigatórios
+ const camposObrigatorios = Object.keys(aluno).filter(key => key !== "id");
 
-// Verifica se todos os campos obrigatórios estão preenchidos
-const camposPreenchidos = camposObrigatorios.every(key => {
-  const valor = (aluno as any)[key];
-  if (typeof valor === "string") {
-    return valor.trim() !== "";
-  }
-  return valor !== undefined && valor !== null;
-});
 
-if (!camposPreenchidos) {
-  setMsgCampoVazio("Preencha todos os campos obrigatórios antes de salvar.");
-  return;
-}
+    // Verifica se todos os campos obrigatórios estão preenchidos
+    const camposPreenchidos = camposObrigatorios.every((key) => {
+      const valor = (aluno as any)[key];
+      if (typeof valor === "string") {
+        return valor.trim() !== "";
+      }
+      return valor !== undefined && valor !== null;
+    });
+
+    if (!camposPreenchidos) {
+      setMsgCampoVazio(
+        "Preencha todos os campos obrigatórios antes de salvar."
+      );
+      return;
+    }
 
     try {
       if (aluno.id) {
@@ -140,7 +153,6 @@ if (!camposPreenchidos) {
           dataNascimento: "",
           rg: "",
           cpf: "",
-          estadoCivil: "",
           celular: "",
           telefone: "",
           email: "",
@@ -152,13 +164,12 @@ if (!camposPreenchidos) {
           numero: "",
           complemento: "",
           bairro: "",
-          serie: "",
-          turno: "",
           dataMatricula: "",
           situacaoMatricula: "",
           emailInstitucional: "",
           senha: "",
           turmaId: undefined,
+          turmaNome: "",
         });
       }
     } catch (error) {
@@ -218,15 +229,7 @@ if (!camposPreenchidos) {
               placeholder="Digite o RG"
             />
           </div>
-          <div className="grid-rep3">
-            <Select
-              label="ESTADO CIVIL*"
-              name="estadoCivil"
-              value={aluno.estadoCivil ?? ""}
-              onChange={handleChange}
-              options={estadosCivis}
-              title="o estado civil"
-            />
+          <div className="grid-1e1">
             <Input
               label="CELULAR*"
               name="celular"
@@ -331,34 +334,13 @@ if (!camposPreenchidos) {
           <div className="grid-rep3">
             <Select
               label="TURMA*"
-              name="turmaId"
-              value={aluno.turmaId?.toString() ?? ""}
+              name="turmaNome"
+              value={aluno.turmaNome ?? ""}
               onChange={handleChange}
-              options={turmas
-                .filter((t) => t.id !== undefined)
-                .map((t) => t.id!.toString())}
+              options={nomesTurmas}
               title="a turma"
             />
-            <Input
-              label="SÉRIE*"
-              name="serie"
-              value={aluno.serie ?? ""}
-              onChange={handleChange}
-              type="text"
-              placeholder="Digite a série"
-              readonly
-            />
-            <Input
-              label="TURNO*"
-              name="turno"
-              value={aluno.turno ?? ""}
-              onChange={handleChange}
-              placeholder="Turno do Aluno"
-              readonly
-              type="text"
-            />
-          </div>
-          <div className="grid-1e1">
+
             <Input
               label="DATA DE MATRÍCULA*"
               name="dataMatricula"

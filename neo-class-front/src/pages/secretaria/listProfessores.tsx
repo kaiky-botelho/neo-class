@@ -91,8 +91,6 @@ const ListProfessores: React.FC = () => {
                 key={professor.id}
                 data={[
                   { label: "Nome", value: professor.nome },
-                  { label: "Data de Admissão", value: professor.dataAdmissao },
-                  { label: "Tipo de Contrato", value: professor.tipoContrato },
                   { label: "Área de Formação", value: professor.areaFormacao },
                 ]}
                 onEditar={() => handleEditar(professor.id)}

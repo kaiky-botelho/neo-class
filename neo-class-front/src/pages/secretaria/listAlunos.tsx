@@ -94,7 +94,7 @@ const ListAlunos: React.FC = () => {
                   { label: "Nome", value: aluno.nome },
                   { label: "Gênero", value: aluno.genero },
                   { label: "Situação Matrícula", value: aluno.situacaoMatricula },
-                  { label: "Turno", value: aluno.turno },
+                  { label: "Data de Matrícula", value: aluno.dataMatricula },
                 ]}
                 onEditar={() => handleEditar(aluno.id)}
                 onDeletar={() => handleDeletar(aluno.id)}

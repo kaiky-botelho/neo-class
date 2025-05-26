@@ -15,26 +15,13 @@ const turmaService = new TurmaService();
 
 const estadosCivis = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"];
 const generos = ["Masculino", "Feminino", "Outro"];
-const tiposContrato = ["CLT", "Estatutário", "Temporário", "Outro"];
-const materiasFixas = [
-  "Matemática",
-  "Português",
-  "História",
-  "Geografia",
-  "Física",
-  "Química",
-  "Biologia",
-  "Inglês",
-  "Espanhol",
-  "Artes",
-  "Educação Física",
-  "Outra",
-];
+const situacaoContratos = ["Ativo", "Inativo", "Afastado", "Licença", "Demissão"];
 
 const CadastroProfessor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-  const [professor, setProfessor] = useState<ProfessorDTO>({
+  // Inclui campo turmaNome para o select pelo nome
+  const [professor, setProfessor] = useState<ProfessorDTO & { turmaNome?: string }>({
     nome: "",
     dataNascimento: "",
     rg: "",
@@ -52,14 +39,11 @@ const CadastroProfessor: React.FC = () => {
     complemento: "",
     bairro: "",
     areaFormacao: "",
-    dataAdmissao: "",
-    tipoContrato: "",
-    serie: "",
-    materia: "",
-    turno: "",
+    situacaoContrato: "",
     emailInstitucional: "",
     senha: "",
     turmaId: undefined,
+    turmaNome: "",
   });
 
   const [turmas, setTurmas] = useState<TurmaDTO[]>([]);
@@ -67,6 +51,7 @@ const CadastroProfessor: React.FC = () => {
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
 
+  // Carrega turmas
   useEffect(() => {
     turmaService
       .listarTodos()
@@ -74,16 +59,28 @@ const CadastroProfessor: React.FC = () => {
       .catch((error) => console.error("Erro ao carregar turmas:", error));
   }, []);
 
+  // Carrega dados para edição
   useEffect(() => {
     if (id) {
       professorService
         .buscarPorId(Number(id))
-        .then((response: AxiosResponse<ProfessorDTO>) =>
-          setProfessor(response.data)
-        )
+        .then((response: AxiosResponse<ProfessorDTO>) => {
+          // Encontra o nome da turma pelo id
+          const turmaSelecionada = turmas.find((t) => t.id === response.data.turmaId);
+          setProfessor({
+            ...response.data,
+            turmaNome: turmaSelecionada ? turmaSelecionada.nome : "",
+          });
+        })
         .catch(() => setMsgErro("Erro ao carregar dados do professor."));
     }
-  }, [id]);
+    // Depende das turmas para preencher turmaNome corretamente
+  }, [id, turmas]);
+
+  // Gera array só com os nomes das turmas
+  const nomesTurmas = turmas
+    .filter((t) => t.id !== undefined)
+    .map((t) => t.nome);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -109,13 +106,13 @@ const CadastroProfessor: React.FC = () => {
           }
         });
       }
-    } else if (name === "turmaId") {
-      const turmaSelecionada = turmas.find((t) => t.id === Number(value));
+    } else if (name === "turmaNome") {
+      // Atualiza o id da turma de acordo com o nome selecionado
+      const turmaSelecionada = turmas.find((t) => t.nome === value);
       setProfessor((prev) => ({
         ...prev,
-        turmaId: value ? Number(value) : undefined,
-        serie: turmaSelecionada?.serie ?? "",
-        turno: turmaSelecionada?.turno ?? "",
+        turmaNome: value,
+        turmaId: turmaSelecionada ? turmaSelecionada.id : undefined,
       }));
     } else {
       setProfessor((prev) => ({ ...prev, [name]: value }));
@@ -128,23 +125,25 @@ const CadastroProfessor: React.FC = () => {
     setMsgErro(null);
     setMsgCampoVazio(null);
 
-// Pega todas as chaves de professor, exceto 'id'
-const camposObrigatorios = Object.keys(professor).filter(key => key !== "id");
+    // Exclui o campo turmaNome na validação
+    const camposObrigatorios = Object.keys(professor).filter(
+      (key) => key !== "id" && key !== "turmaNome"
+    );
 
-// Verifica se todos os campos obrigatórios estão preenchidos
-const camposPreenchidos = camposObrigatorios.every(key => {
-  const valor = (professor as any)[key];
-  if (typeof valor === "string") {
-    return valor.trim() !== "";
-  }
-  return valor !== undefined && valor !== null;
-});
+    const camposPreenchidos = camposObrigatorios.every((key) => {
+      const valor = (professor as any)[key];
+      if (typeof valor === "string") {
+        return valor.trim() !== "";
+      }
+      return valor !== undefined && valor !== null;
+    });
 
-if (!camposPreenchidos) {
-  setMsgCampoVazio("Preencha todos os campos obrigatórios antes de salvar.");
-  return;
-}
-
+    if (!camposPreenchidos) {
+      setMsgCampoVazio(
+        "Preencha todos os campos obrigatórios antes de salvar."
+      );
+      return;
+    }
 
     try {
       if (professor.id) {
@@ -171,14 +170,11 @@ if (!camposPreenchidos) {
           complemento: "",
           bairro: "",
           areaFormacao: "",
-          dataAdmissao: "",
-          tipoContrato: "",
-          serie: "",
-          materia: "",
-          turno: "",
+          situacaoContrato: "",
           emailInstitucional: "",
           senha: "",
           turmaId: undefined,
+          turmaNome: "",
         });
       }
     } catch (error) {
@@ -356,60 +352,21 @@ if (!camposPreenchidos) {
               type="text"
               placeholder="Ex: Letras, Matemática..."
             />
-            <Input
-              label="DATA DE ADMISSÃO*"
-              name="dataAdmissao"
-              value={professor.dataAdmissao ?? ""}
-              onChange={handleChange}
-              type="date"
-            />
             <Select
               label="TIPO DE CONTRATO*"
-              name="tipoContrato"
-              value={professor.tipoContrato ?? ""}
+              name="situacaoContrato"
+              value={professor.situacaoContrato ?? ""}
               onChange={handleChange}
-              options={tiposContrato}
+              options={situacaoContratos}
               title="o tipo de contrato"
             />
-          </div>
-          <div className="grid-2e1">
             <Select
               label="TURMA*"
-              name="turmaId"
-              value={professor.turmaId?.toString() ?? ""}
+              name="turmaNome"
+              value={professor.turmaNome ?? ""}
               onChange={handleChange}
-              options={turmas
-                .filter((t) => t.id !== undefined)
-                .map((t) => t.id!.toString())}
+              options={nomesTurmas}
               title="a turma"
-            />
-            <Input
-              label="SÉRIE*"
-              name="serie"
-              value={professor.serie ?? ""}
-              onChange={handleChange}
-              type="text"
-              placeholder="Digite a série"
-              readonly
-            />
-          </div>
-          <div className="grid-1e1">
-            <Input
-              label="TURNO*"
-              name="turno"
-              value={professor.turno ?? ""}
-              onChange={handleChange}
-              placeholder="Turno do professor"
-              type="text"
-              readonly
-            />
-            <Select
-              label="MATÉRIA*"
-              name="materia"
-              value={professor.materia ?? ""}
-              onChange={handleChange}
-              options={materiasFixas}
-              title="a matéria"
             />
           </div>
           <h1>INFORMAÇÕES DE LOGIN</h1>

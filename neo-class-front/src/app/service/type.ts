@@ -4,7 +4,6 @@ export interface AlunoDTO {
   dataNascimento?: string;
   rg?: string;
   cpf?: string;
-  estadoCivil?: string;
   celular?: string;
   telefone?: string;
   email?: string;
@@ -16,8 +15,6 @@ export interface AlunoDTO {
   numero?: string;
   complemento?: string;
   bairro?: string;
-  serie?: string;
-  turno?: string;
   dataMatricula?: string;
   situacaoMatricula?: string;
   emailInstitucional?: string;
@@ -44,11 +41,7 @@ export interface ProfessorDTO {
   complemento?: string;
   bairro?: string;
   areaFormacao?: string;
-  dataAdmissao?: string;
-  tipoContrato?: string;
-  serie?: string;
-  materia?: string;
-  turno?: string;
+  situacaoContrato?: string;
   emailInstitucional?: string;
   senha?: string;
   turmaId?: number;
