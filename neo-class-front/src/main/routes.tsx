@@ -32,7 +32,7 @@ function AppRoutes() {
         <Route path="/cadastroMateria/:id?" element={<CadastroMateria />} />
         <Route path="/materias" element={<ListMateria />} />
         {/* Rota para o calendário */}
-        <Route path="/homeProfessor" element={<HomeProfessor />} />
+        <Route path="/homeProfessor/:id?" element={<HomeProfessor />} />
 
         {/* Rota de teste */}
         <Route path="/teste" element={<Teste />} />

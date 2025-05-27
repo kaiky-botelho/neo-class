@@ -1,3 +1,4 @@
+// src/app/service/professorService.ts
 import ApiService from "../apiService";
 import type { AxiosResponse } from "axios";
 import type { ProfessorDTO } from "./type";
@@ -7,11 +8,13 @@ class ProfessorService extends ApiService {
     super("/api/professores");
   }
 
-  loginProfessor(email: string, senha: any): Promise<AxiosResponse<ProfessorDTO>> {
-    return this.post<ProfessorDTO>("/login/professor", { email, senha });
+  // Login: resposta sem tipagem forte (any)
+  loginProfessor(email: string, senha: any): Promise<AxiosResponse<any>> {
+    return this.post<any>("/login/professor", { email, senha });
   }
-  listarTodos(): Promise<AxiosResponse<ProfessorDTO[]>>{
-    return this.get<ProfessorDTO[]>(""); 
+
+  listarTodos(): Promise<AxiosResponse<ProfessorDTO[]>> {
+    return this.get<ProfessorDTO[]>("");
   }
 
   salvar(professor: ProfessorDTO): Promise<AxiosResponse<ProfessorDTO>> {
@@ -29,7 +32,6 @@ class ProfessorService extends ApiService {
   buscarPorId(id: number): Promise<AxiosResponse<ProfessorDTO>> {
     return this.get<ProfessorDTO>(`/${id}`);
   }
-
 }
 
 export default ProfessorService;
