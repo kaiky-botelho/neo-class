@@ -13,6 +13,8 @@ const materiaService = new MateriaService();
 const turmaService = new TurmaService();
 const professorService = new ProfessorService();
 
+const bimestres = [ "1", "2", "3", "4" ];
+
 interface FormState {
   id?: number;
   nome: string;
@@ -135,13 +137,13 @@ const CadastroMateria: React.FC = () => {
             />
           </div>
           <div className="grid-rep3">
-            <Input
+            <Select
               label="Bimestre*"
               name="bimestre"
               value={materia.bimestre}
               onChange={handleChange}
-              type="number"
-              placeholder="Digite o bimestre"
+              options={bimestres}
+              title=" o bimestre"
             />
             <Select
               label="Turma*"
@@ -149,7 +151,7 @@ const CadastroMateria: React.FC = () => {
               value={materia.turmaNome}
               onChange={handleChange}
               options={turmas.map(t => t.nome)}
-              title="Selecione a turma"
+              title=" a turma"
             />
             <Select
               label="Professor*"

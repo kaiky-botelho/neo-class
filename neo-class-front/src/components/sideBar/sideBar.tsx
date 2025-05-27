@@ -1,21 +1,29 @@
 // sideBar.tsx
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./sideBar.css";
 
 interface NavItem {
-  icon: React.ReactNode; // agora é um componente React
+  icon: React.ReactNode;
   text: string;
   href: string;
 }
 
 interface SideBarProps {
-  buttonText: string;
   navItems: NavItem[];
+  buttonText: string; 
 }
 
-const SideBar: React.FC<SideBarProps> = ({ buttonText, navItems }) => {
+const SideBar: React.FC<SideBarProps> = ({ navItems, buttonText }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // 1) Limpe aqui o que for necessário, ex:
+    localStorage.removeItem("authToken");
+    // 2) Redirecione para a rota de login
+    navigate("/login");
+  };
 
   return (
     <div className="sideBar">
@@ -24,12 +32,11 @@ const SideBar: React.FC<SideBarProps> = ({ buttonText, navItems }) => {
       </div>
 
       <div className="sideBar-nav">
-        {navItems.map((item, index) => {
+        {navItems.map((item, i) => {
           const isActive = location.pathname === item.href;
-
           return (
             <Link
-              key={index}
+              key={i}
               to={item.href}
               className={`sideBar-nav-item ${isActive ? "active" : ""}`}
             >
@@ -40,7 +47,9 @@ const SideBar: React.FC<SideBarProps> = ({ buttonText, navItems }) => {
         })}
       </div>
 
-      <button className="sideBar-button">{buttonText}</button>
+      <button className="sideBar-button" onClick={handleLogout}>
+        {buttonText}
+      </button>
     </div>
   );
 };

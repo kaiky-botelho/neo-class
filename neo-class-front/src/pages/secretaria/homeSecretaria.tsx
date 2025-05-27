@@ -104,7 +104,7 @@ const HomeSecretaria: React.FC = () => {
                 {loading ? (
                   <p>Carregando notificações...</p>
                 ) : notificacoes.length === 0 ? (
-                  <p>Nenhuma notificação aqui</p>
+                  <p className="SemNotificacao">Nenhuma notificação aqui</p>
                 ) : (
                   notificacoes.map(n => {
                     const nome = n.alunoNome || alunos.find(a => a.id === n.alunoId)?.nome;

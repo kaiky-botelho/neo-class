@@ -77,3 +77,22 @@ export type NotificacaoDTO = {
   secretariaId?: number;
   status?: 'PENDENTE' | 'RESPONDIDA';
 };
+
+export type TrabalhoDTO = {
+  id?: number;
+  nome?: string;
+  bimestre?: number;
+  data?: string; // geralmente datas são strings ISO no front-end
+  nota?: number;
+  professorId?: number;
+};
+
+export type ProvaDTO = {
+  id?: number;
+  bimestre: number;
+  data: string;       // Data como string ISO (ex: "2025-05-27")
+  nota: number;
+  professorId?: number;
+  materiaId?: number; // usa materiaId para casar com Java
+};
+

@@ -12,6 +12,8 @@ import CadastroMateria from "../pages/secretaria/cadastroMateria";
 import ListMateria from "../pages/secretaria/listMateria";
 import Teste from "../pages/teste";
 
+import HomeProfessor from "../pages/professor/homeProfessor";
+
 function AppRoutes() {
   return (
     <HashRouter>
@@ -29,6 +31,8 @@ function AppRoutes() {
         <Route path="/cadastroTurma/:id?" element={<CadastroTurma />} />
         <Route path="/cadastroMateria/:id?" element={<CadastroMateria />} />
         <Route path="/materias" element={<ListMateria />} />
+        {/* Rota para o calendário */}
+        <Route path="/homeProfessor" element={<HomeProfessor />} />
 
         {/* Rota de teste */}
         <Route path="/teste" element={<Teste />} />

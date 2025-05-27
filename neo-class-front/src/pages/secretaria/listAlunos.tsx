@@ -8,6 +8,8 @@ import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg
 import { ReactComponent as MateriaIcon } from "../../assets/icons/materia.svg";
 import AlunoService from "../../app/service/alunoService";
 import type { AlunoDTO } from "../../app/service/type";
+import Input from "../../components/input/input";
+import Select from "../../components/select/select";
 import "../../styles/home.css";
 import CardList from "../../components/cardsList/cardList";
 
@@ -16,30 +18,29 @@ const navItems = [
   { icon: <TurmaIcon className="sideBar-icon" />, text: "Turmas", href: "/turmas" },
   { icon: <AlunoIcon className="sideBar-icon" />, text: "Alunos", href: "/alunos" },
   { icon: <ProfesorIcon className="sideBar-icon" />, text: "Professores", href: "/professores" },
-  { icon: <MateriaIcon className="sideBar-icon" />, text: "Materias", href: "/materias" },
+  { icon: <MateriaIcon className="sideBar-icon" />, text: "Matérias", href: "/materias" },
 ];
+
+// somente valores reais, sem "Todos"
+const generoOptions = ["Masculino", "Feminino", "Outro"];
+const situacaoOptions = ["Ativo", "Inativo", "Trancado"];
 
 const Pagination: React.FC<{
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }> = ({ currentPage, totalPages, onPageChange }) => {
-  // Função para criar o array de páginas com elipses
   const getPageNumbers = () => {
-    const pages = [];
-    const maxPagesToShow = 7; // 1 ... 3 4 5 ... total
+    const pages: (number | string)[] = [];
+    const maxPagesToShow = 7;
     if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, "...", totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
     } else {
-      if (currentPage <= 4) {
-        pages.push(1, 2, 3, 4, 5, '...', totalPages);
-      } else if (currentPage >= totalPages - 3) {
-        pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-      }
+      pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
     }
     return pages;
   };
@@ -54,14 +55,12 @@ const Pagination: React.FC<{
         disabled={currentPage === 1}
         aria-label="Página anterior"
       >
-        &#x276E; {/* seta esquerda */}
+        &#x276E;
       </button>
 
       {pages.map((page, idx) =>
-        page === '...' ? (
-          <span key={idx} className="pagination-ellipsis">
-            ...
-          </span>
+        page === "..." ? (
+          <span key={idx} className="pagination-ellipsis">…</span>
         ) : (
           <button
             key={idx}
@@ -80,7 +79,7 @@ const Pagination: React.FC<{
         disabled={currentPage === totalPages}
         aria-label="Próxima página"
       >
-        &#x276F; {/* seta direita */}
+        &#x276F;
       </button>
     </div>
   );
@@ -88,59 +87,97 @@ const Pagination: React.FC<{
 
 const ListAlunos: React.FC = () => {
   const [alunos, setAlunos] = useState<AlunoDTO[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [generoFilter, setGeneroFilter] = useState("");      // vazio = sem filtro
+  const [situacaoFilter, setSituacaoFilter] = useState("");    // vazio = sem filtro
   const [page, setPage] = useState(1);
-  const pageSize = 9; // 9 alunos por página (3x3)
+  const pageSize = 9;
   const navigate = useNavigate();
   const alunoService = new AlunoService();
 
   useEffect(() => {
     alunoService
       .listarTodos()
-      .then((response) => {
-        setAlunos(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar alunos:", error);
-      });
+      .then(res => setAlunos(res.data))
+      .catch(err => console.error("Erro ao buscar alunos:", err));
   }, []);
 
-  const totalPages = Math.ceil(alunos.length / pageSize);
-  const alunosPagina = alunos.slice((page - 1) * pageSize, page * pageSize);
+  const alunosFiltrados = alunos
+    .filter(aluno =>
+      (aluno.nome ?? "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+    .filter(aluno =>
+      generoFilter
+        ? aluno.genero === generoFilter
+        : true
+    )
+    .filter(aluno =>
+      situacaoFilter
+        ? aluno.situacaoMatricula === situacaoFilter
+        : true
+    );
+
+  const totalPages = Math.ceil(alunosFiltrados.length / pageSize);
+  const alunosPagina = alunosFiltrados.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   function handleEditar(id?: number) {
-    if (!id) return;
-    navigate(`/cadastroAluno/${id}`);
-  }
-
-  function handleDeletar(id?: number) {
-    if (!id) return;
-    if (window.confirm("Tem certeza que deseja deletar este aluno?")) {
-      alunoService
-        .deletar(id)
-        .then(() => {
-          setAlunos((prevAlunos) => prevAlunos.filter((aluno) => aluno.id !== id));
-          alert("Aluno deletado com sucesso!");
-        })
-        .catch((error) => {
-          console.error("Erro ao deletar aluno:", error);
-          alert("Erro ao deletar aluno.");
-        });
-    }
+    if (id) navigate(`/cadastroAluno/${id}`);
   }
 
   return (
     <div className="gridTemplate">
-      <div>
-        <SideBar buttonText={"Sair"} navItems={navItems} />
-      </div>
+      <SideBar buttonText="Sair" navItems={navItems} />
+
       <div className="home-container">
         <div className="container">
-          <h1>ALUNOS</h1>
+          <div className="grid-rep4">
+            <h1 className="listTitle">ALUNOS</h1>
+
+            <Input
+              label="Buscar aluno"
+              name="search"
+              type="text"
+              value={searchTerm}
+              onChange={e => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Digite o nome do aluno"
+            />
+            <Select
+              label="Gênero"
+              name="generoFilter"
+              value={generoFilter}
+              onChange={e => {
+                setGeneroFilter(e.target.value);
+                setPage(1);
+              }}
+              options={generoOptions}
+              title="selecione o gênero"
+            />
+            <Select
+              label="Situação Matrícula"
+              name="situacaoFilter"
+              value={situacaoFilter}
+              onChange={e => {
+                setSituacaoFilter(e.target.value);
+                setPage(1);
+              }}
+              options={situacaoOptions}
+              title="selecione a situação"
+            />
+          </div>
+
           <div className="grid-rep3">
             {alunosPagina.length === 0 ? (
               <p>Nenhum aluno cadastrado.</p>
             ) : (
-              alunosPagina.map((aluno) => (
+              alunosPagina.map(aluno => (
                 <CardList
                   key={aluno.id}
                   data={[
@@ -156,7 +193,11 @@ const ListAlunos: React.FC = () => {
           </div>
 
           {totalPages > 1 && (
-            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           )}
         </div>
       </div>
