@@ -1,5 +1,5 @@
 // src/screens/LoginScreen.tsx
-import React, { useState, useContext } from "react";
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -7,55 +7,78 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-} from "react-native";
-import { AuthContext } from "../context/AuthContext";
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LoginScreen() {
-  const { signIn } = useContext(AuthContext);
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const navigation = useNavigation();
+  const { signIn, loading } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    setError('');
+    try {
+      await signIn(email.trim(), senha);
+      // Navega para HomeScreen e limpa a pilha de navegação
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        })
+      );
+    } catch (err: any) {
+      setError(err.response?.data || 'Erro ao fazer login');
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Logo no topo */}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.select({ ios: 'padding', android: undefined })}
+    >
       <Image
-        source={require("../../assets/logo.png")}
+        source={require('../../assets/logo.png')}
         style={styles.logo}
         resizeMode="contain"
       />
 
-      {/* Card azul claro */}
       <View style={styles.card}>
         <Text style={styles.title}>LOGIN</Text>
 
-        {/* E-mail */}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         <Text style={styles.label}>E-mail</Text>
         <View style={styles.inputWrapper}>
           <Image
-            source={require("../../assets/email.png")}
+            source={require('../../assets/email.png')}
             style={styles.icon}
           />
           <TextInput
             placeholder="Digite seu e-mail"
-            placeholderTextColor="#000000"
+            placeholderTextColor="#333"
             style={styles.input}
-            autoCapitalize="none"
             keyboardType="email-address"
+            autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
         </View>
 
-        {/* Senha */}
         <Text style={[styles.label, { marginTop: 16 }]}>Senha</Text>
         <View style={styles.inputWrapper}>
           <Image
-            source={require("../../assets/lock.png")}
+            source={require('../../assets/lock.png')}
             style={styles.icon}
           />
           <TextInput
             placeholder="Digite sua senha"
-            placeholderTextColor="#000000"
+            placeholderTextColor="#333"
             style={styles.input}
             secureTextEntry
             value={senha}
@@ -63,97 +86,103 @@ export default function LoginScreen() {
           />
         </View>
 
-        {/* Botão Entrar */}
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => signIn(email, senha)}
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
         >
-          <Text style={styles.buttonText}>ENTRAR</Text>
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.buttonText}>ENTRAR</Text>
+          )}
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#333C56",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 36,
+    backgroundColor: '#333C56',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
   },
   logo: {
-    width: 161,
-    height: 110,
-    position: "absolute",
-    top: 100,
+    width: 160,
+    height: 80,
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 100 : 80,
   },
- card: {
-    width: "100%",
-    backgroundColor: "#A0BFE8",
+  card: {
+    width: '100%',
+    backgroundColor: '#A0BFE8',
     borderTopLeftRadius: 90,
     borderBottomRightRadius: 90,
-    borderRadius: 20,
     padding: 24,
-    alignItems: "center",
-
-    // sombreamento branco conforme Figma
-    shadowColor: "#FFFFFF",
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 4,
   },
   title: {
-    fontFamily: "Poppins-ExtraBold",
-    fontSize: 46,
-    color: "#FFF",
-    textAlign: "center",
-    marginBottom: 24,
+    fontFamily: 'Poppins-ExtraBold',
+    fontSize: 36,
+    color: '#FFF',
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#f66',
+    marginBottom: 12,
   },
   label: {
-    fontFamily: "Poppins-Medium",
-    fontSize: 20,
-    color: "#000",
-    marginBottom: 8,
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 16,
+    color: '#000',
   },
   inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFF",
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.3)',
     paddingHorizontal: 12,
     height: 44,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.5)",
   },
   icon: {
     width: 24,
     height: 24,
-    resizeMode: "contain",
+    resizeMode: 'contain',
+    marginRight: 8,
   },
   input: {
     flex: 1,
-    marginLeft: 8,
-    fontSize: 20,
-    fontFamily: "Roboto-Medium",
-    color: "#333",
+    fontSize: 16,
+    fontFamily: 'Roboto-Medium',
+    color: '#333',
   },
   button: {
-    backgroundColor: "#EA9216",
-    borderRadius: 8,
-    marginTop: 32,
+    marginTop: 24,
+    backgroundColor: '#EA9216',
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingHorizontal: 32,
+    borderRadius: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
-    color: "#FFF",
-    fontFamily: "Roboto-Medium",
-    fontSize: 20,
+    color: '#FFF',
+    fontFamily: 'Poppins-ExtraBold',
+    fontSize: 18,
+    textAlign: 'center',
   },
 });
