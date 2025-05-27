@@ -1,10 +1,6 @@
 {
-  "extends": "expo/tsconfig.base.json",
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true,
-    "noEmit": true,
-    "jsx": "react",
-    "module": "ESNext"
-  },
-  "exclude": ["node_modules"]
+    "strict": true
+  }
 }
