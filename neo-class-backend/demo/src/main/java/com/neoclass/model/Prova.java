@@ -19,4 +19,8 @@ public class Prova {
 
     @ManyToOne @JoinColumn(name = "materia_id")
     private Materia materia;
+
+    @ManyToOne
+    @JoinColumn(name = "turma_id")
+    private Turma turma;
 }

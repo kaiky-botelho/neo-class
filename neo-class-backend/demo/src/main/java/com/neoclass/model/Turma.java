@@ -22,6 +22,5 @@ public class Turma {
 
     private String serie;
     private String turno;
-    private Integer capacidade;
     private String sala;
 }
