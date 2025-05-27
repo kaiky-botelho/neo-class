@@ -5,7 +5,6 @@ import { ReactComponent as TurmaIcon } from "../../assets/icons/turma.svg";
 import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
 import { ReactComponent as ProfesorIcon } from "../../assets/icons/professor.svg";
 import { ReactComponent as MateriaIcon } from "../../assets/icons/materia.svg";
-import "../../styles/home.css";
 import LinkButton from "../../components/linkButtons/linkButtons";
 import Calendario from "../../components/calendario/calendario";
 import NotificacaoService from "../../app/service/notificacaoService";
@@ -14,6 +13,7 @@ import ProfessorService from "../../app/service/professorService";
 import { NotificacaoDTO, AlunoDTO, ProfessorDTO } from "../../app/service/type";
 import NotificacaoText from "../../components/notificacaoText/notificacaoText";
 import BlueCard from "../../components/blueCard/blueCard";
+import "../../styles/home.css";
 
 // Extensão para incluir possível nome do aluno vindo embutido
 interface NotificacaoExt extends NotificacaoDTO {

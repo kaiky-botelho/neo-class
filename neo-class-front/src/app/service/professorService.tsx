@@ -8,11 +8,6 @@ class ProfessorService extends ApiService {
     super("/api/professores");
   }
 
-  // Login: resposta sem tipagem forte (any)
-  loginProfessor(email: string, senha: any): Promise<AxiosResponse<any>> {
-    return this.post<any>("/login/professor", { email, senha });
-  }
-
   listarTodos(): Promise<AxiosResponse<ProfessorDTO[]>> {
     return this.get<ProfessorDTO[]>("");
   }

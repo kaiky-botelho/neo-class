@@ -16,20 +16,19 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final SecretariaService secretariaService;
-    private final AlunoService      alunoService;
-    private final ProfessorService  professorService;
-    private final JwtUtil           jwtUtil;
+    private final AlunoService alunoService;
+    private final ProfessorService professorService;
+    private final JwtUtil jwtUtil;
 
     public AuthController(
-        SecretariaService secretariaService,
-        AlunoService alunoService,
-        ProfessorService professorService,
-        JwtUtil jwtUtil
-    ) {
+            SecretariaService secretariaService,
+            AlunoService alunoService,
+            ProfessorService professorService,
+            JwtUtil jwtUtil) {
         this.secretariaService = secretariaService;
-        this.alunoService      = alunoService;
-        this.professorService  = professorService;
-        this.jwtUtil           = jwtUtil;
+        this.alunoService = alunoService;
+        this.professorService = professorService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/secretaria")
@@ -37,11 +36,12 @@ public class AuthController {
         var opt = secretariaService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body("E-mail ou senha inválidos");
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("E-mail ou senha inválidos");
         }
-        String token = jwtUtil.gerarToken(opt.get().getEmail());
-        AuthResponseDTO dto = new AuthResponseDTO(token, "SECRETARIA");
+        var user = opt.get();
+        String token = jwtUtil.gerarToken(user.getEmail());
+        AuthResponseDTO dto = new AuthResponseDTO(token, "SECRETARIA", user.getId());
         return ResponseEntity.ok(dto);
     }
 
@@ -50,11 +50,12 @@ public class AuthController {
         var opt = alunoService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body("E-mail ou senha inválidos");
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("E-mail ou senha inválidos");
         }
-        String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
-        AuthResponseDTO dto = new AuthResponseDTO(token, "ALUNO");
+        var user = opt.get();
+        String token = jwtUtil.gerarToken(user.getEmailInstitucional());
+        AuthResponseDTO dto = new AuthResponseDTO(token, "ALUNO", user.getId());
         return ResponseEntity.ok(dto);
     }
 
@@ -63,11 +64,13 @@ public class AuthController {
         var opt = professorService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body("E-mail ou senha inválidos");
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("E-mail ou senha inválidos");
         }
-        String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
-        AuthResponseDTO dto = new AuthResponseDTO(token, "PROFESSOR");
+        var user = opt.get();
+        String token = jwtUtil.gerarToken(user.getEmailInstitucional());
+        AuthResponseDTO dto = new AuthResponseDTO(token, "PROFESSOR", user.getId());
         return ResponseEntity.ok(dto);
     }
+
 }
