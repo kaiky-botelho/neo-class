@@ -7,6 +7,7 @@ import java.time.LocalDate;
 @Data
 public class ProvaDTO {
     private Long id;
+    private String nome;
     private Integer bimestre;
     private LocalDate data;
     private Double nota;

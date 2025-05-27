@@ -10,6 +10,7 @@ import java.time.LocalDate;
 public class Prova {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String nome;
     private Integer bimestre;
     private LocalDate data;
     private Double nota;
