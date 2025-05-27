@@ -22,10 +22,11 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
+    console.log('🚀 LOGIN REQUEST', { email, senha });
     setError('');
     try {
       await signIn(email.trim(), senha);
-      // Navega para HomeScreen e limpa a pilha de navegação
+      // No sucesso, limpa pilha e vai para Home
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -33,7 +34,25 @@ export default function LoginScreen() {
         })
       );
     } catch (err: any) {
-      setError(err.response?.data || 'Erro ao fazer login');
+      // Se vier response do axios
+      if (err.response) {
+        const fullUrl = `${err.config.baseURL}${err.config.url}`;
+        console.log('🔥 LOGIN FAILURE 🔥', {
+          status:  err.response.status,
+          data:    err.response.data,
+          fullUrl: fullUrl,
+          payload: err.config.data,
+        });
+        setError(
+          typeof err.response.data === 'string'
+            ? err.response.data
+            : err.response.data?.message || `Erro ${err.response.status}`
+        );
+      } else {
+        // erro de rede/outro
+        console.log('🌐 NETWORK ERROR 🌐', err.message);
+        setError('Erro de rede ou servidor');
+      }
     }
   };
 
@@ -55,10 +74,7 @@ export default function LoginScreen() {
 
         <Text style={styles.label}>E-mail</Text>
         <View style={styles.inputWrapper}>
-          <Image
-            source={require('../../assets/email.png')}
-            style={styles.icon}
-          />
+          <Image source={require('../../assets/email.png')} style={styles.icon} />
           <TextInput
             placeholder="Digite seu e-mail"
             placeholderTextColor="#333"
@@ -72,10 +88,7 @@ export default function LoginScreen() {
 
         <Text style={[styles.label, { marginTop: 16 }]}>Senha</Text>
         <View style={styles.inputWrapper}>
-          <Image
-            source={require('../../assets/lock.png')}
-            style={styles.icon}
-          />
+          <Image source={require('../../assets/lock.png')} style={styles.icon} />
           <TextInput
             placeholder="Digite sua senha"
             placeholderTextColor="#333"
