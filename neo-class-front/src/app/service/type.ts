@@ -89,6 +89,7 @@ export type TrabalhoDTO = {
 
 export type ProvaDTO = {
   id?: number;
+  nome: string;
   bimestre: number;
   data: string;       // Data como string ISO (ex: "2025-05-27")
   nota: number;

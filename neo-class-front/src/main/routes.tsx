@@ -14,7 +14,9 @@ import CadastroMateria from "../pages/secretaria/cadastroMateria";
 import ListMateria from "../pages/secretaria/listMateria";
 import Teste from "../pages/teste";
 
+{/* Importando as páginas do professor */}
 import HomeProfessor from "../pages/professor/homeProfessor";
+import CadastroProva from "../pages/professor/cadastroProva";
 
 function AppRoutes() {
   return (
@@ -104,6 +106,15 @@ function AppRoutes() {
           element={
             <PrivateRoute allowedRoles={["PROFESSOR"]}>
               <HomeProfessor />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/cadastroProva/:id?"
+          element={
+            <PrivateRoute allowedRoles={["PROFESSOR"]}>
+              <CadastroProva />
             </PrivateRoute>
           }
         />

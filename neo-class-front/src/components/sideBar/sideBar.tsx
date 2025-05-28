@@ -19,9 +19,7 @@ const SideBar: React.FC<SideBarProps> = ({ navItems, buttonText }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // 1) Limpe aqui o que for necessário, ex:
     localStorage.removeItem("authToken");
-    // 2) Redirecione para a rota de login
     navigate("/login");
   };
 

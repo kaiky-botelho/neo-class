@@ -27,6 +27,14 @@
     margin-bottom: 20px;
 }
 
+.grid-1e2 {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+
 .grid-1e1 {
     display: grid;
     grid-template-columns: 1fr 1fr;
