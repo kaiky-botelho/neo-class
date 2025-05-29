@@ -129,17 +129,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Platform.OS === 'ios' ? 100 : 80,
   },
-  card: {
+   card: {
     width: '100%',
     backgroundColor: '#A0BFE8',
     borderTopLeftRadius: 90,
     borderBottomRightRadius: 90,
+    borderRadius: 20,
     padding: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
     elevation: 4,
   },
   title: {
@@ -183,10 +184,11 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   button: {
+    width: 95,
+    height: 38,
     marginTop: 24,
     backgroundColor: '#EA9216',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingVertical: 6,
     borderRadius: 8,
   },
   buttonDisabled: {
@@ -194,8 +196,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFF',
-    fontFamily: 'Poppins-ExtraBold',
-    fontSize: 18,
+    fontFamily: 'Roboto-Medium',
+    fontSize: 20,
     textAlign: 'center',
   },
 });
