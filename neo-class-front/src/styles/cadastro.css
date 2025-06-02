@@ -13,7 +13,7 @@
     position: relative;
 }
 
-.grid-1{
+.grid-1 {
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
@@ -69,8 +69,9 @@
     color: #f4f4f4;
     padding: 10px 20px;
     border-radius: 5px;
-    font-size: 20px;
+    font-size: 16px;
     width: 12%;
+    border: none;
 }
 
 .btn-voltar {
@@ -79,7 +80,8 @@
     padding: 10px 20px;
     border-radius: 5px;
     text-decoration: none;
-    font-size: 20px;
+    border: none;
+    font-size: 16px;
     width: 10%;
     text-align: center;
 }
@@ -139,3 +141,79 @@
     content: "⚠";
     font-size: 30px;
 }
+
+
+/* ===== Container geral ===== */
+.lancar-notas-container {
+  padding: 1rem;
+  font-family: Arial, sans-serif;
+}
+/* ===== Abas de Bimestres ===== */
+.abas-bimestres {
+  margin-bottom: 1rem;
+}
+
+.abas-bimestres button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  cursor: pointer;
+  font-weight: 400;
+  color: #374151;
+  border-radius: 4px 4px 0 0;
+}
+
+.abas-bimestres .aba-ativa {
+  background-color: #FFFFFF;
+  border-bottom: 2px solid #FFFFFF;
+  font-weight: 600;
+}
+
+/* ===== Tabela de notas ===== */
+.table-notas-wrapper {
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+}
+
+/* Cabeçalho da tabela (ALUNOS | NOTA) */
+.cabecalho-notas {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  background-color: #F9FAFB;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+/* Cada linha de aluno + input de nota */
+.linha-nota {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #E5E7EB;
+  color: #1F2937;
+}
+
+/* Quando não há alunos cadastrados ou turma não selecionada */
+.sem-alunos {
+  padding: 1rem;
+  font-style: italic;
+  color: #6B7280;
+}
+
+/* Input de nota (controlado por <Input>) */
+.input-nota {
+  width: 80px;
+  height: 32px;
+  padding: 0 0.5rem;
+  text-align: center;
+  border: 1px solid #9CA3AF;
+  border-radius: 4px;
+  color: #1F2937;
+}
+
+
+
+

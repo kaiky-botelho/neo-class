@@ -1,6 +1,6 @@
 interface SelectProps {
   label: string;
-  name: string; // ✅ ADICIONADO
+  name: string;
   value: string;
   options: string[];
   title: string;

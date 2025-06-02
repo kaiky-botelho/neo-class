@@ -57,6 +57,7 @@ export type TurmaDTO = {
   turno: string;
   capacidade?: number;
   sala: string;
+  
 };
 
 export type MateriaDTO = {
