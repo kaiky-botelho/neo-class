@@ -13,6 +13,7 @@
     "currency-formatter": "^1.5.5",
     "dayjs": "^1.11.13",
     "financas-pessoais-front": "file:",
+    "jwt-decode": "^4.0.0",
     "moment": "^2.30.1",
     "moment-timezone": "^0.6.0",
     "primeicons": "^2.0.0",
@@ -51,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "@types/jwt-decode": "^2.2.1",
     "@types/react": "^19.1.4",
     "@types/react-big-calendar": "^1.16.2",
     "@types/react-dom": "^19.1.5",

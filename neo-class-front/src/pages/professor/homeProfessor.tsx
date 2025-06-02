@@ -1,5 +1,5 @@
+// src/pages/professor/homeProfessor.tsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import ProfessorService from "../../app/service/professorService";
 import ProvaService from "../../app/service/provaService";
 import TrabalhoService from "../../app/service/trabalhoService";
@@ -27,20 +27,20 @@ const navItems = [
 ];
 
 const HomeProfessor: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const professorId = Number(id);
+  // Lê o ID do localStorage
+  const storedId = localStorage.getItem("id");
+  const professorId = storedId ? Number(storedId) : null;
 
   const [professor, setProfessor] = useState<ProfessorDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [provasCount, setProvasCount] = useState(0);
   const [trabalhosCount, setTrabalhosCount] = useState(0);
   const [totalAlunos, setTotalAlunos] = useState(0);
 
   useEffect(() => {
-    if (!id) {
-      setError("ID do professor não informado");
+    if (!professorId) {
+      setError("ID do professor não encontrado");
       setLoading(false);
       return;
     }
@@ -50,36 +50,32 @@ const HomeProfessor: React.FC = () => {
     const trabalhoService = new TrabalhoService();
     const alunoService = new AlunoService();
 
-    // 1. Dados do professor
+    // 1. Buscar dados do professor
     profService
       .buscarPorId(professorId)
       .then(res => setProfessor(res.data))
       .catch(() => setError("Erro ao carregar dados do professor"))
       .finally(() => setLoading(false));
 
-    // 2. Total de provas
+    // 2. Contar provas
     provaService
       .listarTodas()
       .then(res => {
         const lista = res.data as ProvaDTO[];
-        setProvasCount(
-          lista.filter(p => p.professorId === professorId).length
-        );
+        setProvasCount(lista.filter(p => p.professorId === professorId).length);
       })
       .catch(() => console.warn("Falha ao buscar provas"));
 
-    // 3. Total de trabalhos
+    // 3. Contar trabalhos
     trabalhoService
       .listarTodos()
       .then(res => {
         const lista = res.data as TrabalhoDTO[];
-        setTrabalhosCount(
-          lista.filter(t => t.professorId === professorId).length
-        );
+        setTrabalhosCount(lista.filter(t => t.professorId === professorId).length);
       })
       .catch(() => console.warn("Falha ao buscar trabalhos"));
 
-    // 4. Total de alunos (front-end)
+    // 4. Contar alunos
     alunoService
       .listarTodos()
       .then(res => {
@@ -88,17 +84,16 @@ const HomeProfessor: React.FC = () => {
       })
       .catch(() => console.warn("Falha ao buscar alunos"));
 
-  }, [id, professorId]);
+  }, [professorId]);
 
   if (loading) return <p>Carregando dados do professor...</p>;
-  if (error) return <p>{error}</p>;
+  if (error)   return <p>{error}</p>;
 
   return (
     <div className="gridTemplate">
       <aside>
         <SideBar buttonText="Sair" navItems={navItems} />
       </aside>
-
       <main className="home-container">
         <header className="container-h">
           <h1 className="title">Seja Bem-Vindo(a), {professor?.nome}!</h1>
@@ -123,12 +118,10 @@ const HomeProfessor: React.FC = () => {
           <div className="calendario-container">
             <Calendario />
           </div>
-
           <div className="estatistica-container">
             <div className="title-home estat">
               <h2>ESTATÍSTICAS</h2>
             </div>
-
             <div className="estatistica-cards">
               <BlueCard title={"PROVAS\nCADASTRADAS"} text={provasCount} />
               <BlueCard title={"TRABALHOS\nCADASTRADOS"} text={trabalhosCount} />

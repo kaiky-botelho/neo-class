@@ -1,5 +1,5 @@
 import React from "react";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "./privateRoute";
 
 import Login from "../pages/login";
@@ -14,7 +14,6 @@ import CadastroMateria from "../pages/secretaria/cadastroMateria";
 import ListMateria from "../pages/secretaria/listMateria";
 import Teste from "../pages/teste";
 
-{/* Importando as páginas do professor */}
 import HomeProfessor from "../pages/professor/homeProfessor";
 import CadastroProva from "../pages/professor/cadastroProva";
 
@@ -111,7 +110,7 @@ function AppRoutes() {
         />
 
         <Route
-          path="/cadastroProva/:id?"
+          path="/cadastroProva/"
           element={
             <PrivateRoute allowedRoles={["PROFESSOR"]}>
               <CadastroProva />
@@ -121,6 +120,8 @@ function AppRoutes() {
 
         {/* Rota de teste (pública) */}
         <Route path="/teste" element={<Teste />} />
+
+         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </HashRouter>
   );

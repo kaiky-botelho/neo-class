@@ -1,60 +1,59 @@
+// src/pages/login/index.tsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
 import Input from "../components/input/input";
 import LoginService from "../app/service/loginService";
+
+interface LoginResponse {
+  token: string;
+  role: "PROFESSOR" | "SECRETARIA";
+  id: number;
+}
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const loginService = new LoginService();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      // Tenta login como professor
-      const responseProfessor = await loginService.loginProfessor(email, senha);
-      const { token, role, id } = responseProfessor.data;
+      const resProf = await loginService.loginProfessor(email, senha);
+      const { token, role, id } = resProf.data as LoginResponse;
 
-      // Salva dados no localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
-      if (id) localStorage.setItem("id", id.toString());
+      localStorage.setItem("id", id.toString());
       localStorage.setItem("email", email);
 
-      // Redireciona conforme o role
       if (role === "PROFESSOR") {
-        window.location.href = `/#/homeProfessor/${id}`;
-      } else if (role === "SECRETARIA") {
-        window.location.href = "/#/homeSecretaria";
-      } else {
-        setError("Role desconhecida");
+        navigate("/homeProfessor", { replace: true });
+        return;
       }
     } catch {
-      try {
-        // Se falhar, tenta login como secretaria
-        const responseSecretaria = await loginService.loginSecretaria(email, senha);
-        const { token, role, id } = responseSecretaria.data;
+      // tenta secretaria
+    }
 
-        // Salva dados no localStorage
-        localStorage.setItem("token", token);
-        localStorage.setItem("role", role);
-        if (id) localStorage.setItem("id", id.toString());
-        localStorage.setItem("email", email);
+    try {
+      const resSec = await loginService.loginSecretaria(email, senha);
+      const { token, role, id } = resSec.data as LoginResponse;
 
-        // Redireciona conforme o role
-        if (role === "SECRETARIA") {
-          window.location.href = "/#/homeSecretaria";
-        } else if (role === "PROFESSOR") {
-          window.location.href = `/#/homeProfessor/${id}`;
-        } else {
-          setError("Role desconhecida");
-        }
-      } catch (err2: any) {
-        setError(err2.response?.data || "Erro ao fazer login");
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("id", id.toString());
+      localStorage.setItem("email", email);
+
+      if (role === "SECRETARIA") {
+        navigate("/homeSecretaria", { replace: true });
+        return;
       }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Erro ao fazer login");
     }
   };
 
@@ -66,25 +65,12 @@ const Login: React.FC = () => {
             <img src="/image/loginImage.png" alt="Login" />
           </div>
           <div className="loginInputs">
-            <img src="/image/neoClassLogo.png" alt="" />
+            <img src="/image/neoClassLogo.png" alt="Logo" />
             <h1>LOGIN</h1>
             {error && <div className="login-error">{error}</div>}
-
             <form className="form-login" onSubmit={handleLogin}>
-              <Input
-                label="E-mail"
-                type="email"
-                placeholder="digite o e-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Input
-                label="Senha"
-                type="password"
-                placeholder="digite a senha"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-              />
+              <Input label="E-mail" type="email" placeholder="Digite o e-mail" value={email} onChange={e => setEmail(e.target.value)} />
+              <Input label="Senha" type="password" placeholder="Digite a senha" value={senha} onChange={e => setSenha(e.target.value)} />
               <button type="submit">ENTRAR</button>
             </form>
           </div>
