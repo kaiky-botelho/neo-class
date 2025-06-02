@@ -106,7 +106,7 @@ const HomeProfessor: React.FC = () => {
               <h2>Ações</h2>
             </div>
             <div className="link-buttons-professor">
-              <LinkButton text={"Lançar\nNotas"} href="/registrarNotas" image={require("../../assets/tabela.png")} className="professor" />
+              <LinkButton text={"Lançar\nNotas"} href="/lancarNotas" image={require("../../assets/tabela.png")} className="professor" />
               <LinkButton text={"Registrar\nPresenças"} href="/registrarPresenca" image={require("../../assets/prancheta.png")} className="professor" />
               <LinkButton text={"Cadastrar\nProva"} href="/cadastroProva" image={require("../../assets/papeis.png")} className="professor" />
               <LinkButton text={"Cadastrar\nTrabalho"} href="/cadastroTrabalho" image={require("../../assets/pasta.png")} className="professor" />

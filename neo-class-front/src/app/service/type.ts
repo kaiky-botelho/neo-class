@@ -97,3 +97,11 @@ export type ProvaDTO = {
   materiaId?: number; // usa materiaId para casar com Java
 };
 
+export type NotaDTO = {
+  id?: number;
+  bimestre: number;
+  valor: number;
+  turmaId: number;
+  alunoId: number;
+};
+

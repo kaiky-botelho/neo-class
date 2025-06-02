@@ -26,6 +26,9 @@ const Login: React.FC = () => {
       const resProf = await loginService.loginProfessor(email, senha);
       const { token, role, id } = resProf.data as LoginResponse;
 
++     // <-- Adicione este console.log para inspecionar o role  
++     console.log("LoginProfessor retornou role =", role);
+
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
       localStorage.setItem("id", id.toString());
@@ -42,6 +45,9 @@ const Login: React.FC = () => {
     try {
       const resSec = await loginService.loginSecretaria(email, senha);
       const { token, role, id } = resSec.data as LoginResponse;
+
++     // <-- E aqui outro console.log para a tentativa de secretaria
++     console.log("LoginSecretaria retornou role =", role);
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
@@ -69,8 +75,20 @@ const Login: React.FC = () => {
             <h1>LOGIN</h1>
             {error && <div className="login-error">{error}</div>}
             <form className="form-login" onSubmit={handleLogin}>
-              <Input label="E-mail" type="email" placeholder="Digite o e-mail" value={email} onChange={e => setEmail(e.target.value)} />
-              <Input label="Senha" type="password" placeholder="Digite a senha" value={senha} onChange={e => setSenha(e.target.value)} />
+              <Input
+                label="E-mail"
+                type="email"
+                placeholder="Digite o e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                label="Senha"
+                type="password"
+                placeholder="Digite a senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
               <button type="submit">ENTRAR</button>
             </form>
           </div>

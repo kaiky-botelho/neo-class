@@ -16,6 +16,9 @@ import Teste from "../pages/teste";
 
 import HomeProfessor from "../pages/professor/homeProfessor";
 import CadastroProva from "../pages/professor/cadastroProva";
+import CadastroTrabalho from "../pages/professor/cadastroTrabalho";
+import RegistrarPresenca from "../pages/professor/registrarPresenca";
+import LancarNotas from "../pages/professor/lancarNotas";
 
 function AppRoutes() {
   return (
@@ -110,13 +113,17 @@ function AppRoutes() {
         />
 
         <Route
-          path="/cadastroProva/"
+          path="/cadastroProva/:id?"
           element={
             <PrivateRoute allowedRoles={["PROFESSOR"]}>
               <CadastroProva />
             </PrivateRoute>
           }
         />
+
+        <Route path="/cadastroTrabalho/:id?" element= { <CadastroTrabalho /> } />
+        <Route path="/registrarPresenca" element={<RegistrarPresenca />} />
+        <Route path="/lancarNotas" element={<LancarNotas />} />
 
         {/* Rota de teste (pública) */}
         <Route path="/teste" element={<Teste />} />

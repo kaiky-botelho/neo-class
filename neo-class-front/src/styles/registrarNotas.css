@@ -1,0 +1,220 @@
+/* ---------------------------------------------------
+   src/styles/registrarNotas.css
+   --------------------------------------------------- */
+
+/* Wrapper principal: centraliza dentro da tela */
+.wrapper-notas {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Card branco com borda e sombra suave */
+.card-notas {
+  width: 95%;
+  max-width: 800px;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;   /* cinza claro */
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem 1rem;
+}
+
+/* Formulário interno, organizando verticalmente */
+.form-notas {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ===== Linha de seleção de turma ===== */
+.filtros-notas {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.label-turma {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151; /* cinza escuro */
+}
+
+.filtros-notas select {
+  width: 200px;               /* largura fixa similar ao protótipo */
+  height: 40px;
+  padding: 0 0.75rem;
+  font-size: 0.95rem;
+  color: #333333;
+  border: 1px solid #9ca3af;  /* cinza médio */
+  border-radius: 6px;
+  background-color: #ffffff;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><polygon points='0,0 10,0 5,5' fill='%239ca3af'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  cursor: pointer;
+}
+
+.filtros-notas select:invalid {
+  color: #9ca3af; /* placeholder cinza claro se não selecionado */
+}
+
+/* ===== Abas de bimestres ===== */
+.abas-bimestre {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.aba {
+  flex: 1;
+  padding: 0.75rem 0;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6b7280; /* cinza médio */
+  background-color: #f9fafb;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.aba:hover {
+  background-color: #f3f4f6;
+}
+
+.aba-ativa {
+  color: #1f2937;           /* cinza mais escuro */
+  background-color: #ffffff;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 2px solid #ffffff;
+  z-index: 2;
+}
+
+/* ===== Tabela de Notas ===== */
+.container-tabela-notas {
+  border: 1px solid #d1d5db;
+  border-top: none; /* já há o border-bottom da aba ativa */
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabeçalho fixo da tabela */
+.linha-header-notas {
+  display: grid;
+  grid-template-columns: 4fr 1fr; /* ALUNOS (80%) / NOTA (20%) */
+  background-color: #f9fafb;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Corpo da tabela rolável */
+.corpo-tabela-notas {
+  max-height: 350px;  /* ajuste conforme necessidade de altura */
+  overflow-y: auto;
+}
+
+/* Cada linha de aluno + nota */
+.linha-aluno-nota {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+/* Remover borda da última linha */
+.linha-aluno-nota:last-child {
+  border-bottom: none;
+}
+
+/* Quando não houver aluno */
+.linha-aluno-nota.vazio {
+  padding: 1rem;
+  text-align: center;
+  font-style: italic;
+  color: #6b7280; /* cinza médio */
+}
+
+/* Coluna “ALUNOS”: quebra de texto se necessário */
+.col-aluno {
+  overflow-wrap: anywhere;
+}
+
+/* Coluna “NOTA OBTIDA”: centralizar input */
+.col-nota {
+  display: flex;
+  justify-content: center;
+}
+
+/* Input de nota */
+.input-nota {
+  width: 100px;          /* largura fixa para a caixa de nota */
+  height: 32px;
+  padding: 0 0.5rem;
+  font-size: 0.95rem;
+  color: #1f2937;
+  border: 1px solid #9ca3af;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* ===== Área de botões (“Voltar” e “Cadastrar”) ===== */
+.area-botoes-notas {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Botão “VOLTAR” */
+.btn-voltar {
+  background-color: #f59e0b; /* laranja */
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-voltar:hover {
+  background-color: #d97706;
+}
+
+/* Botão “CADASTRAR” */
+.btn-cadastrar-notas {
+  background-color: #374151; /* cinza-escuro */
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-cadastrar-notas:hover:not(:disabled) {
+  background-color: #1f2937;
+}
+
+.btn-cadastrar-notas:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}

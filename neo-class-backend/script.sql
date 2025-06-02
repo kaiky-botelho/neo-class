@@ -15,11 +15,11 @@ CREATE TABLE aluno (
   id                  SERIAL PRIMARY KEY,
   nome                VARCHAR(100) NOT NULL,
   data_nascimento     DATE,
-  rg                  VARCHAR(20),
-  cpf                 VARCHAR(14),
-  celular             VARCHAR(20),
+  rg                  VARCHAR(20) NOT NULL UNIQUE,
+  cpf                 VARCHAR(14) NOT NULL UNIQUE,
+  celular             VARCHAR(20) ,
   telefone            VARCHAR(20),
-  email               VARCHAR(100),
+  email               VARCHAR(100) NOT NULL UNIQUE,
   genero              VARCHAR(20),
   cep                 VARCHAR(10),
   uf                  CHAR(2),
@@ -30,8 +30,8 @@ CREATE TABLE aluno (
   bairro              VARCHAR(50),
   data_matricula      DATE,
   situacao_matricula  VARCHAR(20),
-  email_institucional VARCHAR(100),
-  senha               VARCHAR(100),
+  email_institucional VARCHAR(100) NOT NULL UNIQUE,
+  senha               VARCHAR(100) NOT NULL,
   turma_id            INTEGER REFERENCES turma(id)
 );
 
@@ -40,12 +40,12 @@ CREATE TABLE professor (
   id                  SERIAL PRIMARY KEY,
   nome                VARCHAR(100) NOT NULL,
   data_nascimento     DATE,
-  rg                  VARCHAR(20),
-  cpf                 VARCHAR(14),
+  rg                  VARCHAR(20) NOT NULL UNIQUE,
+  cpf                 VARCHAR(14) NOT NULL UNIQUE,
   estado_civil        VARCHAR(20),
   celular             VARCHAR(20),
   telefone            VARCHAR(20),
-  email               VARCHAR(100),
+  email               VARCHAR(100) NOT NULL UNIQUE,
   genero              VARCHAR(20),
   cep                 VARCHAR(10),
   uf                  CHAR(2),
@@ -56,8 +56,8 @@ CREATE TABLE professor (
   bairro              VARCHAR(50),
   area_formacao       VARCHAR(100),
   situacao_contrato       VARCHAR(50),
-  email_institucional VARCHAR(100),
-  senha               VARCHAR(100),
+  email_institucional VARCHAR(100) NOT NULL UNIQUE,
+  senha               VARCHAR(100) NOT NULL,
   turma_id            INTEGER REFERENCES turma(id)
 );
 
@@ -85,6 +85,7 @@ CREATE TABLE trabalho (
 CREATE TABLE prova (
   id           SERIAL PRIMARY KEY,
   bimestre     INTEGER       NOT NULL,
+  nome         VARCHAR(100) NOT NULL,
   data         DATE,
   nota         NUMERIC(5,2),
   professor_id INTEGER REFERENCES professor(id),

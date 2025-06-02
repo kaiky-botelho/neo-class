@@ -4,26 +4,23 @@ import Header from "../../components/header/header";
 import Input from "../../components/input/input";
 import Select from "../../components/select/select";
 
-
-
-const CadastroProva: React.FC = () => {
+const CadastroTrabalho: React.FC = () => {
 
     const bimestres = ["1º Bimestre", "2º Bimestre", "3º Bimestre", "4º Bimestre"];
 
     return (
         <div>
-            {/* <Header title={prova.id ? "editar Turma" : "Cadastro de Turma"} /> */}
-            <Header title={"CADASTRO DE PROVA"} />
+            <Header title={"CADASTRO DE TRABALHO"} />
 
             <div className="container relative">
                 <form action="" className="form-cadastro center">
-                    <h1>INFORMAÇÕES DA PROVA</h1>
+                    <h1>INFORMAÇÕES DO TRABALHO</h1>
                     <div className="grid-2e1">
                         <Input
-                            label={"Nome da Prova*"}
+                            label={"Nome do Trabalho*"}
                             type={"text"}
                             value={""}
-                            placeholder="Digite o nome da prova"
+                            placeholder="Digite o nome do trabalho"
                         />
                         <Select
                             label={"Bimestre*"}
@@ -46,7 +43,7 @@ const CadastroProva: React.FC = () => {
                             value={""} 
                             options={[]} 
                             title={"a matéria"} />
-                        <Input label={"Data da Prova*"} type={"date"} value={""} />
+                        <Input label={"Data de Entrega*"} type={"date"} value={""} />
                     </div>
                     <div className="buttons">
                         <a href="/#/homeProfessor" className="btn-voltar">
@@ -57,10 +54,9 @@ const CadastroProva: React.FC = () => {
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     );
-}
+};
 
-export default CadastroProva;
+export default CadastroTrabalho;

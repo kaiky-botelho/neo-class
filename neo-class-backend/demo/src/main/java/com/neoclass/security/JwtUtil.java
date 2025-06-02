@@ -1,4 +1,3 @@
-// src/main/java/com/neoclass/security/JwtUtil.java
 package com.neoclass.security;
 
 import io.jsonwebtoken.Claims;
@@ -28,29 +27,46 @@ public class JwtUtil {
     }
 
     /**
-     * Gera um JWT assinado com HS256 contendo o 'subject'.
+     * Agora recebe 2 parâmetros: 
+     *  - subject (por ex. e-mail) 
+     *  - role (por ex. "SECRETARIA", "ALUNO", "PROFESSOR")
      */
-    public String gerarToken(String subject) {
+    public String gerarToken(String subject, String role) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                    .setSubject(subject)
+                   // ➔ adiciona a claim "role" no payload
+                   .claim("role", role)
                    .setIssuedAt(now)
                    .setExpiration(expiration)
                    .signWith(key, SignatureAlgorithm.HS256)
                    .compact();
     }
 
-    /**
-     * Valida o token e retorna o 'subject' se válido,
-     * ou lança JwtException se inválido ou expirado.
-     */
-    public String validarToken(String token) {
+    public Claims extrairClaims(String token) {
         Jws<Claims> claimsJws = Jwts.parserBuilder()
                                    .setSigningKey(key)
                                    .build()
                                    .parseClaimsJws(token);
-        return claimsJws.getBody().getSubject();
+        return claimsJws.getBody();
+    }
+
+    public String extrairSubject(String token) {
+        return extrairClaims(token).getSubject();
+    }
+
+    public String extrairRole(String token) {
+        return extrairClaims(token).get("role", String.class);
+    }
+
+    public boolean tokenValido(String token) {
+        try {
+            extrairClaims(token);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }
