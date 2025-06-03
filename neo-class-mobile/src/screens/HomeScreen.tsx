@@ -1,65 +1,69 @@
 // src/screens/HomeScreen.tsx
-import React, { useContext } from 'react';
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
   Platform,
   Image,
   StatusBar,
-} from 'react-native';
-
-import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { AuthContext } from '../context/AuthContext';
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native";
+import { useNavigation, CommonActions } from "@react-navigation/native";
+import { Calendar, LocaleConfig } from "react-native-calendars";
+import { AuthContext } from "../context/AuthContext";
+import homeStyles from "../styles/homeStyles";
 
 // 1) Configurar LocaleConfig em português (pt-BR)
-LocaleConfig.locales['pt'] = {
+LocaleConfig.locales["pt"] = {
   monthNames: [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
   ],
   monthNamesShort: [
-    'Jan',
-    'Fev',
-    'Mar',
-    'Abr',
-    'Mai',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Set',
-    'Out',
-    'Nov',
-    'Dez',
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
   ],
   dayNames: [
-    'Domingo',
-    'Segunda-feira',
-    'Terça-feira',
-    'Quarta-feira',
-    'Quinta-feira',
-    'Sexta-feira',
-    'Sábado',
+    "Domingo",
+    "Segunda-feira",
+    "Terça-feira",
+    "Quarta-feira",
+    "Quinta-feira",
+    "Sexta-feira",
+    "Sábado",
   ],
-  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-  today: 'Hoje',
+  dayNamesShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+  today: "Hoje",
 };
-LocaleConfig.defaultLocale = 'pt';
+LocaleConfig.defaultLocale = "pt";
 
 export default function HomeScreen() {
-  const { signOut, user } = useContext(AuthContext);
+  const navigation = useNavigation();
+  const { signOut } = useContext(AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
 
   // 2) Função para obter “hoje” no fuso “America/Sao_Paulo” sem libs externas
   const getTodayBrazilString = (): string => {
@@ -67,7 +71,7 @@ export default function HomeScreen() {
     const utcMillis = now.getTime() + now.getTimezoneOffset() * 60000;
     const brasilOffset = -3 * 60 * 60 * 1000; // UTC-3
     const brasilDate = new Date(utcMillis + brasilOffset);
-    return brasilDate.toISOString().split('T')[0]; // “YYYY-MM-DD”
+    return brasilDate.toISOString().split("T")[0]; // “YYYY-MM-DD”
   };
 
   // String “YYYY-MM-DD” de hoje em Brasília
@@ -77,302 +81,234 @@ export default function HomeScreen() {
   const markedDates = {
     [todayString]: {
       selected: true,
-      selectedColor: '#EA9216',
+      selectedColor: "#E6BC51",
     },
   };
 
   // Handler de clique num dia
   const onDayPress = (day: { dateString: string }) => {
-    console.log('Dia selecionado:', day.dateString);
+    console.log("Dia selecionado:", day.dateString);
+  };
+
+  // Abre o modal de perfil
+  const openProfileModal = () => {
+    setModalVisible(true);
+  };
+
+  // Fecha o modal
+  const closeProfileModal = () => {
+    setModalVisible(false);
+  };
+
+  // Navega para a tela de Alterar Senha (depois você criará essa tela)
+  const handleChangePassword = () => {
+    closeProfileModal();
+    navigation.navigate("ChangePassword" as never);
+  };
+
+  // Faz logout limpando credenciais e voltando para a tela de Login
+  const handleLogout = () => {
+    closeProfileModal();
+    signOut();
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Login" as never }],
+      })
+    );
   };
 
   return (
     <>
-      {/* 
-        1. StatusBar em modo claro sobre fundo escuro
-      */}
+      {/* StatusBar em modo claro sobre fundo escuro */}
       <StatusBar barStyle="light-content" backgroundColor="#333C56" />
 
-      {/* 
-        2. SafeAreaView superior somente para cobrir notch/status bar, em fundo escuro 
-      */}
-      <SafeAreaView style={styles.topSafe}>
-        <View style={styles.topBar}>
-          <View style={styles.topBarSpacer} />
+      {/* SafeAreaView superior (notch/status bar) */}
+      <SafeAreaView style={homeStyles.topSafe}>
+        <View style={homeStyles.topBar}>
+          <View style={homeStyles.topBarSpacer} />
           <TouchableOpacity
-            style={styles.profileButton}
-            onPress={() => {
-              /* navegar para perfil, se existir */
-            }}
+            style={homeStyles.profileButton}
+            onPress={openProfileModal}
           >
             <Image
-              source={require('../../assets/profile.png')}
-              style={styles.profileIcon}
+              source={require("../../assets/profile.png")}
+              style={homeStyles.profileIcon}
             />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
-      {/* 
-        3. SafeAreaView inferior (conteúdo principal) em fundo branco
-      */}
-      <SafeAreaView style={styles.bottomSafe}>
-        {/* ---------- 2. CALENDÁRIO ---------- */}
-        <View style={styles.calendarContainer}>
+      {/* Modal de perfil */}
+      <Modal
+        visible={modalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={closeProfileModal}
+      >
+        <TouchableWithoutFeedback onPress={closeProfileModal}>
+          <View style={homeStyles.modalOverlay} />
+        </TouchableWithoutFeedback>
+        <View style={homeStyles.modalContainer}>
+          <Text style={homeStyles.modalHeader}>OLÁ, USUÁRIO</Text>
+          <View style={homeStyles.modalDivider} />
+
+          <TouchableOpacity
+            style={homeStyles.modalButton}
+            onPress={handleChangePassword}
+          >
+            <Text style={homeStyles.modalButtonText}>ALTERAR SENHA</Text>
+            <Image
+              source={require("../../assets/cadeado.png")}
+              style={homeStyles.modalButtonIcon}
+            />
+          </TouchableOpacity>
+          <View style={homeStyles.modalDivider} />
+
+          <TouchableOpacity style={homeStyles.modalButton} onPress={handleLogout}>
+            <Text style={homeStyles.modalButtonText}>SAIR</Text>
+            <Image
+              source={require("../../assets/exit.png")}
+              style={homeStyles.modalButtonIcon}
+            />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* Conteúdo principal */}
+      <SafeAreaView style={homeStyles.bottomSafe}>
+        {/* CALENDÁRIO */}
+        <View style={homeStyles.calendarContainer}>
           <Calendar
             current={todayString}
             onDayPress={onDayPress}
             markedDates={markedDates}
             theme={{
-              arrowColor: '#EA9216',
-              todayTextColor: '#333',
-              dayTextColor: '#333',
-              textDayFontFamily: Platform.OS === 'android' ? 'Roboto' : undefined,
-              textMonthFontWeight: 'bold',
-              monthTextColor: '#EA9216',
-              textDisabledColor: '#BBB',
-              selectedDayBackgroundColor: '#EA9216',
-              selectedDayTextColor: '#FFF',
+              arrowColor: "#2D2D2D",
+              todayTextColor: "#2D2D2D",
+              dayTextColor: "#2D2D2D",
+              textDayFontFamily:
+                Platform.OS === "android" ? "Roboto" : undefined,
+              textMonthFontWeight: "bold",
+              monthTextColor: "#2D2D2D",
+              textDisabledColor: "#2D2D2D",
+              selectedDayBackgroundColor: "#FFF",
+              selectedDayTextColor: "#2D2D2D",
             }}
-            style={styles.calendar}
+            style={homeStyles.calendar}
             firstDay={1}
           />
         </View>
 
-        {/* ---------- 3. BOTÃO “CALENDÁRIO ACADÊMICO” ---------- */}
+        {/* BOTÃO “CALENDÁRIO ACADÊMICO” */}
         <TouchableOpacity
-          style={styles.calendarButton}
+          style={homeStyles.calendarButton}
           onPress={() => {
             /* ação do calendário acadêmico */
           }}
         >
-          <Text style={styles.calendarButtonText}>Calendário acadêmico</Text>
+          <Text style={homeStyles.calendarButtonText}>
+            Calendário acadêmico
+          </Text>
           <Image
-            source={require('../../assets/arrow.png')}
-            style={styles.arrowIcon}
+            source={require("../../assets/arrow.png")}
+            style={homeStyles.arrowIcon}
           />
         </TouchableOpacity>
 
-        {/* ---------- 4. DISTRIBUIÇÃO DE BOTÕES ---------- */}
-        <View style={styles.buttonsWrapper}>
+        {/* DISTRIBUIÇÃO DE BOTÕES */}
+        <View style={homeStyles.buttonsWrapper}>
           {/* 4.1 DISCIPLINAS */}
           <TouchableOpacity
-            style={[styles.discButton, styles.discButtonBlue]}
+            style={[homeStyles.discButton, homeStyles.discButtonBlue]}
             onPress={() => {
               /* ação Disciplinas */
             }}
           >
             <Image
-              source={require('../../assets/disciplinas.png')}
-              style={styles.discIcon}
+              source={require("../../assets/triangulo_inferior.png")}
+              style={[
+                homeStyles.discButtonTriangleTop,
+                homeStyles.triangleDecor,
+              ]}
             />
-            <Text style={[styles.discText, { color: '#FFF' }]}>
-              Disciplinas
-            </Text>
+            <Image
+              source={require("../../assets/triangulo_superior.png")}
+              style={[
+                homeStyles.discButtonTriangleBottom,
+                homeStyles.triangleDecor,
+              ]}
+            />
+            <Image
+              source={require("../../assets/disciplinas.png")}
+              style={homeStyles.discIcon}
+            />
+            <View style={homeStyles.discTextWrapper}>
+              <Text style={homeStyles.discText}>Disciplinas</Text>
+            </View>
           </TouchableOpacity>
 
           {/* 4.2 COLUNA DIREITA */}
-          <View style={styles.rightColumn}>
+          <View style={homeStyles.rightColumn}>
             <TouchableOpacity
-              style={[styles.smallButton, styles.smallButtonWhite]}
+              style={[homeStyles.smallButton, homeStyles.smallButtonWhite]}
               onPress={() => {
                 /* ação Notas */
               }}
             >
               <Image
-                source={require('../../assets/notas.png')}
-                style={styles.smallIcon}
+                source={require("../../assets/notas.png")}
+                style={homeStyles.smallIcon}
               />
-              <Text style={[styles.smallText, { color: '#333' }]}>Notas</Text>
+              <Text style={[homeStyles.smallText, { color: "#333" }]}>
+                Notas
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.smallButton, styles.smallButtonRed]}
+              style={[homeStyles.smallButton, homeStyles.smallButtonRed]}
               onPress={() => {
                 /* ação Faltas */
               }}
             >
-              <Text style={[styles.smallText, { color: '#FFF' }]}>Faltas</Text>
+              <Image
+                source={require("../../assets/trianguloFalta.png")}
+                style={[homeStyles.faltaTriangle, homeStyles.triangleDecor]}
+              />
+              <Text style={[homeStyles.smallText, { color: "#2D2D2D" }]}>
+                Faltas
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* ---------- 5. BOTÃO DE SUPORTE (FULL WIDTH) ---------- */}
+        {/* BOTÃO “SUPORTE” */}
         <TouchableOpacity
-          style={[styles.supportButton, styles.supportButtonGrey]}
+          style={[homeStyles.supportButton, homeStyles.supportButtonGrey]}
           onPress={() => {
             /* ação Suporte */
           }}
         >
-          <Text style={[styles.supportText, { color: '#FFF' }]}>Suporte</Text>
           <Image
-            source={require('../../assets/suporte.png')}
-            style={styles.supportGearIcon}
+            source={require("../../assets/trianguloEsquerdo.png")}
+            style={[
+              homeStyles.supportTriangleLeft,
+              homeStyles.triangleDecor,
+            ]}
+          />
+          <Text style={homeStyles.supportText}>Suporte</Text>
+          <Image
+            source={require("../../assets/suporte.png")}
+            style={homeStyles.supportIcon}
+          />
+          <Image
+            source={require("../../assets/trianguloDireito.png")}
+            style={[
+              homeStyles.supportTriangleRight,
+              homeStyles.triangleDecor,
+            ]}
           />
         </TouchableOpacity>
       </SafeAreaView>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  // ===================================================================
-  // 1. SafeAreaView superior cobrindo notch/status bar (fundo escuro)
-  // ===================================================================
-  topSafe: {
-    backgroundColor: '#333C56',
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    // AQUI ADICIONAMOS UM ESPAÇAMENTO EXTRA NO TOPO
-    marginTop: 30,
-  },
-  topBarSpacer: {
-    flex: 1,
-  },
-  profileButton: {
-    padding: 4,
-  },
-  profileIcon: {
-    width: 28,
-    height: 28,
-    tintColor: '#FFF',
-    resizeMode: 'contain',
-  },
-
-  // ===================================================================
-  // 2. SafeAreaView inferior (conteúdo principal, fundo branco)
-  // ===================================================================
-  bottomSafe: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
-
-  // 3. CALENDÁRIO
-  calendarContainer: {
-    marginHorizontal: 24,
-    marginTop: 16,
-    borderRadius: 8,
-    overflow: 'hidden',
-    elevation: 2,
-    backgroundColor: '#FFF',
-  },
-  calendar: {
-    borderRadius: 8,
-  },
-
-  // 4. BOTÃO “CALENDÁRIO ACADÊMICO”
-  calendarButton: {
-    flexDirection: 'row',
-    backgroundColor: '#F2C94C',
-    marginHorizontal: 24,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 16,
-    elevation: 2,
-  },
-  calendarButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-  },
-  arrowIcon: {
-    width: 16,
-    height: 16,
-    resizeMode: 'contain',
-  },
-
-  // 5. DISTRIBUIÇÃO DE BOTÕES (Disciplinas / Notas / Faltas)
-  buttonsWrapper: {
-    flexDirection: 'row',
-    marginHorizontal: 24,
-    marginTop: 24,
-    justifyContent: 'space-between',
-    height: 160, // altura fixa para alinhar
-  },
-  // 5.1 DISCIPLINAS (esquerda)
-  discButton: {
-    width: '60%',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-  },
-  discButtonBlue: {
-    backgroundColor: '#4F8EF7',
-  },
-  discIcon: {
-    width: 48,
-    height: 48,
-    resizeMode: 'contain',
-  },
-  discText: {
-    marginTop: 12,
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  // 5.2 COLUNA DIREITA (Notas em cima, Faltas embaixo)
-  rightColumn: {
-    width: '38%', // 60% + 38% + (2% gap aproximado) = 100%
-    justifyContent: 'space-between',
-  },
-  smallButton: {
-    height: '48%', // metade do espaço vertical disponível
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-  },
-  smallButtonWhite: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#DDD',
-  },
-  smallButtonRed: {
-    backgroundColor: '#EB5757',
-  },
-  smallIcon: {
-    width: 36,
-    height: 36,
-    resizeMode: 'contain',
-  },
-  smallText: {
-    marginTop: 8,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  // 6. BOTÃO DE SUPORTE (FULL WIDTH)
-  supportButton: {
-    flexDirection: 'row',
-    backgroundColor: '#333C56',
-    marginHorizontal: 24,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 24,
-    elevation: 2,
-  },
-  supportButtonGrey: {},
-  supportGearIcon: {
-    width: 24,
-    height: 24,
-    tintColor: '#FFF',
-    resizeMode: 'contain',
-  },
-  supportText: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFF',
-  },
-});

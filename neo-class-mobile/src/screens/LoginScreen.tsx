@@ -26,7 +26,7 @@ export default function LoginScreen() {
     setError('');
     try {
       await signIn(email.trim(), senha);
-      // No sucesso, limpa pilha e vai para Home
+      // Se sucesso, limpa pilha e vai para Home
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -34,12 +34,11 @@ export default function LoginScreen() {
         })
       );
     } catch (err: any) {
-      // Se vier response do axios
       if (err.response) {
         const fullUrl = `${err.config.baseURL}${err.config.url}`;
         console.log('🔥 LOGIN FAILURE 🔥', {
-          status:  err.response.status,
-          data:    err.response.data,
+          status: err.response.status,
+          data: err.response.data,
           fullUrl: fullUrl,
           payload: err.config.data,
         });
@@ -49,7 +48,6 @@ export default function LoginScreen() {
             : err.response.data?.message || `Erro ${err.response.status}`
         );
       } else {
-        // erro de rede/outro
         console.log('🌐 NETWORK ERROR 🌐', err.message);
         setError('Erro de rede ou servidor');
       }
@@ -129,7 +127,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Platform.OS === 'ios' ? 100 : 80,
   },
-   card: {
+  card: {
     width: '100%',
     backgroundColor: '#A0BFE8',
     borderTopLeftRadius: 90,
