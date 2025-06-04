@@ -1,45 +1,69 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../api/api';
+import api from '../services/api';
 
-type AuthContextData = {
-  token: string | null;
+export interface User {
+  id: number;
+  nome: string;
+  emailInstitucional: string;
+  turmaId: number;
+}
+
+interface AuthContextData {
+  user: User | null;
+  loading: boolean;
   signIn(email: string, senha: string): Promise<void>;
-  signOut(): Promise<void>;
-};
+  signOut(): void;
+}
 
 export const AuthContext = createContext<AuthContextData>({} as any);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ao iniciar, tenta ler o token
-    AsyncStorage.getItem('@neo-class:token').then(t => {
-      if (t) setToken(t);
-    });
+    async function loadStorageData() {
+      const token = await AsyncStorage.getItem('@app:token');
+      const userStr = await AsyncStorage.getItem('@app:user');
+      if (token && userStr) {
+        api.defaults.headers.Authorization = `Bearer ${token}`;
+        setUser(JSON.parse(userStr));
+      }
+      setLoading(false);
+    }
+    loadStorageData();
   }, []);
 
   async function signIn(email: string, senha: string) {
+    setLoading(true);
     try {
-      const resp = await api.post('/auth/login', { email, senha });
-      const jwt = resp.data.token; 
-      await AsyncStorage.setItem('@neo-class:token', jwt);
-      setToken(jwt);
-    } catch (err) {
-      Alert.alert('Erro', 'E-mail ou senha inválidos');
+      // Espera { token: string; user: User } do backend
+      const response = await api.post<{
+        token: string;
+        user: User;
+      }>('/login/aluno', { email, senha });
+
+      const { token, user: userData } = response.data;
+      await AsyncStorage.setItem('@app:token', token);
+      await AsyncStorage.setItem('@app:user', JSON.stringify(userData));
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+      setUser(userData);
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
     }
   }
 
-  async function signOut() {
-    await AsyncStorage.removeItem('@neo-class:token');
-    setToken(null);
+  function signOut() {
+    AsyncStorage.multiRemove(['@app:token', '@app:user']);
+    setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ token, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
