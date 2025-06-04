@@ -1,6 +1,5 @@
+// src/main/java/com/neoclass/security/SecurityConfig.java
 package com.neoclass.security;
-
-import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +11,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -25,11 +26,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-          .cors()                       // <-- habilita CORS no Spring Security
+          .cors()                        // Habilita CORS usando corsConfigurationSource()
           .and()
-          .csrf().disable()
+          .csrf().disable()              // Desativa CSRF para APIs REST
           .authorizeHttpRequests(auth -> auth
-              .requestMatchers(HttpMethod.POST, "/api/secretarias", "/api/login/**").permitAll()
+              .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
               .requestMatchers(
                   "/v3/api-docs/**",
                   "/swagger-ui.html",
@@ -54,10 +55,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // seu frontend
+
+        // Permitir frontends em React e Expo:
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:3000",   // React Web, se existir
+            "http://localhost:8081"    // Expo Web / React Native Web (Metro)
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);                         // se usar cookies/autenticação
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

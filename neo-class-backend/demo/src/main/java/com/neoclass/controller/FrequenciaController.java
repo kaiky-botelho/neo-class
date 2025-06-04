@@ -1,83 +1,50 @@
 // src/main/java/com/neoclass/controller/FrequenciaController.java
 package com.neoclass.controller;
 
-import com.neoclass.dto.FrequenciaDTO;
-import com.neoclass.model.Frequencia;
+import com.neoclass.dto.FaltaDTO;
 import com.neoclass.model.Aluno;
-import com.neoclass.model.Turma;
-import com.neoclass.model.Materia;
+import com.neoclass.service.AlunoService;
 import com.neoclass.service.FrequenciaService;
-import org.springframework.beans.BeanUtils;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/frequencias")
+@RequestMapping("/api")
 public class FrequenciaController {
-    private final FrequenciaService service;
-    public FrequenciaController(FrequenciaService service) {
-        this.service = service;
+
+    private final FrequenciaService frequenciaService;
+    private final AlunoService      alunoService;
+
+    public FrequenciaController(
+            FrequenciaService frequenciaService,
+            AlunoService alunoService
+    ) {
+        this.frequenciaService = frequenciaService;
+        this.alunoService      = alunoService;
     }
 
-    @GetMapping
-    public List<FrequenciaDTO> listar() {
-        return service.listarTodos().stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
-    }
+    /**
+     * GET /api/faltas
+     * • Extrai o e‐mail do JWT via Authentication.getPrincipal()
+     * • Busca o Aluno completo (_contendo o ID_) a partir do e‐mail
+     * • Chama o FrequenciaService.listarFaltasPorAluno(alunoId) para obter List<FaltaDTO>
+     */
+    @GetMapping("/faltas")
+    public ResponseEntity<List<FaltaDTO>> listarFaltasDoAlunoLogado(
+            Authentication authentication
+    ) {
+        // 1) principal() do Authentication = o "sub" do token (que configuramos como emailInstitucional)
+        String emailDoAluno = authentication.getPrincipal().toString();
 
-    @GetMapping("/{id}")
-    public FrequenciaDTO buscar(@PathVariable Long id) {
-        return toDTO(service.buscarPorId(id));
-    }
+        // 2) Busca a entidade Aluno pelo e‐mail
+        Aluno aluno = alunoService.buscarPorEmailInstitucional(emailDoAluno);
+        Long alunoId = aluno.getId();
 
-    @PostMapping
-    public FrequenciaDTO criar(@RequestBody FrequenciaDTO dto) {
-        Frequencia entidade = toEntity(dto);
-        Frequencia salvo   = service.salvar(entidade);
-        return toDTO(salvo);
-    }
-
-    @PutMapping("/{id}")
-    public FrequenciaDTO atualizar(@PathVariable Long id,
-                                   @RequestBody FrequenciaDTO dto) {
-        Frequencia entidade = toEntity(dto);
-        entidade.setId(id);
-        return toDTO(service.salvar(entidade));
-    }
-
-    @DeleteMapping("/{id}")
-    public void excluir(@PathVariable Long id) {
-        service.excluir(id);
-    }
-
-    // ——— Helpers de mapeamento ———
-    private FrequenciaDTO toDTO(Frequencia f) {
-        FrequenciaDTO dto = new FrequenciaDTO();
-        BeanUtils.copyProperties(f, dto);
-        dto.setAlunoId(f.getAluno().getId());
-        dto.setTurmaId(f.getTurma().getId());
-        dto.setMateriaId(f.getMateria().getId());
-        return dto;
-    }
-
-    private Frequencia toEntity(FrequenciaDTO dto) {
-        Frequencia f = new Frequencia();
-        BeanUtils.copyProperties(dto, f);
-        if (dto.getAlunoId() != null) {
-            Aluno a = new Aluno(); a.setId(dto.getAlunoId());
-            f.setAluno(a);
-        }
-        if (dto.getTurmaId() != null) {
-            Turma t = new Turma(); t.setId(dto.getTurmaId());
-            f.setTurma(t);
-        }
-        if (dto.getMateriaId() != null) {
-            Materia m = new Materia(); m.setId(dto.getMateriaId());
-            f.setMateria(m);
-        }
-        return f;
+        // 3) Lista as faltas por matéria para aquele aluno
+        List<FaltaDTO> lista = frequenciaService.listarFaltasPorAluno(alunoId);
+        return ResponseEntity.ok(lista);
     }
 }

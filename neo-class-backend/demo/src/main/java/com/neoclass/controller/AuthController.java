@@ -2,7 +2,9 @@
 package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
-import com.neoclass.dto.AuthResponseDTO;
+import com.neoclass.dto.LoginResponseDTO;
+import com.neoclass.dto.AlunoResumoDTO;
+import com.neoclass.model.Aluno;
 import com.neoclass.security.JwtUtil;
 import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
@@ -33,41 +35,71 @@ public class AuthController {
     }
 
     @PostMapping("/secretaria")
-    public ResponseEntity<Object> loginSecretaria(@RequestBody AuthRequestDTO req) {
+    public ResponseEntity<?> loginSecretaria(@RequestBody AuthRequestDTO req) {
         var opt = secretariaService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body("E-mail ou senha inválidos");
         }
-        String token = jwtUtil.gerarToken(opt.get().getEmail());
-        AuthResponseDTO dto = new AuthResponseDTO(token, "SECRETARIA");
-        return ResponseEntity.ok(dto);
+
+        var entidade = opt.get();
+        String token = jwtUtil.gerarToken(entidade.getEmail());
+
+        // Mapeia para DTO mínimo (pode criar um SecretariaResumoDTO se desejar, 
+        // mas aqui usamos AlunoResumoDTO apenas para “papel” de nome placeholder)
+        AlunoResumoDTO dto = new AlunoResumoDTO();
+        dto.setId(null);
+        dto.setNome("SECRETARIA");
+        dto.setEmailInstitucional(entidade.getEmail());
+        dto.setTurmaId(null);
+
+        LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
+        return ResponseEntity.ok(resposta);
     }
 
     @PostMapping("/aluno")
-    public ResponseEntity<Object> loginAluno(@RequestBody AuthRequestDTO req) {
+    public ResponseEntity<?> loginAluno(@RequestBody AuthRequestDTO req) {
         var opt = alunoService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body("E-mail ou senha inválidos");
+                .body("E-mail institucional ou senha inválidos");
         }
-        String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
-        AuthResponseDTO dto = new AuthResponseDTO(token, "ALUNO");
-        return ResponseEntity.ok(dto);
+
+        Aluno entidade = opt.get();
+        String token = jwtUtil.gerarToken(entidade.getEmailInstitucional());
+
+        AlunoResumoDTO dto = new AlunoResumoDTO();
+        dto.setId(entidade.getId());
+        dto.setNome(entidade.getNome());
+        dto.setEmailInstitucional(entidade.getEmailInstitucional());
+        dto.setTurmaId(entidade.getTurma() != null ? entidade.getTurma().getId() : null);
+
+        LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
+        return ResponseEntity.ok(resposta);
     }
 
     @PostMapping("/professor")
-    public ResponseEntity<Object> loginProfessor(@RequestBody AuthRequestDTO req) {
+    public ResponseEntity<?> loginProfessor(@RequestBody AuthRequestDTO req) {
         var opt = professorService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body("E-mail ou senha inválidos");
         }
-        String token = jwtUtil.gerarToken(opt.get().getEmailInstitucional());
-        AuthResponseDTO dto = new AuthResponseDTO(token, "PROFESSOR");
-        return ResponseEntity.ok(dto);
+
+        var entidade = opt.get();
+        String token = jwtUtil.gerarToken(entidade.getEmailInstitucional());
+
+        // “Professor” pode usar DTO mínimo também
+        AlunoResumoDTO dto = new AlunoResumoDTO();
+        dto.setId(null);
+        dto.setNome("PROFESSOR");
+        dto.setEmailInstitucional(entidade.getEmailInstitucional());
+        dto.setTurmaId(null);
+
+        LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
+        return ResponseEntity.ok(resposta);
     }
 }
