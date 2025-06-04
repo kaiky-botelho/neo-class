@@ -1,3 +1,4 @@
+// src/main/java/com/neoclass/security/JwtFilter.java
 package com.neoclass.security;
 
 import io.jsonwebtoken.JwtException;
@@ -14,6 +15,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Filtro que valida JWT em todas as rotas, exceto:
+ *   - /api/login/**
+ *   - /api/secretarias
+ *   - endpoints de documentação Swagger/OpenAPI
+ *
+ * Se o token for válido, define o 'principal' no Authentication como o emailInstitucional.
+ */
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -31,35 +40,37 @@ public class JwtFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String path = req.getServletPath();
 
-        // 1) Se for rota de login (/api/login/**), pule a validação de token
-        if (pathMatcher.match("/api/login/**", path) 
-            || pathMatcher.match("/api/secretarias", path)) {
+        // 1) Pule a validação para rotas públicas:
+        if (pathMatcher.match("/api/login/**", path)
+         || pathMatcher.match("/api/secretarias", path)
+         || pathMatcher.match("/v3/api-docs/**", path)
+         || pathMatcher.match("/swagger-ui/**", path)) {
             chain.doFilter(req, res);
             return;
         }
 
-        // 2) Validação normal para rotas que exigem JWT
+        // 2) Para todas as outras rotas, extrai o header "Authorization: Bearer <token>"
         String header = req.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             try {
                 String token = header.substring(7);
-                // jwtUtil.validarToken lança JwtException se o token for inválido
+                // jwtUtil.validarToken lança JwtException se inválido/extrado
                 String email = jwtUtil.validarToken(token);
 
-                // Cria autenticação e define no contexto de segurança
+                // Cria authentication com principal = emailInstitucional
                 var auth = new UsernamePasswordAuthenticationToken(
-                    email,
-                    null,
-                    List.of() // sem papéis explícitos
+                    email, 
+                    null, 
+                    List.of()  // sem autoridades específicas
                 );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (JwtException ex) {
-                // Token inválido → retorna 401 Unauthorized e não segue adiante
+                // Token inválido ou expirado → 401 Unauthorized
                 res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
         } else {
-            // Se não houver header “Authorization: Bearer ...”, retorne 403 Forbidden
+            // Sem header Authorization → 403 Forbidden
             res.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }

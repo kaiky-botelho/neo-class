@@ -13,6 +13,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+/**
+ * Classe utilitária para gerar e validar JWT.
+ * O campo 'sub' do token será o emailInstitucional do usuário.
+ */
 @Component
 public class JwtUtil {
 
@@ -28,14 +32,14 @@ public class JwtUtil {
     }
 
     /**
-     * Gera um JWT assinado com HS256 contendo o 'subject'.
+     * Gera um JWT assinado com HS256 contendo o 'subject' = emailInstitucional
      */
     public String gerarToken(String subject) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-                   .setSubject(subject)
+                   .setSubject(subject)      // guarda o emailInstitucional como subject
                    .setIssuedAt(now)
                    .setExpiration(expiration)
                    .signWith(key, SignatureAlgorithm.HS256)
@@ -43,8 +47,8 @@ public class JwtUtil {
     }
 
     /**
-     * Valida o token e retorna o 'subject' se válido,
-     * ou lança JwtException se inválido ou expirado.
+     * Valida o token e retorna o 'subject' (emailInstitucional) se válido,
+     * ou lança JwtException se inválido/extrado.
      */
     public String validarToken(String token) {
         Jws<Claims> claimsJws = Jwts.parserBuilder()

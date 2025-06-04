@@ -46,4 +46,14 @@ public class AlunoService implements CrudService<Aluno, Long> {
     public Optional<Aluno> autenticar(String email, String senha) {
         return repo.findByEmailInstitucionalAndSenha(email, senha);
     }
+
+    /**
+     * Busca apenas o ID do aluno a partir do emailInstitucional.
+     * Lança IllegalArgumentException se não encontrar.
+     */
+    public Long buscarIdPorEmail(String emailInstitucional) {
+        return repo.findByEmailInstitucional(emailInstitucional)
+                   .orElseThrow(() -> new IllegalArgumentException("Aluno não encontrado para email: " + emailInstitucional))
+                   .getId();
+    }
 }

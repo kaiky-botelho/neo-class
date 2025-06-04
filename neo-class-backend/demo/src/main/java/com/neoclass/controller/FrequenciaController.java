@@ -8,58 +8,71 @@ import com.neoclass.model.Turma;
 import com.neoclass.model.Materia;
 import com.neoclass.service.FrequenciaService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/frequencias")
+@RequestMapping("/api")
 public class FrequenciaController {
+
     private final FrequenciaService service;
+
     public FrequenciaController(FrequenciaService service) {
         this.service = service;
     }
 
-    @GetMapping
-    public List<FrequenciaDTO> listar() {
+    // ================================================================
+    // CRUD SIMPLES (GET /api/frequencias, POST, PUT, DELETE)
+    // ================================================================
+    @GetMapping("/frequencias")
+    public List<FrequenciaDTO> listarTodasFrequencias() {
         return service.listarTodos().stream()
             .map(this::toDTO)
             .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
-    public FrequenciaDTO buscar(@PathVariable Long id) {
-        return toDTO(service.buscarPorId(id));
+    @GetMapping("/frequencias/{id}")
+    public ResponseEntity<FrequenciaDTO> buscarFrequencia(@PathVariable Long id) {
+        Frequencia f = service.buscarPorId(id);
+        return ResponseEntity.ok(toDTO(f));
     }
 
-    @PostMapping
-    public FrequenciaDTO criar(@RequestBody FrequenciaDTO dto) {
+    @PostMapping("/frequencias")
+    public ResponseEntity<FrequenciaDTO> criarFrequencia(@RequestBody FrequenciaDTO dto) {
         Frequencia entidade = toEntity(dto);
         Frequencia salvo   = service.salvar(entidade);
-        return toDTO(salvo);
+        return ResponseEntity.ok(toDTO(salvo));
     }
 
-    @PutMapping("/{id}")
-    public FrequenciaDTO atualizar(@PathVariable Long id,
-                                   @RequestBody FrequenciaDTO dto) {
+    @PutMapping("/frequencias/{id}")
+    public ResponseEntity<FrequenciaDTO> atualizarFrequencia(
+            @PathVariable Long id,
+            @RequestBody FrequenciaDTO dto
+    ) {
         Frequencia entidade = toEntity(dto);
         entidade.setId(id);
-        return toDTO(service.salvar(entidade));
+        Frequencia atualizado = service.salvar(entidade);
+        return ResponseEntity.ok(toDTO(atualizado));
     }
 
-    @DeleteMapping("/{id}")
-    public void excluir(@PathVariable Long id) {
+    @DeleteMapping("/frequencias/{id}")
+    public ResponseEntity<Void> excluirFrequencia(@PathVariable Long id) {
         service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // ——— Helpers de mapeamento ———
+    // ——— Helpers de mapeamento entre Frequencia ↔ FrequenciaDTO ———
+
     private FrequenciaDTO toDTO(Frequencia f) {
         FrequenciaDTO dto = new FrequenciaDTO();
         BeanUtils.copyProperties(f, dto);
         dto.setAlunoId(f.getAluno().getId());
         dto.setTurmaId(f.getTurma().getId());
         dto.setMateriaId(f.getMateria().getId());
+        dto.setMateriaNome(f.getMateria().getNome()); // preenche o novo campo
         return dto;
     }
 
@@ -67,15 +80,18 @@ public class FrequenciaController {
         Frequencia f = new Frequencia();
         BeanUtils.copyProperties(dto, f);
         if (dto.getAlunoId() != null) {
-            Aluno a = new Aluno(); a.setId(dto.getAlunoId());
+            Aluno a = new Aluno();
+            a.setId(dto.getAlunoId());
             f.setAluno(a);
         }
         if (dto.getTurmaId() != null) {
-            Turma t = new Turma(); t.setId(dto.getTurmaId());
+            Turma t = new Turma();
+            t.setId(dto.getTurmaId());
             f.setTurma(t);
         }
         if (dto.getMateriaId() != null) {
-            Materia m = new Materia(); m.setId(dto.getMateriaId());
+            Materia m = new Materia();
+            m.setId(dto.getMateriaId());
             f.setMateria(m);
         }
         return f;

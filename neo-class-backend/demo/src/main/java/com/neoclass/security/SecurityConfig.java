@@ -1,3 +1,4 @@
+// src/main/java/com/neoclass/security/SecurityConfig.java
 package com.neoclass.security;
 
 import org.springframework.context.annotation.Bean;
@@ -25,34 +26,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-          // 1) Habilita o suporte a CORS usando o bean corsConfigurationSource()
-          .cors()
+          .cors()                        // Habilita CORS usando corsConfigurationSource()
           .and()
-          // 2) Desabilita CSRF para facilitar chamadas REST
-          .csrf().disable()
-          // 3) Define quais requisições são permitidas sem autenticação
+          .csrf().disable()              // Desativa CSRF para APIs REST
           .authorizeHttpRequests(auth -> auth
-              // libera POST em /api/secretarias e /api/login/**
-              .requestMatchers(HttpMethod.POST, "/api/secretarias", "/api/login/**").permitAll()
-              // libera acesso à documentação do Swagger/OpenAPI
+              .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
               .requestMatchers(
                   "/v3/api-docs/**",
                   "/swagger-ui.html",
                   "/swagger-ui/**"
               ).permitAll()
-              // qualquer outra rota precisa estar autenticada
               .anyRequest().authenticated()
           )
-          // 4) Garante que a aplicação não irá criar sessão HTTP (stateless)
           .sessionManagement(sm ->
               sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
           )
-          // 5) Adiciona o JwtFilter antes do filtro padrão de username/password
           .addFilterBefore(
               new JwtFilter(jwtUtil),
               UsernamePasswordAuthenticationFilter.class
           )
-          // 6) Desabilita frameOptions (por exemplo se usar H2 console)
           .headers(headers ->
               headers.frameOptions().disable()
           );
@@ -60,31 +52,19 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * Configuração global de CORS.
-     * Permite que origens específicas (localhost:3000 e localhost:8081) façam
-     * requisições para este backend.
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // 1) Adicione aqui todas as origens que irão chamar sua API (por exemplo, React Web em 3000, Expo Web em 8081, etc.)
+        // Permitir frontends em React e Expo:
         config.setAllowedOriginPatterns(List.of(
-            "http://localhost:3000",
-            "http://localhost:8081"
+            "http://localhost:3000",   // React Web, se existir
+            "http://localhost:8081"    // Expo Web / React Native Web (Metro)
         ));
-
-        // 2) Métodos HTTP permitidos
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        // 3) Quais headers o cliente pode enviar
         config.setAllowedHeaders(List.of("*"));
-
-        // 4) Permitir envio de credenciais/cookies (caso necessário)
         config.setAllowCredentials(true);
 
-        // 5) Aplica essa configuração a **todos** os endpoints (/**)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
