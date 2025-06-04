@@ -3,11 +3,11 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../services/api';
 
-interface User {
-  id: string;
+export interface User {
+  id: number;
   nome: string;
-  email: string;
-  // …outros campos retornados pelo backend
+  emailInstitucional: string;
+  turmaId: number;
 }
 
 interface AuthContextData {
@@ -24,21 +24,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadStorage() {
+    async function loadStorageData() {
       const token = await AsyncStorage.getItem('@app:token');
-      if (token) {
+      const userStr = await AsyncStorage.getItem('@app:user');
+      if (token && userStr) {
         api.defaults.headers.Authorization = `Bearer ${token}`;
+        setUser(JSON.parse(userStr));
       }
       setLoading(false);
     }
-    loadStorage();
+    loadStorageData();
   }, []);
 
   async function signIn(email: string, senha: string) {
     setLoading(true);
     try {
-      // OBS: não mais faz "throw new Error('401')". 
-      //      Deixe o Axios repassar o 401 como err.response.status = 401
+      // Espera { token: string; user: User } do backend
       const response = await api.post<{
         token: string;
         user: User;
@@ -46,10 +47,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const { token, user: userData } = response.data;
       await AsyncStorage.setItem('@app:token', token);
+      await AsyncStorage.setItem('@app:user', JSON.stringify(userData));
       api.defaults.headers.Authorization = `Bearer ${token}`;
       setUser(userData);
     } catch (err: any) {
-      // Só relança o próprio erro do Axios para o LoginScreen
       throw err;
     } finally {
       setLoading(false);
@@ -57,7 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   function signOut() {
-    AsyncStorage.clear();
+    AsyncStorage.multiRemove(['@app:token', '@app:user']);
     setUser(null);
   }
 

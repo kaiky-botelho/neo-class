@@ -11,59 +11,47 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import { useNavigation, CommonActions } from "@react-navigation/native";
+import {
+  useNavigation,
+  CommonActions
+} from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { AuthContext } from "../context/AuthContext";
 import homeStyles from "../styles/homeStyles";
 
-// 1) Configurar LocaleConfig em português (pt-BR)
-LocaleConfig.locales["pt"] = {
-  monthNames: [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
-  ],
-  monthNamesShort: [
-    "Jan",
-    "Fev",
-    "Mar",
-    "Abr",
-    "Mai",
-    "Jun",
-    "Jul",
-    "Ago",
-    "Set",
-    "Out",
-    "Nov",
-    "Dez",
-  ],
-  dayNames: [
-    "Domingo",
-    "Segunda-feira",
-    "Terça-feira",
-    "Quarta-feira",
-    "Quinta-feira",
-    "Sexta-feira",
-    "Sábado",
-  ],
-  dayNamesShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
-  today: "Hoje",
-};
-LocaleConfig.defaultLocale = "pt";
+// **Aqui** importamos o tipo do stack, que agora está exportado de App.tsx:
+import { RootStackParamList } from "../../App";
+
+// Defina o tipo de navegação para esta tela:
+type HomeNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "Home"
+>;
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<HomeNavigationProp>();
   const { signOut } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
+
+  // 1) Configurar LocaleConfig em português (pt-BR)
+  LocaleConfig.locales["pt"] = {
+    monthNames: [
+      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+    ],
+    monthNamesShort: [
+      "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+      "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+    ],
+    dayNames: [
+      "Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira",
+      "Quinta-feira", "Sexta-feira", "Sábado",
+    ],
+    dayNamesShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+    today: "Hoje",
+  };
+  LocaleConfig.defaultLocale = "pt";
 
   // 2) Função para obter “hoje” no fuso “America/Sao_Paulo” sem libs externas
   const getTodayBrazilString = (): string => {
@@ -103,7 +91,7 @@ export default function HomeScreen() {
   // Navega para a tela de Alterar Senha (depois você criará essa tela)
   const handleChangePassword = () => {
     closeProfileModal();
-    navigation.navigate("ChangePassword" as never);
+    navigation.navigate("ChangePassword");
   };
 
   // Faz logout limpando credenciais e voltando para a tela de Login
@@ -113,7 +101,7 @@ export default function HomeScreen() {
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{ name: "Login" as never }],
+        routes: [{ name: "Login" }],
       })
     );
   };
@@ -150,7 +138,7 @@ export default function HomeScreen() {
           <View style={homeStyles.modalOverlay} />
         </TouchableWithoutFeedback>
         <View style={homeStyles.modalContainer}>
-          <Text style={homeStyles.modalHeader}>OLÁ, USUÁRIO</Text>
+          <Text style={homeStyles.modalHeader}>OLÁ</Text>
           <View style={homeStyles.modalDivider} />
 
           <TouchableOpacity
@@ -264,11 +252,10 @@ export default function HomeScreen() {
                 Notas
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={[homeStyles.smallButton, homeStyles.smallButtonRed]}
-              onPress={() => {
-                /* ação Faltas */
-              }}
+              onPress={() => navigation.navigate("Lack")}
             >
               <Image
                 source={require("../../assets/trianguloFalta.png")}
@@ -290,10 +277,7 @@ export default function HomeScreen() {
         >
           <Image
             source={require("../../assets/trianguloEsquerdo.png")}
-            style={[
-              homeStyles.supportTriangleLeft,
-              homeStyles.triangleDecor,
-            ]}
+            style={[homeStyles.supportTriangleLeft, homeStyles.triangleDecor]}
           />
           <Text style={homeStyles.supportText}>Suporte</Text>
           <Image
@@ -302,10 +286,7 @@ export default function HomeScreen() {
           />
           <Image
             source={require("../../assets/trianguloDireito.png")}
-            style={[
-              homeStyles.supportTriangleRight,
-              homeStyles.triangleDecor,
-            ]}
+            style={[homeStyles.supportTriangleRight, homeStyles.triangleDecor]}
           />
         </TouchableOpacity>
       </SafeAreaView>
