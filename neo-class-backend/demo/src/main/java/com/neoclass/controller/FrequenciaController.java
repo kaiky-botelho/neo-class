@@ -2,49 +2,88 @@
 package com.neoclass.controller;
 
 import com.neoclass.dto.FaltaDTO;
-import com.neoclass.model.Aluno;
-import com.neoclass.service.AlunoService;
+import com.neoclass.dto.FrequenciaDTO;
+import com.neoclass.model.Frequencia;
 import com.neoclass.service.FrequenciaService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/frequencias")
 public class FrequenciaController {
 
     private final FrequenciaService frequenciaService;
-    private final AlunoService      alunoService;
 
-    public FrequenciaController(
-            FrequenciaService frequenciaService,
-            AlunoService alunoService
-    ) {
+    public FrequenciaController(FrequenciaService frequenciaService) {
         this.frequenciaService = frequenciaService;
-        this.alunoService      = alunoService;
     }
 
-    /**
-     * GET /api/faltas
-     * • Extrai o e‐mail do JWT via Authentication.getPrincipal()
-     * • Busca o Aluno completo (_contendo o ID_) a partir do e‐mail
-     * • Chama o FrequenciaService.listarFaltasPorAluno(alunoId) para obter List<FaltaDTO>
-     */
-    @GetMapping("/faltas")
-    public ResponseEntity<List<FaltaDTO>> listarFaltasDoAlunoLogado(
-            Authentication authentication
+    /** GET /api/frequencias — lista todas as frequências */
+    @GetMapping
+    public List<FrequenciaDTO> listarTodas() {
+        return frequenciaService.listarTodos()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    /** GET /api/frequencias/{id} — busca uma frequência específica */
+    @GetMapping("/{id}")
+    public FrequenciaDTO buscarPorId(@PathVariable Long id) {
+        Frequencia f = frequenciaService.buscarPorId(id);
+        return toDTO(f);
+    }
+
+    /** POST /api/frequencias — cria uma nova frequência */
+    @PostMapping
+    public FrequenciaDTO criar(@RequestBody FrequenciaDTO dto) {
+        Frequencia salvo = frequenciaService.criarFrequencia(dto);
+        return toDTO(salvo);
+    }
+
+    /** PUT /api/frequencias/{id} — atualiza uma frequência existente */
+    @PutMapping("/{id}")
+    public FrequenciaDTO atualizar(
+            @PathVariable Long id,
+            @RequestBody FrequenciaDTO dto
     ) {
-        // 1) principal() do Authentication = o "sub" do token (que configuramos como emailInstitucional)
-        String emailDoAluno = authentication.getPrincipal().toString();
+        Frequencia atualizado = frequenciaService.atualizarFrequencia(id, dto);
+        return toDTO(atualizado);
+    }
 
-        // 2) Busca a entidade Aluno pelo e‐mail
-        Aluno aluno = alunoService.buscarPorEmailInstitucional(emailDoAluno);
-        Long alunoId = aluno.getId();
+    /** DELETE /api/frequencias/{id} — exclui uma frequência por ID */
+    @DeleteMapping("/{id}")
+    public void excluir(@PathVariable Long id) {
+        frequenciaService.excluir(id);
+    }
 
-        // 3) Lista as faltas por matéria para aquele aluno
+    // ────────────────────────────────────────────────────────────────────
+    // NOVO ENDPOINT: /api/frequencias/faltas/{alunoId}
+    // → retorna lista de FaltaDTO agrupadas por matéria para aquele aluno
+    // ────────────────────────────────────────────────────────────────────
+    @GetMapping("/faltas/{alunoId}")
+    public ResponseEntity<List<FaltaDTO>> listarFaltasPorAluno(@PathVariable Long alunoId) {
         List<FaltaDTO> lista = frequenciaService.listarFaltasPorAluno(alunoId);
         return ResponseEntity.ok(lista);
+    }
+
+    // ——— Conversor de ENTIDADE → DTO ———
+    private FrequenciaDTO toDTO(Frequencia f) {
+        FrequenciaDTO dto = new FrequenciaDTO();
+        BeanUtils.copyProperties(f, dto);
+        if (f.getAluno() != null) {
+            dto.setAlunoId(f.getAluno().getId());
+        }
+        if (f.getTurma() != null) {
+            dto.setTurmaId(f.getTurma().getId());
+        }
+        if (f.getMateria() != null) {
+            dto.setMateriaId(f.getMateria().getId());
+        }
+        return dto;
     }
 }

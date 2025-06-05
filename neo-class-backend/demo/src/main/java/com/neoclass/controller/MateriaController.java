@@ -6,6 +6,8 @@ import com.neoclass.model.Materia;
 import com.neoclass.model.Professor;
 import com.neoclass.model.Turma;
 import com.neoclass.service.MateriaService;
+import com.neoclass.service.ProfessorService;
+import com.neoclass.service.TurmaService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,28 +18,35 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/materias")
 public class MateriaController {
 
-    private final MateriaService service;
+    private final MateriaService materiaService;
+    private final ProfessorService professorService;
+    private final TurmaService turmaService;
 
-    public MateriaController(MateriaService service) {
-        this.service = service;
+    public MateriaController(MateriaService materiaService,
+                             ProfessorService professorService,
+                             TurmaService turmaService) {
+        this.materiaService = materiaService;
+        this.professorService = professorService;
+        this.turmaService = turmaService;
     }
 
     @GetMapping
     public List<MateriaDTO> listar() {
-        return service.listarTodos().stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
+        return materiaService.listarTodos()
+                             .stream()
+                             .map(this::toDTO)
+                             .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public MateriaDTO buscar(@PathVariable Long id) {
-        return toDTO(service.buscarPorId(id));
+        return toDTO(materiaService.buscarPorId(id));
     }
 
     @PostMapping
     public MateriaDTO criar(@RequestBody MateriaDTO dto) {
         Materia entidade = toEntity(dto);
-        Materia salvo    = service.salvar(entidade);
+        Materia salvo    = materiaService.salvar(entidade);
         return toDTO(salvo);
     }
 
@@ -46,15 +55,15 @@ public class MateriaController {
             @PathVariable Long id,
             @RequestBody MateriaDTO dto
     ) {
+        dto.setId(id);
         Materia entidade = toEntity(dto);
-        entidade.setId(id);
-        Materia atualizado = service.salvar(entidade);
+        Materia atualizado = materiaService.salvar(entidade);
         return toDTO(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public void excluir(@PathVariable Long id) {
-        service.excluir(id);
+        materiaService.excluir(id);
     }
 
     // ——— Conversor de Entidade → DTO ———
@@ -73,15 +82,16 @@ public class MateriaController {
     // ——— Conversor de DTO → Entidade ———
     private Materia toEntity(MateriaDTO dto) {
         Materia m = new Materia();
-        BeanUtils.copyProperties(dto, m);
+        BeanUtils.copyProperties(dto, m); // copia id, nome, bimestre
+
         if (dto.getProfessorId() != null) {
-            Professor p = new Professor();
-            p.setId(dto.getProfessorId());
+            // Busca no banco o Professor completo
+            Professor p = professorService.buscarPorId(dto.getProfessorId());
             m.setProfessor(p);
         }
         if (dto.getTurmaId() != null) {
-            Turma t = new Turma();
-            t.setId(dto.getTurmaId());
+            // Busca no banco a Turma completa
+            Turma t = turmaService.buscarPorId(dto.getTurmaId());
             m.setTurma(t);
         }
         return m;

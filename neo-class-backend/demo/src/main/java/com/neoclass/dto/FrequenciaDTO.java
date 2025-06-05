@@ -4,20 +4,31 @@ package com.neoclass.dto;
 import java.time.LocalDate;
 
 public class FrequenciaDTO {
-    private Long id;
+    private Long      id;
     private LocalDate data;
-    private Boolean presente;
-    private Long alunoId;
-    private Long turmaId;
-    private Long materiaId;
-    private String materiaNome; // novo campo
+    private Boolean   presente;
+    private Long      alunoId;
+    private Long      turmaId;
+    private Long      materiaId;
 
-    // ——— Getters e setters existentes ———
+    public FrequenciaDTO() {
+        // Construtor padrão para deserialização
+    }
+
+    public FrequenciaDTO(Long id, LocalDate data, Boolean presente, Long alunoId, Long turmaId, Long materiaId) {
+        this.id         = id;
+        this.data       = data;
+        this.presente   = presente;
+        this.alunoId    = alunoId;
+        this.turmaId    = turmaId;
+        this.materiaId  = materiaId;
+    }
+
+    // ——— Getters e Setters ———
 
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -25,7 +36,6 @@ public class FrequenciaDTO {
     public LocalDate getData() {
         return data;
     }
-
     public void setData(LocalDate data) {
         this.data = data;
     }
@@ -33,7 +43,6 @@ public class FrequenciaDTO {
     public Boolean getPresente() {
         return presente;
     }
-
     public void setPresente(Boolean presente) {
         this.presente = presente;
     }
@@ -41,7 +50,6 @@ public class FrequenciaDTO {
     public Long getAlunoId() {
         return alunoId;
     }
-
     public void setAlunoId(Long alunoId) {
         this.alunoId = alunoId;
     }
@@ -49,7 +57,6 @@ public class FrequenciaDTO {
     public Long getTurmaId() {
         return turmaId;
     }
-
     public void setTurmaId(Long turmaId) {
         this.turmaId = turmaId;
     }
@@ -57,18 +64,7 @@ public class FrequenciaDTO {
     public Long getMateriaId() {
         return materiaId;
     }
-
     public void setMateriaId(Long materiaId) {
         this.materiaId = materiaId;
-    }
-
-    // ——— Novo getter e setter para materiaNome ———
-
-    public String getMateriaNome() {
-        return materiaNome;
-    }
-
-    public void setMateriaNome(String materiaNome) {
-        this.materiaNome = materiaNome;
     }
 }

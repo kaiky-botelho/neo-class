@@ -48,7 +48,7 @@ public class JwtUtil {
 
     /**
      * Valida o token e retorna o 'subject' (emailInstitucional) se válido,
-     * ou lança JwtException se inválido/extrado.
+     * ou lança JwtException se inválido/expirado.
      */
     public String validarToken(String token) {
         Jws<Claims> claimsJws = Jwts.parserBuilder()
