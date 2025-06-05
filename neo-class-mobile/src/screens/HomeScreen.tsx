@@ -23,7 +23,7 @@ import homeStyles from "../styles/homeStyles";
 // **Aqui** importamos o tipo do stack, que agora está exportado de App.tsx:
 import { RootStackParamList } from "../../App";
 
-// Defina o tipo de navegação para esta tela:
+// Definimos o tipo de navegação para esta tela:
 type HomeNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "Home"
@@ -31,7 +31,7 @@ type HomeNavigationProp = NativeStackNavigationProp<
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeNavigationProp>();
-  const { signOut } = useContext(AuthContext);
+  const { user, signOut } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
 
   // 1) Configurar LocaleConfig em português (pt-BR)
@@ -138,7 +138,9 @@ export default function HomeScreen() {
           <View style={homeStyles.modalOverlay} />
         </TouchableWithoutFeedback>
         <View style={homeStyles.modalContainer}>
-          <Text style={homeStyles.modalHeader}>OLÁ</Text>
+          <Text style={homeStyles.modalHeader}>
+            {`Olá${user?.nome ? `, ${user.nome}` : ""}`}
+          </Text>
           <View style={homeStyles.modalDivider} />
 
           <TouchableOpacity
@@ -153,7 +155,10 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <View style={homeStyles.modalDivider} />
 
-          <TouchableOpacity style={homeStyles.modalButton} onPress={handleLogout}>
+          <TouchableOpacity
+            style={homeStyles.modalButton}
+            onPress={handleLogout}
+          >
             <Text style={homeStyles.modalButtonText}>SAIR</Text>
             <Image
               source={require("../../assets/exit.png")}
@@ -238,11 +243,10 @@ export default function HomeScreen() {
 
           {/* 4.2 COLUNA DIREITA */}
           <View style={homeStyles.rightColumn}>
+            {/* Botão Notas — navega para a rota “Note” */}
             <TouchableOpacity
               style={[homeStyles.smallButton, homeStyles.smallButtonWhite]}
-              onPress={() => {
-                /* ação Notas */
-              }}
+              onPress={() => navigation.navigate("Note")}
             >
               <Image
                 source={require("../../assets/notas.png")}
@@ -253,6 +257,7 @@ export default function HomeScreen() {
               </Text>
             </TouchableOpacity>
 
+            {/* Botão Faltas — navega para a rota “Lack” */}
             <TouchableOpacity
               style={[homeStyles.smallButton, homeStyles.smallButtonRed]}
               onPress={() => navigation.navigate("Lack")}

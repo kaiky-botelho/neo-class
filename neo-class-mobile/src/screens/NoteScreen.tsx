@@ -1,4 +1,4 @@
-// src/screens/LackScreen.tsx
+// src/screens/NoteScreen.tsx
 import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
@@ -16,37 +16,44 @@ import {
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
-import { FaltaDTO } from '../types/falta';
-import lackStyles from '../styles/lackStyles';
 
-export default function LackScreen() {
+// Supondo que seu tipo de DTO seja algo assim:
+export interface NotaDTO {
+  materiaId:   number;
+  materiaNome: string;
+  nota1:       number;
+  nota2:       number;
+  nota3:       number;
+  nota4:       number;
+}
+
+import lackStyles from '../styles/lackStyles'; // Reaproveitamos o mesmo estilo de header/modal
+
+export default function NoteScreen() {
   const navigation = useNavigation();
   const { user, signOut } = useContext(AuthContext);
 
-  const [faltas, setFaltas] = useState<FaltaDTO[]>([]);
+  const [notas, setNotas] = useState<NotaDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Assim que o user estiver disponível (ou mudar), buscamos as faltas
+  // 1. Assim que o usuário (“user”) estiver disponível, buscamos as notas
   useEffect(() => {
     if (user && user.id) {
-      buscarFaltasPorAluno(user.id);
+      buscarNotasPorAluno(user.id);
     }
   }, [user]);
 
-  async function buscarFaltasPorAluno(alunoId: number) {
+  async function buscarNotasPorAluno(alunoId: number) {
     setLoading(true);
     setError('');
     try {
-      // Passamos o ID do aluno para o endpoint de faltas agrupadas:
-      // GET /api/frequencias/faltas/{alunoId}
-      const response = await api.get<FaltaDTO[]>(
-        `/frequencias/faltas/${alunoId}`
-      );
-      setFaltas(response.data);
+      // Exemplo de endpoint: GET /api/notas/aluno/{alunoId}
+      const response = await api.get<NotaDTO[]>(`/notas/aluno/${alunoId}`);
+      setNotas(response.data);
     } catch (err: any) {
-      console.log('Erro ao buscar faltas:', err);
+      console.log('Erro ao buscar notas:', err);
       if (err.response) {
         setError(
           typeof err.response.data === 'string'
@@ -61,16 +68,14 @@ export default function LackScreen() {
     }
   }
 
-  // ---------- Modal de perfil (trocar senha / logout) ----------
+  // 2. Funções do Modal de perfil
   const openProfileModal = () => setModalVisible(true);
   const closeProfileModal = () => setModalVisible(false);
 
   const handleChangePassword = () => {
     closeProfileModal();
-    // supondo que você tenha uma rota "ChangePassword"
     navigation.navigate('ChangePassword' as never);
   };
-
   const handleLogout = () => {
     closeProfileModal();
     signOut();
@@ -82,22 +87,36 @@ export default function LackScreen() {
     );
   };
 
-  // Renderiza cada item da lista: matéria + número de faltas
-  const renderItem = ({ item }: { item: FaltaDTO }) => (
-    <View style={innerStyles.listItem}>
-      <Text style={innerStyles.subjectText}>{item.materiaNome}</Text>
-      <View style={innerStyles.badge}>
-        <Text style={innerStyles.badgeText}>{item.totalFaltas}</Text>
+  // 3. Monta o cabeçalho da “tabela” (linha fixa)
+  function renderHeader() {
+    return (
+      <View style={innerStyles.tableHeader}>
+        <Text style={[innerStyles.headerCell, { flex: 2 }]}>Matéria</Text>
+        <Text style={innerStyles.headerCell}>1B</Text>
+        <Text style={innerStyles.headerCell}>2B</Text>
+        <Text style={innerStyles.headerCell}>3B</Text>
+        <Text style={innerStyles.headerCell}>4B</Text>
       </View>
+    );
+  }
+
+  // 4. Render de cada linha da tabela: uma matéria + 4 notas
+  const renderItem = ({ item }: { item: NotaDTO }) => (
+    <View style={innerStyles.tableRow}>
+      <Text style={[innerStyles.cell, { flex: 2 }]}>{item.materiaNome}</Text>
+      <Text style={innerStyles.cell}>{item.nota1}</Text>
+      <Text style={innerStyles.cell}>{item.nota2}</Text>
+      <Text style={innerStyles.cell}>{item.nota3}</Text>
+      <Text style={innerStyles.cell}>{item.nota4}</Text>
     </View>
   );
 
   return (
     <>
-      {/* === 1. SafeAreaView superior (fundo escuro) com botão Voltar e Perfil === */}
+      {/* === 1. SafeAreaView superior (fundo escuro) com botão “voltar” e ícone de perfil === */}
       <SafeAreaView style={lackStyles.topSafe}>
         <View style={lackStyles.topBar}>
-          {/* Botão "voltar" */}
+          {/* Botão voltar para Home */}
           <TouchableOpacity
             style={lackStyles.backButton}
             onPress={() => navigation.goBack()}
@@ -110,7 +129,7 @@ export default function LackScreen() {
 
           <View style={lackStyles.topBarSpacer} />
 
-          {/* Ícone de perfil que abre o modal */}
+          {/* Ícone de perfil para abrir modal */}
           <TouchableOpacity
             style={lackStyles.profileButton}
             onPress={openProfileModal}
@@ -123,7 +142,7 @@ export default function LackScreen() {
         </View>
       </SafeAreaView>
 
-      {/* === 2. Modal de Perfil === */}
+      {/* === 2. Modal de perfil === */}
       <Modal
         visible={modalVisible}
         animationType="fade"
@@ -133,15 +152,12 @@ export default function LackScreen() {
         <TouchableWithoutFeedback onPress={closeProfileModal}>
           <View style={lackStyles.modalOverlay} />
         </TouchableWithoutFeedback>
-
         <View style={lackStyles.modalContainer}>
-          {/* Exibe “Olá, {nome}” puxando diretamente de user.nome */}
           <Text style={lackStyles.modalHeader}>
             {`Olá${user?.nome ? `, ${user.nome}` : ''}`}
           </Text>
           <View style={lackStyles.modalDivider} />
 
-          {/* Botão “Alterar Senha” */}
           <TouchableOpacity
             style={lackStyles.modalButton}
             onPress={handleChangePassword}
@@ -154,7 +170,6 @@ export default function LackScreen() {
           </TouchableOpacity>
           <View style={lackStyles.modalDivider} />
 
-          {/* Botão “Sair” */}
           <TouchableOpacity
             style={lackStyles.modalButton}
             onPress={handleLogout}
@@ -171,19 +186,26 @@ export default function LackScreen() {
       {/* === 3. SafeAreaView principal (conteúdo) === */}
       <SafeAreaView style={innerStyles.bottomSafe}>
         <View style={innerStyles.container}>
-          <Text style={innerStyles.headerTitle}>FALTAS</Text>
+          <Text style={innerStyles.title}>DETALHAMENTO NOTAS</Text>
 
           {loading ? (
-            <ActivityIndicator size="large" color="#EB5757" />
+            <ActivityIndicator size="large" color="#EA0000" />
           ) : error ? (
             <Text style={innerStyles.errorText}>{error}</Text>
           ) : (
-            <FlatList
-              data={faltas}
-              keyExtractor={(item) => item.materiaId.toString()}
-              renderItem={renderItem}
-              contentContainerStyle={innerStyles.listContainer}
-            />
+            <View style={{ flex: 1 }}>
+              {/* Cabeçalho fixo da tabela */}
+              {renderHeader()}
+
+              {/* Lista as linhas com as notas */}
+              <FlatList
+                data={notas}
+                keyExtractor={(item) => item.materiaId.toString()}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={innerStyles.listContainer}
+              />
+            </View>
           )}
         </View>
       </SafeAreaView>
@@ -191,6 +213,7 @@ export default function LackScreen() {
   );
 }
 
+// 4. Estilos internos da NoteScreen (tabela, título, etc.)
 const innerStyles = StyleSheet.create({
   bottomSafe: {
     flex: 1,
@@ -202,7 +225,7 @@ const innerStyles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
   },
-  headerTitle: {
+  title: {
     fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
@@ -217,30 +240,36 @@ const innerStyles = StyleSheet.create({
   listContainer: {
     paddingBottom: 24,
   },
-  listItem: {
+  // Estilo da linha de cabeçalho
+  tableHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F3F3',
-    borderRadius: 8,
-    marginVertical: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: '#EEE',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
-  subjectText: {
+  headerCell: {
     flex: 1,
-    fontSize: 16,
+    fontWeight: '700',
+    fontSize: 14,
+    textAlign: 'center',
     color: '#333',
   },
-  badge: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    backgroundColor: '#EB5757',
+  // Estilo de cada linha de dados
+  tableRow: {
+    flexDirection: 'row',
+    backgroundColor: '#F9F9F9',
+    borderBottomWidth: 1,
+    borderColor: '#DDD',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  badgeText: {
-    color: '#FFF',
-    fontWeight: '700',
+  cell: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
   },
 });

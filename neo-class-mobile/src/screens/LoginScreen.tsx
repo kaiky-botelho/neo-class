@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
-import LoginStyles from '../styles/LoginStyles';
+import loginStyles from '../styles/loginStyles';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
@@ -46,27 +46,27 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={LoginStyles.container}
+      style={loginStyles.container}
       behavior={Platform.select({ ios: 'padding', android: undefined })}
     >
       <Image
         source={require('../../assets/logo.png')}
-        style={LoginStyles.logo}
+        style={loginStyles.logo}
         resizeMode="contain"
       />
 
-      <View style={LoginStyles.card}>
-        <Text style={LoginStyles.title}>LOGIN</Text>
+      <View style={loginStyles.card}>
+        <Text style={loginStyles.title}>LOGIN</Text>
 
-        {error ? <Text style={LoginStyles.errorText}>{error}</Text> : null}
+        {error ? <Text style={loginStyles.errorText}>{error}</Text> : null}
 
-        <Text style={LoginStyles.label}>E-mail</Text>
-        <View style={LoginStyles.inputWrapper}>
-          <Image source={require('../../assets/email.png')} style={LoginStyles.icon} />
+        <Text style={loginStyles.label}>E-mail</Text>
+        <View style={loginStyles.inputWrapper}>
+          <Image source={require('../../assets/email.png')} style={loginStyles.icon} />
           <TextInput
             placeholder="Digite seu e-mail institucional"
             placeholderTextColor="#333"
-            style={LoginStyles.input}
+            style={loginStyles.input}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -74,13 +74,13 @@ export default function LoginScreen() {
           />
         </View>
 
-        <Text style={[LoginStyles.label, { marginTop: 16 }]}>Senha</Text>
-        <View style={LoginStyles.inputWrapper}>
-          <Image source={require('../../assets/lock.png')} style={LoginStyles.icon} />
+        <Text style={[loginStyles.label, { marginTop: 16 }]}>Senha</Text>
+        <View style={loginStyles.inputWrapper}>
+          <Image source={require('../../assets/lock.png')} style={loginStyles.icon} />
           <TextInput
             placeholder="Digite sua senha"
             placeholderTextColor="#333"
-            style={LoginStyles.input}
+            style={loginStyles.input}
             secureTextEntry
             value={senha}
             onChangeText={setSenha}
@@ -88,14 +88,14 @@ export default function LoginScreen() {
         </View>
 
         <TouchableOpacity
-          style={[LoginStyles.button, loading && LoginStyles.buttonDisabled]}
+          style={[loginStyles.button, loading && loginStyles.buttonDisabled]}
           onPress={handleLogin}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#FFF" />
           ) : (
-            <Text style={LoginStyles.buttonText}>ENTRAR</Text>
+            <Text style={loginStyles.buttonText}>ENTRAR</Text>
           )}
         </TouchableOpacity>
       </View>

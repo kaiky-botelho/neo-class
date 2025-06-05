@@ -8,13 +8,15 @@ import { AuthProvider } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import LackScreen from './src/screens/LackScreen';
+import NoteScreen from './src/screens/NoteScreen';
 
 // 1) Defina e exporte o tipo do stack navigation:
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
   Lack: undefined;
-  // Caso crie ChangePassword mais adiante, adicione aqui
+  Note: undefined;
+  // Caso crie ChangePassword mais adiante, adicione:
   ChangePassword: undefined;
 };
 
@@ -26,6 +28,7 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
+        // Carrega as fontes necessárias
         await Font.loadAsync({
           'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
           'Poppins-ExtraBold': require('./assets/fonts/Poppins-ExtraBold.ttf'),
@@ -43,7 +46,8 @@ export default function App() {
   }, []);
 
   if (!fontsLoaded) {
-    return null; // mantém a splash até as fontes carregarem
+    // Mantém a splash aberta até as fontes carregarem
+    return null;
   }
 
   return (
@@ -53,6 +57,8 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Lack" component={LackScreen} />
+          <Stack.Screen name="Note" component={NoteScreen} />
+          {/* Quando criar a tela ChangePassword, basta descomentar abaixo: */}
           {/* <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} /> */}
         </Stack.Navigator>
       </AuthProvider>
