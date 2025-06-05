@@ -26,16 +26,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-          .cors()                        // Habilita CORS usando corsConfigurationSource()
+          .cors()                        // Habilita CORS usando o corsConfigurationSource()
           .and()
           .csrf().disable()              // Desativa CSRF para APIs REST
           .authorizeHttpRequests(auth -> auth
+              // 1) Liberar qualquer requisição POST para criar nova SECRETARIA
+              .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
+
+              // 2) Se houver endpoint de login na rota /api/login, já estava liberado:
               .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
+
+              // 3) Se você tiver cadastro de aluno/public signup para aluno, libere aqui, por ex:
+              // .requestMatchers(HttpMethod.POST, "/api/alunos").permitAll()
+              // .requestMatchers(HttpMethod.POST, "/api/alunos/login").permitAll()
+
+              // 4) Liberar o Swagger/OpenAPI sem autenticação
               .requestMatchers(
                   "/v3/api-docs/**",
                   "/swagger-ui.html",
                   "/swagger-ui/**"
               ).permitAll()
+
+              // 5) Todas as outras rotas exigem autenticação
               .anyRequest().authenticated()
           )
           .sessionManagement(sm ->
@@ -58,7 +70,7 @@ public class SecurityConfig {
 
         // Permitir frontends em React e Expo:
         config.setAllowedOriginPatterns(List.of(
-            "http://localhost:3000",   // React Web, se existir
+            "http://localhost:3000",   // React Web
             "http://localhost:8081"    // Expo Web / React Native Web (Metro)
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

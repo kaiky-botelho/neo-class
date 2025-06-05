@@ -1,6 +1,11 @@
+// src/main/java/com/neoclass/repository/TurmaRepository.java
 package com.neoclass.repository;
 
 import com.neoclass.model.Turma;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface TurmaRepository extends JpaRepository<Turma, Long> { }
+@Repository
+public interface TurmaRepository extends JpaRepository<Turma, Long> {
+    // Nenhum método extra é necessário, o JpaRepository já fornece findAll(), findById(), save(), deleteById() etc.
+}

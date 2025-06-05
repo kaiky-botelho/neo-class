@@ -38,29 +38,16 @@ public class AlunoService implements CrudService<Aluno, Long> {
         repo.deleteById(id);
     }
 
-    /**
-     * Usado pelo AuthController para autenticar o aluno:
-     * recebe o valor do campo 'email' do DTO, mas
-     * internamente procura em emailInstitucional.
-     */
     public Optional<Aluno> autenticar(String email, String senha) {
         return repo.findByEmailInstitucionalAndSenha(email, senha);
     }
 
-    /**
-     * Busca o objeto Aluno (com todos os campos) a partir do emailInstitucional.
-     * Lança IllegalArgumentException se não encontrar.
-     */
     public Aluno buscarPorEmailInstitucional(String emailInstitucional) {
         return repo.findByEmailInstitucional(emailInstitucional)
                    .orElseThrow(() -> new IllegalArgumentException(
                        "Aluno não encontrado com e-mail institucional: " + emailInstitucional));
     }
 
-    /**
-     * Busca apenas o ID do aluno usando o e-mail institucional.
-     * Lança IllegalArgumentException se não encontrar.
-     */
     public Long buscarIdPorEmail(String emailInstitucional) {
         return repo.findByEmailInstitucional(emailInstitucional)
                    .orElseThrow(() -> new IllegalArgumentException(
