@@ -1,3 +1,4 @@
+// src/main/java/com/neoclass/controller/AuthController.java
 package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
@@ -5,9 +6,9 @@ import com.neoclass.dto.LoginResponseDTO;
 import com.neoclass.dto.AlunoResumoDTO;
 import com.neoclass.model.Aluno;
 import com.neoclass.security.JwtUtil;
+import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
 import com.neoclass.service.ProfessorService;
-import com.neoclass.service.SecretariaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,19 +18,20 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final SecretariaService secretariaService;
-    private final AlunoService alunoService;
-    private final ProfessorService professorService;
-    private final JwtUtil jwtUtil;
+    private final AlunoService      alunoService;
+    private final ProfessorService  professorService;
+    private final JwtUtil           jwtUtil;
 
     public AuthController(
-            SecretariaService secretariaService,
-            AlunoService alunoService,
-            ProfessorService professorService,
-            JwtUtil jwtUtil) {
+        SecretariaService secretariaService,
+        AlunoService alunoService,
+        ProfessorService professorService,
+        JwtUtil jwtUtil
+    ) {
         this.secretariaService = secretariaService;
-        this.alunoService = alunoService;
-        this.professorService = professorService;
-        this.jwtUtil = jwtUtil;
+        this.alunoService      = alunoService;
+        this.professorService  = professorService;
+        this.jwtUtil           = jwtUtil;
     }
 
     @PostMapping("/secretaria")
@@ -37,18 +39,10 @@ public class AuthController {
         var opt = secretariaService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("E-mail ou senha inválidos");
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("E-mail ou senha inválidos");
         }
 
-<<<<<<< HEAD
-        var user = opt.get();
-        // GERAR O TOKEN COM A ROLE "SECRETARIA"
-        String token = jwtUtil.gerarToken(user.getEmail(), "SECRETARIA");
-
-        AuthResponseDTO dto = new AuthResponseDTO(token, "SECRETARIA", user.getId());
-        return ResponseEntity.ok(dto);
-=======
         var entidade = opt.get();
         String token = jwtUtil.gerarToken(entidade.getEmail());
 
@@ -62,7 +56,6 @@ public class AuthController {
 
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
         return ResponseEntity.ok(resposta);
->>>>>>> master
     }
 
     @PostMapping("/aluno")
@@ -70,18 +63,10 @@ public class AuthController {
         var opt = alunoService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("E-mail institucional ou senha inválidos");
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("E-mail institucional ou senha inválidos");
         }
 
-<<<<<<< HEAD
-        var user = opt.get();
-        // Nota: usei user.getEmailInstitucional() como subject do token
-        String token = jwtUtil.gerarToken(user.getEmailInstitucional(), "ALUNO");
-
-        AuthResponseDTO dto = new AuthResponseDTO(token, "ALUNO", user.getId());
-        return ResponseEntity.ok(dto);
-=======
         Aluno entidade = opt.get();
         String token = jwtUtil.gerarToken(entidade.getEmailInstitucional());
 
@@ -93,7 +78,6 @@ public class AuthController {
 
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
         return ResponseEntity.ok(resposta);
->>>>>>> master
     }
 
     @PostMapping("/professor")
@@ -101,18 +85,10 @@ public class AuthController {
         var opt = professorService.autenticar(req.getEmail(), req.getSenha());
         if (opt.isEmpty()) {
             return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("E-mail ou senha inválidos");
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("E-mail ou senha inválidos");
         }
 
-<<<<<<< HEAD
-        var user = opt.get();
-        // Nota: usei user.getEmailInstitucional() como subject do token
-        String token = jwtUtil.gerarToken(user.getEmailInstitucional(), "PROFESSOR");
-
-        AuthResponseDTO dto = new AuthResponseDTO(token, "PROFESSOR", user.getId());
-        return ResponseEntity.ok(dto);
-=======
         var entidade = opt.get();
         String token = jwtUtil.gerarToken(entidade.getEmailInstitucional());
 
@@ -125,6 +101,5 @@ public class AuthController {
 
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
         return ResponseEntity.ok(resposta);
->>>>>>> master
     }
 }

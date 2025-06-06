@@ -5,10 +5,14 @@ import "../styles/login.css";
 import Input from "../components/input/input";
 import LoginService from "../app/service/loginService";
 
-interface LoginResponse {
+interface LoginResponseBackend {
   token: string;
-  role: "PROFESSOR" | "SECRETARIA";
-  id: number;
+  user: {
+    id: number | null;
+    nome: "PROFESSOR" | "SECRETARIA";
+    emailInstitucional: string;
+    turmaId: number | null;
+  };
 }
 
 const Login: React.FC = () => {
@@ -22,12 +26,14 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError("");
 
+    // Tenta logar como Professor
     try {
       const resProf = await loginService.loginProfessor(email, senha);
-      const { token, role, id } = resProf.data as LoginResponse;
+      const { token, user } = resProf.data as LoginResponseBackend;
+      const role = user.nome;             // “PROFESSOR” ou “SECRETARIA”
+      const id = user.id ?? 0;            // Se vier null, usa 0 (ou trate como achar melhor)
 
-+     // <-- Adicione este console.log para inspecionar o role  
-+     console.log("LoginProfessor retornou role =", role);
+      console.log("LoginProfessor retornou role =", role);
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
@@ -39,15 +45,17 @@ const Login: React.FC = () => {
         return;
       }
     } catch {
-      // tenta secretaria
+      // Se falhar, tenta logar como Secretaria
     }
 
+    // Tenta logar como Secretaria
     try {
       const resSec = await loginService.loginSecretaria(email, senha);
-      const { token, role, id } = resSec.data as LoginResponse;
+      const { token, user } = resSec.data as LoginResponseBackend;
+      const role = user.nome;
+      const id = user.id ?? 0;
 
-+     // <-- E aqui outro console.log para a tentativa de secretaria
-+     console.log("LoginSecretaria retornou role =", role);
+      console.log("LoginSecretaria retornou role =", role);
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);

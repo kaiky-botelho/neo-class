@@ -5,11 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Configuração adicional de CORS para toda a aplicação (WebMvc).
- * Isso garante que se algum endpoint não passar pelo SecurityConfig, 
- * o CORS ainda estará habilitado.
- */
 @Configuration
 public class webConfig {
 
@@ -19,11 +14,11 @@ public class webConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry
-                  .addMapping("/**") // todas as rotas
-                  .allowedOrigins("http://localhost:3000")
+                  .addMapping("/**")                       // all paths
+                  .allowedOrigins("http://localhost:3000") // your React dev server
                   .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                   .allowedHeaders("*")
-                  .allowCredentials(true);
+                  .allowCredentials(true);                 // if you need cookies/auth
             }
         };
     }
