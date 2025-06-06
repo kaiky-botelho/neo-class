@@ -18,4 +18,6 @@ public class Nota {
     @ManyToOne @JoinColumn(name = "aluno_id")
     private Aluno aluno;
     
+    @ManyToOne @JoinColumn(name = "materia_id")
+    private Materia materia;
 }

@@ -10,4 +10,5 @@ public class NotaDTO {
     private Double valor;
     private Long turmaId;
     private Long alunoId;
+    private Long materiaId;
 }

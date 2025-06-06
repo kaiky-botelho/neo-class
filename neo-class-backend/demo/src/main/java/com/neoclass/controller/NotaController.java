@@ -1,10 +1,10 @@
-// src/main/java/com/neoclass/controller/NotaController.java
 package com.neoclass.controller;
 
 import com.neoclass.dto.NotaDTO;
 import com.neoclass.model.Nota;
 import com.neoclass.model.Turma;
 import com.neoclass.model.Aluno;
+import com.neoclass.model.Materia; // importe Materia
 import com.neoclass.service.NotaService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/notas")
 public class NotaController {
     private final NotaService service;
-    public NotaController(NotaService service) { this.service = service; }
+    public NotaController(NotaService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public List<NotaDTO> listar() {
@@ -52,22 +54,40 @@ public class NotaController {
     private NotaDTO toDTO(Nota n) {
         NotaDTO dto = new NotaDTO();
         BeanUtils.copyProperties(n, dto);
-        if (n.getTurma() != null) dto.setTurmaId(n.getTurma().getId());
-        if (n.getAluno() != null) dto.setAlunoId(n.getAluno().getId());
+
+        if (n.getTurma() != null) {
+            dto.setTurmaId(n.getTurma().getId());
+        }
+        if (n.getAluno() != null) {
+            dto.setAlunoId(n.getAluno().getId());
+        }
+        if (n.getMateria() != null) {
+            dto.setMateriaId(n.getMateria().getId()); // adiciona materiaId
+        }
+
         return dto;
     }
 
     private Nota toEntity(NotaDTO dto) {
         Nota n = new Nota();
         BeanUtils.copyProperties(dto, n);
+
         if (dto.getTurmaId() != null) {
-            Turma t = new Turma(); t.setId(dto.getTurmaId());
+            Turma t = new Turma();
+            t.setId(dto.getTurmaId());
             n.setTurma(t);
         }
         if (dto.getAlunoId() != null) {
-            Aluno a = new Aluno(); a.setId(dto.getAlunoId());
+            Aluno a = new Aluno();
+            a.setId(dto.getAlunoId());
             n.setAluno(a);
         }
+        if (dto.getMateriaId() != null) {
+            Materia m = new Materia();
+            m.setId(dto.getMateriaId());
+            n.setMateria(m); // popula a entidade Materia
+        }
+
         return n;
     }
 }

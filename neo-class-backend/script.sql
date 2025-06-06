@@ -1,4 +1,4 @@
--- Tabela de Turmas
+- Tabela de Turmas
 CREATE TABLE turma (
   id          SERIAL PRIMARY KEY,
   nome        VARCHAR(100) NOT NULL,
@@ -7,9 +7,9 @@ CREATE TABLE turma (
   turno       VARCHAR(20),
   sala        VARCHAR(50)
 );
-
+ 
 SELECT * FROM turma;
-
+ 
 -- Tabela de Alunos
 CREATE TABLE aluno (
   id                  SERIAL PRIMARY KEY,
@@ -34,7 +34,7 @@ CREATE TABLE aluno (
   senha               VARCHAR(100) NOT NULL,
   turma_id            INTEGER REFERENCES turma(id)
 );
-
+ 
 -- Tabela de Professores
 CREATE TABLE professor (
   id                  SERIAL PRIMARY KEY,
@@ -60,7 +60,7 @@ CREATE TABLE professor (
   senha               VARCHAR(100) NOT NULL,
   turma_id            INTEGER REFERENCES turma(id)
 );
-
+ 
 -- Tabela de Matérias
 CREATE TABLE materia (
   id           SERIAL PRIMARY KEY,
@@ -69,7 +69,7 @@ CREATE TABLE materia (
   professor_id INTEGER REFERENCES professor(id),
   turma_id     INTEGER REFERENCES turma(id)
 );
-
+ 
 -- Tabela de Trabalhos
 CREATE TABLE trabalho (
   id           SERIAL PRIMARY KEY,
@@ -80,7 +80,7 @@ CREATE TABLE trabalho (
   materia_id   INTEGER REFERENCES materia(id),
   turma_id   INTEGER REFERENCES turma(id)
 );
-
+ 
 -- Tabela de Provas
 CREATE TABLE prova (
   id           SERIAL PRIMARY KEY,
@@ -92,7 +92,7 @@ CREATE TABLE prova (
   materia_id   INTEGER REFERENCES materia(id),
   turma_id   INTEGER REFERENCES turma(id)
 );
-
+ 
 -- Tabela de Notas
 CREATE TABLE nota (
   id        SERIAL PRIMARY KEY,
@@ -101,14 +101,14 @@ CREATE TABLE nota (
   turma_id  INTEGER REFERENCES turma(id),
   aluno_id  INTEGER REFERENCES aluno(id)
 );
-
+ 
 -- Tabela de Secretaria (usuários da secretaria)
 CREATE TABLE secretaria (
   id     SERIAL PRIMARY KEY,
   email  VARCHAR(100) NOT NULL UNIQUE,
   senha  VARCHAR(100) NOT NULL
 );
-
+ 
 -- Tabela de Notificações (ida e volta aluno ↔ secretaria)
 CREATE TABLE notificacao (
   id              SERIAL PRIMARY KEY,
@@ -120,7 +120,7 @@ CREATE TABLE notificacao (
   secretaria_id   INTEGER   REFERENCES secretaria(id),        -- quem respondeu
   status          VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'    -- PENDENTE ou RESPONDIDA
 );
-
+ 
 CREATE TABLE frequencia (
   id             SERIAL PRIMARY KEY,
   data            DATE       NOT NULL,
