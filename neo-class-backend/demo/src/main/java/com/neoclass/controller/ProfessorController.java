@@ -1,3 +1,4 @@
+// src/main/java/com/neoclass/controller/ProfessorController.java
 package com.neoclass.controller;
 
 import com.neoclass.dto.ProfessorDTO;
@@ -50,13 +51,14 @@ public class ProfessorController {
         service.excluir(id);
     }
 
-    // Mapeamento entre entidade e DTO
+    // Mapeia entidade para DTO, incluindo o campo 'id'
     private ProfessorDTO toDTO(Professor p) {
         ProfessorDTO dto = new ProfessorDTO();
         BeanUtils.copyProperties(p, dto);
         return dto;
     }
 
+    // Mapeia DTO para entidade
     private Professor toEntity(ProfessorDTO dto) {
         Professor p = new Professor();
         BeanUtils.copyProperties(dto, p);

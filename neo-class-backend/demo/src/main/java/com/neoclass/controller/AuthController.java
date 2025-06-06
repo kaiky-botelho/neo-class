@@ -3,8 +3,12 @@ package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
 import com.neoclass.dto.LoginResponseDTO;
+import com.neoclass.dto.SecretariaDTO;
 import com.neoclass.dto.AlunoResumoDTO;
+import com.neoclass.dto.ProfessorResumoDTO;
 import com.neoclass.model.Aluno;
+import com.neoclass.model.Professor;
+import com.neoclass.model.Secretaria;
 import com.neoclass.security.JwtUtil;
 import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
@@ -43,16 +47,13 @@ public class AuthController {
                 .body("E-mail ou senha inválidos");
         }
 
-        var entidade = opt.get();
+        Secretaria entidade = opt.get();
         String token = jwtUtil.gerarToken(entidade.getEmail());
 
-        // Mapeia para DTO mínimo (pode criar um SecretariaResumoDTO se desejar, 
-        // mas aqui usamos AlunoResumoDTO apenas para “papel” de nome placeholder)
-        AlunoResumoDTO dto = new AlunoResumoDTO();
-        dto.setId(null);
-        dto.setNome("SECRETARIA");
-        dto.setEmailInstitucional(entidade.getEmail());
-        dto.setTurmaId(null);
+        // Mapeia para DTO mínimo de Secretaria
+        SecretariaDTO dto = new SecretariaDTO();
+        dto.setId(entidade.getId());
+        dto.setEmail(entidade.getEmail());
 
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
         return ResponseEntity.ok(resposta);
@@ -89,15 +90,13 @@ public class AuthController {
                 .body("E-mail ou senha inválidos");
         }
 
-        var entidade = opt.get();
+        Professor entidade = opt.get();
         String token = jwtUtil.gerarToken(entidade.getEmailInstitucional());
 
-        // “Professor” pode usar DTO mínimo também
-        AlunoResumoDTO dto = new AlunoResumoDTO();
-        dto.setId(null);
-        dto.setNome("PROFESSOR");
+        ProfessorResumoDTO dto = new ProfessorResumoDTO();
+        dto.setId(entidade.getId());
+        dto.setNome(entidade.getNome());
         dto.setEmailInstitucional(entidade.getEmailInstitucional());
-        dto.setTurmaId(null);
 
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
         return ResponseEntity.ok(resposta);

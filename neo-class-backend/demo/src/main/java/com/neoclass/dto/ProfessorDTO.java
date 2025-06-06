@@ -4,6 +4,9 @@ package com.neoclass.dto;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * Não incluímos mais o campo 'turmaId' porque não precisamos expor a turma.
+ */
 @Data
 public class ProfessorDTO {
     private Long id;
