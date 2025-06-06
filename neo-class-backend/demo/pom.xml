@@ -85,7 +85,18 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+      <!-- ENVIAR EMAIL-->
+  <dependency>
+  <groupId>com.sendgrid</groupId>
+  <artifactId>sendgrid-java</artifactId>
+  <version>4.9.3</version> <!-- ou a versão mais recente disponível no Maven Central -->
+</dependency>
+
   </dependencies>
+
+
+
 
   <build>
     <plugins>

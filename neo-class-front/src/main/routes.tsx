@@ -9,7 +9,7 @@ import ListAlunos from "../pages/secretaria/listAlunos";
 import ListProfessores from "../pages/secretaria/listProfessores";
 import CadastroAluno from "../pages/secretaria/cadastroAluno";
 import CadastroProfessor from "../pages/secretaria/cadastroProfessor";
-import CadastroTurma from "../pages/secretaria/cadastroTurma"; 
+import CadastroTurma from "../pages/secretaria/cadastroTurma";
 import CadastroMateria from "../pages/secretaria/cadastroMateria";
 import ListMateria from "../pages/secretaria/listMateria";
 import Teste from "../pages/teste";
@@ -120,15 +120,31 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
-
-        <Route path="/cadastroTrabalho/:id?" element= { <CadastroTrabalho /> } />
-        <Route path="/registrarPresenca" element={<RegistrarPresenca />} />
-        <Route path="/lancarNotas" element={<LancarNotas />} />
+        <Route
+          path="/cadastroTrabalho/:id?"
+          element={
+            <PrivateRoute allowedRoles={["PROFESSOR"]}>
+              <CadastroTrabalho />
+            </PrivateRoute>
+          }/>
+        <Route path="/registrarPresenca" element={
+          <PrivateRoute allowedRoles={["PROFESSOR"]}>
+          <RegistrarPresenca />
+        </PrivateRoute>}
+        />
+    
+        <Route
+          path="/lancarNotas"
+          element={
+            <PrivateRoute allowedRoles={["PROFESSOR"]}>
+              <LancarNotas />
+            </PrivateRoute>
+          } />
 
         {/* Rota de teste (pública) */}
         <Route path="/teste" element={<Teste />} />
 
-         <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </HashRouter>
   );

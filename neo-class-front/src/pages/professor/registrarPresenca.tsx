@@ -1,9 +1,16 @@
 // src/pages/professor/RegistrarPresenca.tsx
+
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import TurmaService from "../../app/service/turmaService";
 import MateriaService from "../../app/service/materiaService";
 import AlunoService from "../../app/service/alunoService";
-import type { TurmaDTO, MateriaDTO, AlunoDTO } from "../../app/service/type";
+import FrequenciaService from "../../app/service/frequenciaService"; // <<-- importe o serviço de frequência
+import type {
+  TurmaDTO,
+  MateriaDTO,
+  AlunoDTO,
+  FrequenciaDTO,
+} from "../../app/service/type";
 import Header from "../../components/header/header";
 import Input from "../../components/input/input";
 import Select from "../../components/select/select";
@@ -23,13 +30,18 @@ const RegistrarPresenca: React.FC = () => {
   const turmaService = new TurmaService();
   const materiaService = new MateriaService();
   const alunoService = new AlunoService();
+  const frequenciaService = new FrequenciaService(); // <<-- instância do serviço
 
   // 2) Estados iniciais
   const [todasTurmas, setTodasTurmas] = useState<TurmaDTO[]>([]);
   const [todasMaterias, setTodasMaterias] = useState<MateriaDTO[]>([]);
-  const [listaTurmasDoProfessor, setListaTurmasDoProfessor] = useState<TurmaDTO[]>([]);
+  const [listaTurmasDoProfessor, setListaTurmasDoProfessor] = useState<
+    TurmaDTO[]
+  >([]);
   const [turmaSelecionada, setTurmaSelecionada] = useState<string>("");
-  const [materiasDoProfessor, setMateriasDoProfessor] = useState<MateriaDTO[]>([]);
+  const [materiasDoProfessor, setMateriasDoProfessor] = useState<
+    MateriaDTO[]
+  >([]);
   const [materiasFiltradas, setMateriasFiltradas] = useState<MateriaDTO[]>([]);
   const [materiaSelecionada, setMateriaSelecionada] = useState<string>("");
 
@@ -94,7 +106,9 @@ const RegistrarPresenca: React.FC = () => {
       setMateriaSelecionada("");
       return;
     }
-    const turmaObj = listaTurmasDoProfessor.find((t) => t.nome === turmaSelecionada);
+    const turmaObj = listaTurmasDoProfessor.find(
+      (t) => t.nome === turmaSelecionada
+    );
     if (!turmaObj) {
       setMateriasFiltradas([]);
       setMateriaSelecionada("");
@@ -119,7 +133,9 @@ const RegistrarPresenca: React.FC = () => {
       setPresencas({});
       return;
     }
-    const turmaObj = listaTurmasDoProfessor.find((t) => t.nome === turmaSelecionada);
+    const turmaObj = listaTurmasDoProfessor.find(
+      (t) => t.nome === turmaSelecionada
+    );
     if (!turmaObj) {
       setAlunosDaTurma([]);
       setPresencas({});
@@ -152,10 +168,15 @@ const RegistrarPresenca: React.FC = () => {
   };
 
   // 9) Submeter presença
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
     if (!turmaSelecionada) {
       setMsgErro("Selecione uma turma antes de salvar.");
+      return;
+    }
+    if (!materiaSelecionada) {
+      setMsgErro("Selecione uma matéria antes de salvar.");
       return;
     }
     if (!alunosDaTurma.length) {
@@ -163,27 +184,51 @@ const RegistrarPresenca: React.FC = () => {
       return;
     }
 
-    const turmaObj = listaTurmasDoProfessor.find((t) => t.nome === turmaSelecionada);
+    const turmaObj = listaTurmasDoProfessor.find(
+      (t) => t.nome === turmaSelecionada
+    );
     const turmaIdNum = turmaObj ? turmaObj.id! : null;
     if (turmaIdNum === null) {
       setMsgErro("Turma selecionada inválida.");
       return;
     }
 
-    const presencaEnviavel: PresencaDTO[] = alunosDaTurma.map((a) => ({
-      alunoId: a.id!,
-      presente: presencas[a.id!] || false,
-    }));
+    const materiaObj = materiasFiltradas.find(
+      (m) => m.nome === materiaSelecionada
+    );
+    const materiaIdNum = materiaObj ? materiaObj.id! : null;
+    if (materiaIdNum === null) {
+      setMsgErro("Matéria selecionada inválida.");
+      return;
+    }
 
-    const payload = {
-      turmaId: turmaIdNum,
-      dataAula,
-      materia: materiaSelecionada || null,
-      presencas: presencaEnviavel,
-    };
+    // Para cada aluno da turma, cria um FrequenciaDTO e chama o serviço de salvar:
+    const promises: Promise<any>[] = alunosDaTurma.map((aluno) => {
+      const freqObj: FrequenciaDTO = {
+        data: dataAula, // formato ISO: "2025-06-05"
+        presente: presencas[aluno.id!] || false,
+        alunoId: aluno.id!,
+        turmaId: turmaIdNum,
+        materiaId: materiaIdNum,
+      };
+      return frequenciaService
+        .salvar(freqObj)
+        .catch((err) => {
+          console.error(
+            `Erro ao salvar frequência do aluno ${aluno.nome}:`,
+            err
+          );
+          throw err;
+        });
+    });
 
-    console.log("Payload de presença:", payload);
-    setMsgSucesso("Presença salva com sucesso!");
+    try {
+      await Promise.all(promises);
+      setMsgSucesso("Presenças salvas com sucesso!");
+      // Opcional: zerar o estado de checkboxes ou atualizar lista, se necessário
+    } catch (error) {
+      setMsgErro("Ocorreu um erro ao salvar as presenças.");
+    }
   };
 
   return (
@@ -196,7 +241,6 @@ const RegistrarPresenca: React.FC = () => {
       <div className="container">
         {/* 1) Filtros: Turma, Matéria e Data da Aula */}
         <div className="grid-rep3">
-
           <Select
             label="Turma"
             name="turma"
@@ -209,7 +253,6 @@ const RegistrarPresenca: React.FC = () => {
             required
           />
 
-
           <Select
             label="Matéria"
             name="materia"
@@ -219,16 +262,16 @@ const RegistrarPresenca: React.FC = () => {
               setMateriaSelecionada(e.target.value)
             }
             title="a matéria"
+            required
           />
-
-
 
           <Input
             type="date"
             value={dataAula}
             onChange={(e) => setDataAula(e.target.value)}
-            required label={"Data"} />
-
+            required
+            label="Data"
+          />
         </div>
 
         {/* 2) Tabela de Alunos + Checkboxes */}
@@ -264,18 +307,25 @@ const RegistrarPresenca: React.FC = () => {
 
           {/* 3) Botões “Voltar” e “Salvar Presença” */}
           <div className="buttons">
-            <button type="button" onClick={() => window.history.back()} className="btn-voltar">
+            <button
+              type="button"
+              onClick={() => window.history.back()}
+              className="btn-voltar"
+            >
               VOLTAR
             </button>
             <button
               type="submit"
-              disabled={!turmaSelecionada || !alunosDaTurma.length}
+              disabled={
+                !turmaSelecionada ||
+                !materiaSelecionada ||
+                !alunosDaTurma.length
+              }
               className="btn-cadastrar"
             >
               SALVAR
             </button>
           </div>
-
         </form>
       </div>
     </div>

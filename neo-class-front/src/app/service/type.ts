@@ -106,3 +106,11 @@ export type NotaDTO = {
   alunoId: number;
 };
 
+export interface FrequenciaDTO {
+  id?: number;
+  data: string;        // data no formato ISO (ex: "2025-06-05")
+  presente: boolean;
+  alunoId: number;
+  turmaId: number;
+  materiaId: number;
+}

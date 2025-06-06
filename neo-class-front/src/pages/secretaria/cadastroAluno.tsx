@@ -1,3 +1,4 @@
+// src/pages/secretaria/cadastroAluno.tsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import AlunoService from "../../app/service/alunoService";
@@ -5,8 +6,8 @@ import TurmaService from "../../app/service/turmaService";
 import type { AlunoDTO } from "../../app/service/type";
 import Header from "../../components/header/header";
 import Input from "../../components/input/input";
-import "../../styles/cadastro.css";
 import Select from "../../components/select/select";
+import "../../styles/cadastro.css";
 import { buscaEnderecoPorCep } from "../../utils/buscaEnderecoPorCep";
 import type { TurmaDTO } from "../../app/service/type";
 
@@ -19,7 +20,7 @@ const situacoesMatricula = ["Ativo", "Inativo", "Trancado"];
 const CadastroAluno: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-  // Inclui o campo extra turmaNome
+  // Estado inclui turmaNome apenas para exibição/seleção
   const [aluno, setAluno] = useState<AlunoDTO & { turmaNome?: string }>({
     nome: "",
     dataNascimento: "",
@@ -49,6 +50,7 @@ const CadastroAluno: React.FC = () => {
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
 
+  // Carrega todas as turmas ao iniciar
   useEffect(() => {
     turmaService
       .listarTodos()
@@ -56,27 +58,25 @@ const CadastroAluno: React.FC = () => {
       .catch((error) => console.error("Erro ao carregar turmas:", error));
   }, []);
 
+  // Se houver id, busca aluno para edição
   useEffect(() => {
     if (id) {
       alunoService
         .buscarPorId(Number(id))
         .then((response) => {
-          // Quando carrega para edição, já preenche turmaNome pelo nome da turma correspondente
-          const turmaSelecionada = turmas.find((t) => t.id === response.data.turmaId);
+          const data = response.data as AlunoDTO;
+          // Encontra o nome da turma para exibir no select
+          const turmaSelecionada = turmas.find((t) => t.id === data.turmaId);
           setAluno({
-            ...response.data,
+            ...data,
             turmaNome: turmaSelecionada ? turmaSelecionada.nome : "",
           });
         })
         .catch(() => setMsgErro("Erro ao carregar dados do aluno."));
     }
-    // turmas na dependência para garantir turmaNome preenchido após as turmas serem carregadas
   }, [id, turmas]);
 
-  // Monta lista só de nomes de turmas
-  const nomesTurmas = turmas
-    .filter((t) => t.id !== undefined)
-    .map((t) => t.nome);
+  const nomesTurmas = turmas.map((t) => t.nome);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -103,7 +103,7 @@ const CadastroAluno: React.FC = () => {
         });
       }
     } else if (name === "turmaNome") {
-      // Busca o ID correspondente ao nome da turma selecionada
+      // Quando usuário escolhe o nome da turma, preenche turmaId
       const turmaSelecionada = turmas.find((t) => t.nome === value);
       setAluno((prev) => ({
         ...prev,
@@ -116,87 +116,94 @@ const CadastroAluno: React.FC = () => {
   }
 
   async function handleSubmit(e: React.FormEvent) {
-  e.preventDefault();
-  setMsgSucesso(null);
-  setMsgErro(null);
-  setMsgCampoVazio(null);
+    e.preventDefault();
+    setMsgSucesso(null);
+    setMsgErro(null);
+    setMsgCampoVazio(null);
 
-  // Defina aqui somente os campos visíveis/obrigatórios para validação
-  const camposObrigatorios = [
-    "nome",
-    "dataNascimento",
-    "rg",
-    "cpf",
-    "celular",
-    "telefone",
-    "email",
-    "genero",
-    "cep",
-    "uf",
-    "cidade",
-    "rua",
-    "numero",
-    "complemento",
-    "bairro",
-    "dataMatricula",
-    "situacaoMatricula",
-    "emailInstitucional",
-    "senha",
-    "turmaId"
-  ];
+    const camposObrigatorios = [
+      "nome",
+      "dataNascimento",
+      "rg",
+      "cpf",
+      "celular",
+      "telefone",
+      "email",
+      "genero",
+      "cep",
+      "uf",
+      "cidade",
+      "rua",
+      "numero",
+      "complemento",
+      "bairro",
+      "dataMatricula",
+      "situacaoMatricula",
+      "emailInstitucional",
+      "senha",
+      "turmaId",
+    ];
 
-  // Verifica se todos os campos obrigatórios estão preenchidos
-  const camposPreenchidos = camposObrigatorios.every((key) => {
-    const valor = (aluno as any)[key];
-    if (typeof valor === "string") {
-      return valor.trim() !== "";
+    const camposPreenchidos = camposObrigatorios.every((key) => {
+      const valor = (aluno as any)[key];
+      if (typeof valor === "string") {
+        return valor.trim() !== "";
+      }
+      return valor !== undefined && valor !== null;
+    });
+
+    if (!camposPreenchidos) {
+      setMsgCampoVazio(
+        "Preencha todos os campos obrigatórios antes de salvar."
+      );
+      return;
     }
-    return valor !== undefined && valor !== null;
-  });
 
-  if (!camposPreenchidos) {
-    setMsgCampoVazio(
-      "Preencha todos os campos obrigatórios antes de salvar."
-    );
-    return;
-  }
+    // Remove "turmaNome" para enviar ao backend só o que o DTO espera
+    const { turmaNome, ...payloadAluno } = aluno;
 
-  try {
-    if (aluno.id) {
-      await alunoService.editar(aluno);
-      setMsgSucesso("Aluno atualizado com sucesso!");
-    } else {
-      await alunoService.salvar(aluno);
-      setMsgSucesso("Aluno cadastrado com sucesso!");
-      setAluno({
-        nome: "",
-        dataNascimento: "",
-        rg: "",
-        cpf: "",
-        celular: "",
-        telefone: "",
-        email: "",
-        genero: "",
-        cep: "",
-        uf: "",
-        cidade: "",
-        rua: "",
-        numero: "",
-        complemento: "",
-        bairro: "",
-        dataMatricula: "",
-        situacaoMatricula: "",
-        emailInstitucional: "",
-        senha: "",
-        turmaId: undefined,
-        turmaNome: "",
-      });
+    try {
+      if (aluno.id) {
+        // Edição: inclui o id no payload
+        await alunoService.editar({ id: aluno.id, ...payloadAluno } as AlunoDTO);
+        setMsgSucesso("Aluno atualizado com sucesso!");
+      } else {
+        // Criação
+        await alunoService.salvar(payloadAluno as AlunoDTO);
+        setMsgSucesso("Aluno cadastrado com sucesso!");
+        setAluno({
+          nome: "",
+          dataNascimento: "",
+          rg: "",
+          cpf: "",
+          celular: "",
+          telefone: "",
+          email: "",
+          genero: "",
+          cep: "",
+          uf: "",
+          cidade: "",
+          rua: "",
+          numero: "",
+          complemento: "",
+          bairro: "",
+          dataMatricula: "",
+          situacaoMatricula: "",
+          emailInstitucional: "",
+          senha: "",
+          turmaId: undefined,
+          turmaNome: "",
+        });
+      }
+    } catch (err: any) {
+      if (err.response) {
+        console.log(">>> STATUS:", err.response.status);
+        console.log(">>> RESPONSE DATA:", err.response.data);
+      }
+      setMsgErro("Erro ao salvar aluno.");
+      console.error(err);
     }
-  } catch (error) {
-    setMsgErro("Erro ao salvar aluno.");
-    console.error(error);
   }
-}
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -204,7 +211,6 @@ const CadastroAluno: React.FC = () => {
       if (msgErro) setMsgErro(null);
       if (msgCampoVazio) setMsgCampoVazio(null);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, [msgSucesso, msgErro, msgCampoVazio]);
 
@@ -301,8 +307,8 @@ const CadastroAluno: React.FC = () => {
               name="uf"
               value={aluno.uf ?? ""}
               onChange={handleChange}
-              placeholder="Digite a UF"
               type="text"
+              placeholder="Digite a UF"
             />
             <Input
               label="CIDADE*"
@@ -360,7 +366,6 @@ const CadastroAluno: React.FC = () => {
               options={nomesTurmas}
               title="a turma"
             />
-
             <Input
               label="DATA DE MATRÍCULA*"
               name="dataMatricula"
@@ -407,6 +412,7 @@ const CadastroAluno: React.FC = () => {
             </button>
           </div>
         </form>
+
         <div className="avisos">
           {msgSucesso && <div className="msg-sucesso">{msgSucesso}</div>}
           {msgErro && <div className="msg-erro">{msgErro}</div>}
