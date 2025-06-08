@@ -1,13 +1,17 @@
 // src/main/java/com/neoclass/dto/LoginResponseDTO.java
 package com.neoclass.dto;
 
+/**
+ * O campo 'user' agora é genérico (Object), para suportar SecretariaDTO,
+ * AlunoResumoDTO ou ProfessorResumoDTO conforme o caso.
+ */
 public class LoginResponseDTO {
     private String token;
-    private AlunoResumoDTO user;
+    private Object user;
 
     public LoginResponseDTO() {}
 
-    public LoginResponseDTO(String token, AlunoResumoDTO user) {
+    public LoginResponseDTO(String token, Object user) {
         this.token = token;
         this.user  = user;
     }
@@ -20,11 +24,11 @@ public class LoginResponseDTO {
         this.token = token;
     }
 
-    public AlunoResumoDTO getUser() {
+    public Object getUser() {
         return user;
     }
 
-    public void setUser(AlunoResumoDTO user) {
+    public void setUser(Object user) {
         this.user = user;
     }
 }
