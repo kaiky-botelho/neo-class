@@ -4,6 +4,8 @@ package com.neoclass.controller;
 import com.neoclass.dto.TrabalhoDTO;
 import com.neoclass.model.Trabalho;
 import com.neoclass.model.Professor;
+import com.neoclass.model.Materia;
+import com.neoclass.model.Turma;
 import com.neoclass.service.TrabalhoService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +17,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/trabalhos")
 public class TrabalhoController {
     private final TrabalhoService service;
-    public TrabalhoController(TrabalhoService service) { this.service = service; }
+    public TrabalhoController(TrabalhoService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public List<TrabalhoDTO> listar() {
@@ -52,6 +56,8 @@ public class TrabalhoController {
         TrabalhoDTO dto = new TrabalhoDTO();
         BeanUtils.copyProperties(t, dto);
         if (t.getProfessor() != null) dto.setProfessorId(t.getProfessor().getId());
+        if (t.getMateria()   != null) dto.setMateriaId(t.getMateria().getId());
+        if (t.getTurma()     != null) dto.setTurmaId(t.getTurma().getId());
         return dto;
     }
 
@@ -59,8 +65,19 @@ public class TrabalhoController {
         Trabalho t = new Trabalho();
         BeanUtils.copyProperties(dto, t);
         if (dto.getProfessorId() != null) {
-            Professor p = new Professor(); p.setId(dto.getProfessorId());
+            Professor p = new Professor();
+            p.setId(dto.getProfessorId());
             t.setProfessor(p);
+        }
+        if (dto.getMateriaId() != null) {
+            Materia m = new Materia();
+            m.setId(dto.getMateriaId());
+            t.setMateria(m);
+        }
+        if (dto.getTurmaId() != null) {
+            Turma tu = new Turma();
+            tu.setId(dto.getTurmaId());
+            t.setTurma(tu);
         }
         return t;
     }

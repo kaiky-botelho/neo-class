@@ -20,6 +20,10 @@ public class Trabalho {
     private Professor professor;
 
     @ManyToOne
+    @JoinColumn(name = "materia_id")
+    private Materia materia;
+
+    @ManyToOne
     @JoinColumn(name = "turma_id")
     private Turma turma;
 }

@@ -12,4 +12,6 @@ public class TrabalhoDTO {
     private LocalDate data;
     private Double nota;
     private Long professorId;
+    private Long materiaId;
+    private Long turmaId;
 }

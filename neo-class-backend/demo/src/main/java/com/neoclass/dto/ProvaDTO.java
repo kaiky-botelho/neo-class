@@ -13,5 +13,6 @@ public class ProvaDTO {
     private Double nota;
     private Long professorId;
     private Long materiaId;
+    private Long turmaId;
 }
 

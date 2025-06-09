@@ -1,9 +1,13 @@
+// src/main/java/com/neoclass/controller/NotificacaoController.java
 package com.neoclass.controller;
 
+import com.neoclass.dto.NotificacaoDTO;
 import com.neoclass.dto.RespostaDTO;
+import com.neoclass.model.Aluno;
 import com.neoclass.model.Notificacao;
 import com.neoclass.model.Secretaria;
 import com.neoclass.service.NotificacaoService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,43 +22,66 @@ public class NotificacaoController {
     }
 
     @GetMapping
-    public List<Notificacao> listar() {
-        return service.listarTodos();
+    public List<NotificacaoDTO> listar() {
+        return service.listarTodos()
+                      .stream()
+                      .map(this::toDTO)
+                      .toList();
     }
 
     @GetMapping("/pendentes")
-    public List<Notificacao> listarPendentes() {
-        return service.listarPendentes();
+    public List<NotificacaoDTO> listarPendentes() {
+        return service.listarPendentes()
+                      .stream()
+                      .map(this::toDTO)
+                      .toList();
     }
 
     @GetMapping("/{id}")
-    public Notificacao buscar(@PathVariable Long id) {
-        return service.buscarPorId(id);
+    public NotificacaoDTO buscar(@PathVariable Long id) {
+        return toDTO(service.buscarPorId(id));
     }
 
     @PostMapping
-    public Notificacao criar(@RequestBody Notificacao n) {
-        return service.salvar(n);
+    public NotificacaoDTO criar(@RequestBody NotificacaoDTO dto) {
+        // 1) Converte DTO → Entidade
+        Notificacao n = new Notificacao();
+        BeanUtils.copyProperties(dto, n, "id", "aluno", "secretaria");
+        // seta o aluno
+        Aluno a = new Aluno();
+        a.setId(dto.getAlunoId());
+        n.setAluno(a);
+
+        // salva
+        Notificacao salvo = service.salvar(n);
+        // 2) Retorna DTO de resposta
+        return toDTO(salvo);
     }
 
     @PutMapping("/{id}/responder")
-    public Notificacao responder(
+    public NotificacaoDTO responder(
         @PathVariable Long id,
         @RequestBody RespostaDTO payload
     ) {
-        // monta a entidade Secretaria apenas com o ID fornecido
-        Secretaria secretaria = new Secretaria();
-        secretaria.setId(payload.getSecretariaId());
-
-        return service.responder(
-            id,
-            payload.getResposta(),
-            secretaria
-        );
+        Secretaria sec = new Secretaria();
+        sec.setId(payload.getSecretariaId());
+        Notificacao atualizado = service.responder(id, payload.getResposta(), sec);
+        return toDTO(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public void excluir(@PathVariable Long id) {
         service.excluir(id);
+    }
+
+    // ——— Auxiliar para mapear Entidade → DTO ———
+    private NotificacaoDTO toDTO(Notificacao n) {
+        NotificacaoDTO dto = new NotificacaoDTO();
+        BeanUtils.copyProperties(n, dto);
+        dto.setAlunoId(n.getAluno().getId());
+        if (n.getSecretaria() != null) {
+            dto.setSecretariaId(n.getSecretaria().getId());
+        }
+        return dto;
     }
 }
