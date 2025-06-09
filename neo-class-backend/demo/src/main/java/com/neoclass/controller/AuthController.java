@@ -1,4 +1,3 @@
-// src/main/java/com/neoclass/controller/AuthController.java
 package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -51,14 +49,13 @@ public class AuthController {
         }
 
         Secretaria entidade = opt.get();
-        List<String> roles = List.of("SECRETARIA"); // Define os papéis
+        List<String> roles = List.of("SECRETARIA");                // Define os papéis
         String token = jwtUtil.gerarToken(entidade.getEmail(), roles);
 
         SecretariaDTO dto = new SecretariaDTO();
         dto.setId(entidade.getId());
         dto.setEmail(entidade.getEmail());
 
-        // Altera o construtor para incluir os papéis
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto, roles);
         return ResponseEntity.ok(resposta);
     }
@@ -73,7 +70,7 @@ public class AuthController {
         }
 
         Aluno entidade = opt.get();
-        List<String> roles = List.of("ALUNO"); // Define os papéis
+        List<String> roles = List.of("ALUNO");                     // Define os papéis
         String token = jwtUtil.gerarToken(entidade.getEmailInstitucional(), roles);
 
         AlunoResumoDTO dto = new AlunoResumoDTO();
@@ -82,7 +79,6 @@ public class AuthController {
         dto.setEmailInstitucional(entidade.getEmailInstitucional());
         dto.setTurmaId(entidade.getTurma() != null ? entidade.getTurma().getId() : null);
 
-        // Altera o construtor para incluir os papéis
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto, roles);
         return ResponseEntity.ok(resposta);
     }
@@ -97,7 +93,7 @@ public class AuthController {
         }
 
         Professor entidade = opt.get();
-        List<String> roles = List.of("PROFESSOR"); // Define os papéis
+        List<String> roles = List.of("PROFESSOR");                 // Define os papéis
         String token = jwtUtil.gerarToken(entidade.getEmailInstitucional(), roles);
 
         ProfessorResumoDTO dto = new ProfessorResumoDTO();
@@ -105,7 +101,6 @@ public class AuthController {
         dto.setNome(entidade.getNome());
         dto.setEmailInstitucional(entidade.getEmailInstitucional());
 
-        // Altera o construtor para incluir os papéis
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto, roles);
         return ResponseEntity.ok(resposta);
     }
