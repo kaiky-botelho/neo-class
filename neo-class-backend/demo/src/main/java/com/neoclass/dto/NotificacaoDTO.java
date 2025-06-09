@@ -1,16 +1,16 @@
 package com.neoclass.dto;
 
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.time.Instant; // MUITO IMPORTANTE: Mudar de LocalDateTime para Instant
 
 @Data
 public class NotificacaoDTO {
     private Long id;
     private String texto;
-    private LocalDateTime dataEnvio;
+    private Instant dataEnvio; // MUITO IMPORTANTE: Mudar de LocalDateTime para Instant
     private Long alunoId;
     private String resposta;
-    private LocalDateTime dataResposta;
+    private Instant dataResposta; // MUITO IMPORTANTE: Mudar de LocalDateTime para Instant
     private Long secretariaId;
     private String status;
 }

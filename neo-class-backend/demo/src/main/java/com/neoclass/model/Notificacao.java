@@ -3,7 +3,7 @@ package com.neoclass.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+import java.time.Instant; // MUITO IMPORTANTE: Mudar de LocalDateTime para Instant
 
 @Entity
 @Table(name = "notificacao")
@@ -20,7 +20,8 @@ public class Notificacao {
     private String texto;
 
     @Column(name = "data_envio", nullable = false, updatable = false)
-    private LocalDateTime dataEnvio = LocalDateTime.now();
+    // Usar Instant.now() para garantir que a data de criação no servidor seja UTC
+    private Instant dataEnvio = Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aluno_id", nullable = false)
@@ -30,7 +31,7 @@ public class Notificacao {
     private String resposta;
 
     @Column(name = "data_resposta")
-    private LocalDateTime dataResposta;
+    private Instant dataResposta; // MUITO IMPORTANTE: Mudar de LocalDateTime para Instant
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "secretaria_id")

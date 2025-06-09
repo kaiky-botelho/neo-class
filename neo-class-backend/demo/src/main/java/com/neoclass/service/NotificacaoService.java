@@ -4,7 +4,7 @@ import com.neoclass.model.Notificacao;
 import com.neoclass.model.Secretaria;
 import com.neoclass.repository.NotificacaoRepository;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import java.time.Instant; // MUITO IMPORTANTE: Importar Instant
 import java.util.List;
 
 @Service
@@ -31,6 +31,8 @@ public class NotificacaoService implements CrudService<Notificacao, Long> {
 
     @Override
     public Notificacao salvar(Notificacao n) {
+        // Se dataEnvio não for setado no DTO, o modelo tem um default Instant.now()
+        // O BeanUtils.copyProperties no controller irá setar dataEnvio vindo do DTO.
         return repo.save(n);
     }
 
@@ -42,7 +44,7 @@ public class NotificacaoService implements CrudService<Notificacao, Long> {
     public Notificacao responder(Long id, String resposta, Secretaria secretaria) {
         Notificacao n = buscarPorId(id);
         n.setResposta(resposta);
-        n.setDataResposta(LocalDateTime.now());
+        n.setDataResposta(Instant.now()); // MUDANÇA AQUI: Usar Instant.now()
         n.setSecretaria(secretaria);
         n.setStatus("RESPONDIDA");
         return repo.save(n);
