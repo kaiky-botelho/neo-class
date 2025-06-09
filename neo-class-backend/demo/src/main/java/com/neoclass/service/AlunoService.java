@@ -3,6 +3,7 @@ package com.neoclass.service;
 
 import com.neoclass.model.Aluno;
 import com.neoclass.repository.AlunoRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,9 +13,12 @@ import java.util.Optional;
 public class AlunoService implements CrudService<Aluno, Long> {
 
     private final AlunoRepository repo;
+    private final PasswordEncoder passwordEncoder;
 
-    public AlunoService(AlunoRepository repo) {
+    public AlunoService(AlunoRepository repo,
+                        PasswordEncoder passwordEncoder) {
         this.repo = repo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -25,7 +29,8 @@ public class AlunoService implements CrudService<Aluno, Long> {
     @Override
     public Aluno buscarPorId(Long id) {
         return repo.findById(id)
-                   .orElseThrow(() -> new IllegalArgumentException("Aluno não encontrado com id " + id));
+                   .orElseThrow(() ->
+                       new IllegalArgumentException("Aluno não encontrado com id " + id));
     }
 
     @Override
@@ -44,14 +49,24 @@ public class AlunoService implements CrudService<Aluno, Long> {
 
     public Aluno buscarPorEmailInstitucional(String emailInstitucional) {
         return repo.findByEmailInstitucional(emailInstitucional)
-                   .orElseThrow(() -> new IllegalArgumentException(
-                       "Aluno não encontrado com e-mail institucional: " + emailInstitucional));
+                   .orElseThrow(() ->
+                       new IllegalArgumentException(
+                         "Aluno não encontrado com e-mail institucional: " + emailInstitucional));
     }
 
     public Long buscarIdPorEmail(String emailInstitucional) {
-        return repo.findByEmailInstitucional(emailInstitucional)
-                   .orElseThrow(() -> new IllegalArgumentException(
-                       "Aluno não encontrado para e-mail: " + emailInstitucional))
-                   .getId();
+        return buscarPorEmailInstitucional(emailInstitucional).getId();
+    }
+
+    /**
+     * Altera a senha de um aluno, gerando o hash via BCrypt e salvando no banco.
+     * @param alunoId     o ID do aluno
+     * @param novaSenha   a nova senha em texto puro
+     */
+    public void alterarSenha(Long alunoId, String novaSenha) {
+        Aluno aluno = buscarPorId(alunoId);
+        String hash = passwordEncoder.encode(novaSenha);
+        aluno.setSenha(hash);
+        repo.save(aluno);
     }
 }

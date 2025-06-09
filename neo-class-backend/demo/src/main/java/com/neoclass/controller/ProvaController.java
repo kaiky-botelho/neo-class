@@ -5,6 +5,7 @@ import com.neoclass.dto.ProvaDTO;
 import com.neoclass.model.Prova;
 import com.neoclass.model.Professor;
 import com.neoclass.model.Materia;
+import com.neoclass.model.Turma;
 import com.neoclass.service.ProvaService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/provas")
 public class ProvaController {
     private final ProvaService service;
-    public ProvaController(ProvaService service) { this.service = service; }
+    public ProvaController(ProvaService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public List<ProvaDTO> listar() {
@@ -54,6 +57,7 @@ public class ProvaController {
         BeanUtils.copyProperties(p, dto);
         if (p.getProfessor() != null) dto.setProfessorId(p.getProfessor().getId());
         if (p.getMateria()   != null) dto.setMateriaId(p.getMateria().getId());
+        if (p.getTurma()     != null) dto.setTurmaId(p.getTurma().getId());
         return dto;
     }
 
@@ -61,12 +65,19 @@ public class ProvaController {
         Prova p = new Prova();
         BeanUtils.copyProperties(dto, p);
         if (dto.getProfessorId() != null) {
-            Professor prof = new Professor(); prof.setId(dto.getProfessorId());
+            Professor prof = new Professor();
+            prof.setId(dto.getProfessorId());
             p.setProfessor(prof);
         }
         if (dto.getMateriaId() != null) {
-            Materia m = new Materia(); m.setId(dto.getMateriaId());
+            Materia m = new Materia();
+            m.setId(dto.getMateriaId());
             p.setMateria(m);
+        }
+        if (dto.getTurmaId() != null) {
+            Turma t = new Turma();
+            t.setId(dto.getTurmaId());
+            p.setTurma(t);
         }
         return p;
     }

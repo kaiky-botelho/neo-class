@@ -81,10 +81,12 @@ export type NotificacaoDTO = {
 
 export type TrabalhoDTO = {
   id?: number;
-  nome?: string;
+  nome: string;
   bimestre?: number;
-  data?: string; // geralmente datas são strings ISO no front-end
+  data?: string; 
   nota?: number;
+  turmaId?: number;
+  materiaId?: number; 
   professorId?: number;
 };
 
@@ -93,8 +95,9 @@ export type ProvaDTO = {
   nome: string;
   bimestre: number;
   data: string;       // Data como string ISO (ex: "2025-05-27")
-  nota: number;
+  nota?: number;
   professorId?: number;
+  turmaId?: number;   // usa turmaId para casar com Java
   materiaId?: number; // usa materiaId para casar com Java
 };
 

@@ -19,6 +19,10 @@ import CadastroProva from "../pages/professor/cadastroProva";
 import CadastroTrabalho from "../pages/professor/cadastroTrabalho";
 import RegistrarPresenca from "../pages/professor/registrarPresenca";
 import LancarNotas from "../pages/professor/lancarNotas";
+import ListProvas from "../pages/professor/listProva";
+import ListTrabalhos from "../pages/professor/listTrabalho";
+import CalendarioProfessor from "../pages/professor/calendarioProfessor";
+
 
 function AppRoutes() {
   return (
@@ -141,6 +145,32 @@ function AppRoutes() {
             </PrivateRoute>
           } />
 
+        <Route
+          path="/calendarioProfessor"
+          element={
+            <PrivateRoute allowedRoles={["PROFESSOR"]}>
+              <CalendarioProfessor />
+            </PrivateRoute>
+          }
+        />
+        
+        <Route
+          path="/provas"
+          element={
+            <PrivateRoute allowedRoles={["PROFESSOR"]}>
+              <ListProvas />
+            </PrivateRoute>
+          }
+        />
+
+        <Route 
+          path="/trabalhos"
+          element={
+            <PrivateRoute allowedRoles={["PROFESSOR"]}>
+              <ListTrabalhos />
+            </PrivateRoute>
+          }
+        />
         {/* Rota de teste (pública) */}
         <Route path="/teste" element={<Teste />} />
 

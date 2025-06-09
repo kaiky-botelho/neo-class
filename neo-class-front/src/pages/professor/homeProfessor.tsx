@@ -13,6 +13,7 @@ import type {
 import { ReactComponent as HomeIcon } from "../../assets/icons/home.svg";
 import { ReactComponent as TurmaIcon } from "../../assets/icons/turma.svg";
 import { ReactComponent as AlunoIcon } from "../../assets/icons/aluno.svg";
+import { ReactComponent as CalendarioIcon } from "../../assets/icons/calendario.svg";
 import Calendario from "../../components/calendario/calendario";
 import LinkButton from "../../components/linkButtons/linkButtons";
 import SideBar from "../../components/sideBar/sideBar";
@@ -22,8 +23,9 @@ import BlueCard from "../../components/blueCard/blueCard";
 
 const navItems = [
   { icon: <HomeIcon className="sideBar-icon" />, text: "Início", href: "/homeProfessor" },
-  { icon: <TurmaIcon className="sideBar-icon" />, text: "Prova", href: "/turmas" },
-  { icon: <AlunoIcon className="sideBar-icon" />, text: "Trabalhos", href: "/alunos" },
+  { icon: <TurmaIcon className="sideBar-icon" />, text: "Prova", href: "/provas" },
+  { icon: <AlunoIcon className="sideBar-icon" />, text: "Trabalhos", href: "/trabalhos" },
+  { icon: <CalendarioIcon className="sideBar-icon" />, text: "Calendário", href: "/calendarioProfessor" },
 ];
 
 const HomeProfessor: React.FC = () => {

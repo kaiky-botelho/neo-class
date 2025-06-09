@@ -8,11 +8,12 @@ import LoginService from "../app/service/loginService";
 interface LoginResponseBackend {
   token: string;
   user: {
-    id: number | null;
-    nome: "PROFESSOR" | "SECRETARIA";
+    id: number;
+    nome: string;               // nome completo do usuário
     emailInstitucional: string;
-    turmaId: number | null;
+    turmaId?: number | null;
   };
+  roles: string[];              // ["PROFESSOR"] ou ["SECRETARIA"]
 }
 
 const Login: React.FC = () => {
@@ -26,48 +27,43 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    // Tenta logar como Professor
+    let data: LoginResponseBackend | null = null;
+
+    // 1) tenta logar como PROFESSOR
     try {
       const resProf = await loginService.loginProfessor(email, senha);
-      const { token, user } = resProf.data as LoginResponseBackend;
-      const role = user.nome;             // “PROFESSOR” ou “SECRETARIA”
-      const id = user.id ?? 0;            // Se vier null, usa 0 (ou trate como achar melhor)
-
-      console.log("LoginProfessor retornou role =", role);
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", role);
-      localStorage.setItem("id", id.toString());
-      localStorage.setItem("email", email);
-
-      if (role === "PROFESSOR") {
-        navigate("/homeProfessor", { replace: true });
+      data = resProf.data as LoginResponseBackend;
+    } catch {
+      // 2) se falhar, tenta como SECRETARIA
+      try {
+        const resSec = await loginService.loginSecretaria(email, senha);
+        data = resSec.data as LoginResponseBackend;
+      } catch (err: any) {
+        setError(err.response?.data?.message || "Erro ao fazer login");
         return;
       }
-    } catch {
-      // Se falhar, tenta logar como Secretaria
     }
 
-    // Tenta logar como Secretaria
-    try {
-      const resSec = await loginService.loginSecretaria(email, senha);
-      const { token, user } = resSec.data as LoginResponseBackend;
-      const role = user.nome;
-      const id = user.id ?? 0;
+    // se chegou aqui, data já está preenchido
+    const { token, user, roles } = data!;
+    const role = roles[0];           // pega a primeira role
+    const id = user.id;
 
-      console.log("LoginSecretaria retornou role =", role);
+    console.log("Login retornou roles =", roles);
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", role);
-      localStorage.setItem("id", id.toString());
-      localStorage.setItem("email", email);
+    // salva no localStorage
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    localStorage.setItem("id", id.toString());
+    localStorage.setItem("email", user.emailInstitucional);
 
-      if (role === "SECRETARIA") {
-        navigate("/homeSecretaria", { replace: true });
-        return;
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Erro ao fazer login");
+    // redireciona conforme a role
+    if (role === "PROFESSOR") {
+      navigate("/homeProfessor", { replace: true });
+    } else if (role === "SECRETARIA") {
+      navigate("/homeSecretaria", { replace: true });
+    } else {
+      setError("Role desconhecida: " + role);
     }
   };
 

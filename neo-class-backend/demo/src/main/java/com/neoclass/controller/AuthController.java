@@ -3,8 +3,12 @@ package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
 import com.neoclass.dto.LoginResponseDTO;
+import com.neoclass.dto.SecretariaDTO;
 import com.neoclass.dto.AlunoResumoDTO;
+import com.neoclass.dto.ProfessorResumoDTO;
 import com.neoclass.model.Aluno;
+import com.neoclass.model.Professor;
+import com.neoclass.model.Secretaria;
 import com.neoclass.security.JwtUtil;
 import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
@@ -12,6 +16,9 @@ import com.neoclass.service.ProfessorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/login")
@@ -43,18 +50,16 @@ public class AuthController {
                 .body("E-mail ou senha inválidos");
         }
 
-        var entidade = opt.get();
-        String token = jwtUtil.gerarToken(entidade.getEmail());
+        Secretaria entidade = opt.get();
+        List<String> roles = List.of("SECRETARIA"); // Define os papéis
+        String token = jwtUtil.gerarToken(entidade.getEmail(), roles);
 
-        // Mapeia para DTO mínimo (pode criar um SecretariaResumoDTO se desejar, 
-        // mas aqui usamos AlunoResumoDTO apenas para “papel” de nome placeholder)
-        AlunoResumoDTO dto = new AlunoResumoDTO();
-        dto.setId(null);
-        dto.setNome("SECRETARIA");
-        dto.setEmailInstitucional(entidade.getEmail());
-        dto.setTurmaId(null);
+        SecretariaDTO dto = new SecretariaDTO();
+        dto.setId(entidade.getId());
+        dto.setEmail(entidade.getEmail());
 
-        LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
+        // Altera o construtor para incluir os papéis
+        LoginResponseDTO resposta = new LoginResponseDTO(token, dto, roles);
         return ResponseEntity.ok(resposta);
     }
 
@@ -68,7 +73,8 @@ public class AuthController {
         }
 
         Aluno entidade = opt.get();
-        String token = jwtUtil.gerarToken(entidade.getEmailInstitucional());
+        List<String> roles = List.of("ALUNO"); // Define os papéis
+        String token = jwtUtil.gerarToken(entidade.getEmailInstitucional(), roles);
 
         AlunoResumoDTO dto = new AlunoResumoDTO();
         dto.setId(entidade.getId());
@@ -76,7 +82,8 @@ public class AuthController {
         dto.setEmailInstitucional(entidade.getEmailInstitucional());
         dto.setTurmaId(entidade.getTurma() != null ? entidade.getTurma().getId() : null);
 
-        LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
+        // Altera o construtor para incluir os papéis
+        LoginResponseDTO resposta = new LoginResponseDTO(token, dto, roles);
         return ResponseEntity.ok(resposta);
     }
 
@@ -89,17 +96,17 @@ public class AuthController {
                 .body("E-mail ou senha inválidos");
         }
 
-        var entidade = opt.get();
-        String token = jwtUtil.gerarToken(entidade.getEmailInstitucional());
+        Professor entidade = opt.get();
+        List<String> roles = List.of("PROFESSOR"); // Define os papéis
+        String token = jwtUtil.gerarToken(entidade.getEmailInstitucional(), roles);
 
-        // “Professor” pode usar DTO mínimo também
-        AlunoResumoDTO dto = new AlunoResumoDTO();
-        dto.setId(null);
-        dto.setNome("PROFESSOR");
+        ProfessorResumoDTO dto = new ProfessorResumoDTO();
+        dto.setId(entidade.getId());
+        dto.setNome(entidade.getNome());
         dto.setEmailInstitucional(entidade.getEmailInstitucional());
-        dto.setTurmaId(null);
 
-        LoginResponseDTO resposta = new LoginResponseDTO(token, dto);
+        // Altera o construtor para incluir os papéis
+        LoginResponseDTO resposta = new LoginResponseDTO(token, dto, roles);
         return ResponseEntity.ok(resposta);
     }
 }
