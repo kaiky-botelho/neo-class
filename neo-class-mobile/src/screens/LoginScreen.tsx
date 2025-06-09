@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
-import loginStyles from '../styles/loginStyles';
+import loginStyles from '../styles/LoginStyles';
 
 export default function LoginScreen() {
   const navigation = useNavigation();

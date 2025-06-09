@@ -1,7 +1,7 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform  } from "react-native";
 
-const lackStyles = StyleSheet.create({
-  // === Header / Modal ===
+const subjectsStyles = StyleSheet.create({
+      // === Header / Modal ===
   topSafe: {
     backgroundColor: '#333C56',
   },
@@ -73,8 +73,7 @@ const lackStyles = StyleSheet.create({
     tintColor: '#FFF',
     resizeMode: 'contain',
   },
-
-  // === Conteúdo Principal ===
+    // === Main content ===
   bottomSafe: {
     flex: 1,
     backgroundColor: '#FFF',
@@ -85,7 +84,7 @@ const lackStyles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
   },
-  headerTitle: {
+  title: {
     fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
@@ -93,41 +92,28 @@ const lackStyles = StyleSheet.create({
     color: '#333',
   },
   errorText: {
+    fontSize: 16,
     color: '#f66',
     textAlign: 'center',
     marginTop: 16,
   },
-
-  // === Lista de Faltas ===
   listContainer: {
     paddingBottom: 24,
   },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F3F3',
+
+  // === Subject buttons ===
+  subjectButton: {
+    backgroundColor: '#CCE5FF',
+    paddingVertical: 14,
     borderRadius: 8,
     marginVertical: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    alignItems: 'center',
   },
   subjectText: {
-    flex: 1,
     fontSize: 16,
+    fontWeight: '600',
     color: '#333',
   },
-  badge: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    backgroundColor: '#EB5757',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeText: {
-    color: '#FFF',
-    fontWeight: '700',
-  },
-});
+ });
 
-export default lackStyles;
+export default subjectsStyles;

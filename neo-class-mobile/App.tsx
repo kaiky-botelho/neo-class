@@ -9,6 +9,9 @@ import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import LackScreen from './src/screens/LackScreen';
 import NoteScreen from './src/screens/NoteScreen';
+import AcademicCalendarScreen from './src/screens/AcademicCalendarScreen';
+import SubjectsScreen from './src/screens/SubjectsScreen';
+import NotificationScreen from './src/screens/NotificationScreen'; 
 
 // 1) Defina e exporte o tipo do stack navigation:
 export type RootStackParamList = {
@@ -16,7 +19,9 @@ export type RootStackParamList = {
   Home: undefined;
   Lack: undefined;
   Note: undefined;
-  // Caso crie ChangePassword mais adiante, adicione:
+  AcademicCalendar: undefined;
+  Subjects: undefined;
+  Notification: undefined;        // <-- adiciona Notification
   ChangePassword: undefined;
 };
 
@@ -58,8 +63,9 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Lack" component={LackScreen} />
           <Stack.Screen name="Note" component={NoteScreen} />
-          {/* Quando criar a tela ChangePassword, basta descomentar abaixo: */}
-          {/* <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} /> */}
+          <Stack.Screen name="AcademicCalendar" component={AcademicCalendarScreen} />
+          <Stack.Screen name="Subjects" component={SubjectsScreen} />
+          <Stack.Screen name="Notification" component={NotificationScreen} />
         </Stack.Navigator>
       </AuthProvider>
     </NavigationContainer>

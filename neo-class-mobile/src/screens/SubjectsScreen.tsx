@@ -1,3 +1,4 @@
+// src/screens/SubjectsScreen.tsx
 import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
@@ -13,41 +14,42 @@ import {
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
-import { FaltaDTO } from '../types/falta';
 import lackStyles from '../styles/lackStyles';
+import subjectsStyles from '../styles/subjectsStyles';
 
-export default function LackScreen() {
+interface MateriaDTO {
+  id: number;
+  nome: string;
+  bimestre: number;
+  professorId: number;
+  turmaId: number;
+}
+
+export default function SubjectsScreen() {
   const navigation = useNavigation();
-  const { user, signOut } = useContext(AuthContext);
+  const { user, loading: authLoading, signOut } = useContext(AuthContext);
 
-  const [faltas, setFaltas] = useState<FaltaDTO[]>([]);
+  const [materias, setMaterias] = useState<MateriaDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
-      buscarFaltas(user.id);
+    if (!authLoading && user?.turmaId) {
+      setLoading(true);
+      api.get<MateriaDTO[]>('/materias')
+        .then(res => {
+          setMaterias(
+            res.data.filter(m => m.turmaId === user.turmaId)
+          );
+        })
+        .catch(err => {
+          console.log('Erro ao carregar disciplinas:', err);
+          setError('Não foi possível carregar disciplinas');
+        })
+        .finally(() => setLoading(false));
     }
-  }, [user]);
-
-  async function buscarFaltas(alunoId: number) {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await api.get<FaltaDTO[]>(`/frequencias/faltas/${alunoId}`);
-      setFaltas(res.data);
-    } catch (err: any) {
-      console.log('Erro ao buscar faltas:', err);
-      setError(
-        err.response?.data
-          ? String(err.response.data)
-          : 'Falha de rede ou servidor'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [authLoading, user]);
 
   const openProfileModal = () => setModalVisible(true);
   const closeProfileModal = () => setModalVisible(false);
@@ -63,18 +65,15 @@ export default function LackScreen() {
     );
   };
 
-  const renderItem = ({ item }: { item: FaltaDTO }) => (
-    <View style={lackStyles.listItem}>
-      <Text style={lackStyles.subjectText}>{item.materiaNome}</Text>
-      <View style={lackStyles.badge}>
-        <Text style={lackStyles.badgeText}>{item.totalFaltas}</Text>
-      </View>
-    </View>
+  const renderItem = ({ item }: { item: MateriaDTO }) => (
+    <TouchableOpacity style={subjectsStyles.subjectButton}>
+      <Text style={subjectsStyles.subjectText}>{item.nome}</Text>
+    </TouchableOpacity>
   );
 
   return (
     <>
-      {/* Header / Perfil */}
+      {/* Header / Modal (igual às outras telas) */}
       <SafeAreaView style={lackStyles.topSafe}>
         <View style={lackStyles.topBar}>
           <TouchableOpacity
@@ -117,9 +116,7 @@ export default function LackScreen() {
             style={lackStyles.modalButton}
             onPress={handleChangePassword}
           >
-            <Text style={lackStyles.modalButtonText}>
-              ALTERAR SENHA
-            </Text>
+            <Text style={lackStyles.modalButtonText}>ALTERAR SENHA</Text>
             <Image
               source={require('../../assets/cadeado.png')}
               style={lackStyles.modalButtonIcon}
@@ -139,20 +136,22 @@ export default function LackScreen() {
         </View>
       </Modal>
 
-      {/* Conteúdo Faltas */}
-      <SafeAreaView style={lackStyles.bottomSafe}>
-        <View style={lackStyles.container}>
-          <Text style={lackStyles.headerTitle}>FALTAS</Text>
+      {/* Conteúdo principal */}
+      <SafeAreaView style={subjectsStyles.bottomSafe}>
+        <View style={subjectsStyles.container}>
+          <Text style={subjectsStyles.title}>DISCIPLINAS</Text>
+
           {loading ? (
-            <ActivityIndicator size="large" color="#EB5757" />
+            <ActivityIndicator size="large" color="#333" />
           ) : error ? (
-            <Text style={lackStyles.errorText}>{error}</Text>
+            <Text style={subjectsStyles.errorText}>{error}</Text>
           ) : (
             <FlatList
-              data={faltas}
-              keyExtractor={i => String(i.materiaId)}
+              data={materias}
+              keyExtractor={m => String(m.id)}
               renderItem={renderItem}
-              contentContainerStyle={lackStyles.listContainer}
+              contentContainerStyle={subjectsStyles.listContainer}
+              showsVerticalScrollIndicator={false}
             />
           )}
         </View>

@@ -1,6 +1,6 @@
 import { StyleSheet, Platform } from 'react-native';
 
-const lackStyles = StyleSheet.create({
+const noteStyles = StyleSheet.create({
   // === Header / Modal ===
   topSafe: {
     backgroundColor: '#333C56',
@@ -12,15 +12,21 @@ const lackStyles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: Platform.OS === 'android' ? 38 : 0,
   },
-  backButton: { padding: 4 },
+  backButton: {
+    padding: 4,
+  },
   backIcon: {
     width: 28,
     height: 28,
     tintColor: '#FFF',
     resizeMode: 'contain',
   },
-  topBarSpacer: { flex: 1 },
-  profileButton: { padding: 4 },
+  topBarSpacer: {
+    flex: 1,
+  },
+  profileButton: {
+    padding: 4,
+  },
   profileIcon: {
     width: 35,
     height: 35,
@@ -43,9 +49,9 @@ const lackStyles = StyleSheet.create({
     paddingVertical: 12,
   },
   modalHeader: {
-    color: '#FFF',
     fontSize: 18,
     fontWeight: '700',
+    color: '#FFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
@@ -58,14 +64,14 @@ const lackStyles = StyleSheet.create({
   modalButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
     paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   modalButtonText: {
-    color: '#FFF',
+    flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    flex: 1,
+    color: '#FFF',
   },
   modalButtonIcon: {
     width: 20,
@@ -74,7 +80,7 @@ const lackStyles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
-  // === Conteúdo Principal ===
+  // === Main Content ===
   bottomSafe: {
     flex: 1,
     backgroundColor: '#FFF',
@@ -85,7 +91,7 @@ const lackStyles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
   },
-  headerTitle: {
+  title: {
     fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
@@ -93,41 +99,46 @@ const lackStyles = StyleSheet.create({
     color: '#333',
   },
   errorText: {
+    fontSize: 16,
     color: '#f66',
     textAlign: 'center',
     marginTop: 16,
   },
-
-  // === Lista de Faltas ===
   listContainer: {
     paddingBottom: 24,
   },
-  listItem: {
+
+  // === Table ===
+  tableHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F3F3',
-    borderRadius: 8,
-    marginVertical: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: '#EEE',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
-  subjectText: {
+  headerCell: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
     color: '#333',
   },
-  badge: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    backgroundColor: '#EB5757',
+  tableRow: {
+    flexDirection: 'row',
+    backgroundColor: '#F9F9F9',
+    borderBottomWidth: 1,
+    borderColor: '#DDD',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  badgeText: {
-    color: '#FFF',
-    fontWeight: '700',
+  cell: {
+    flex: 1,
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#333',
   },
 });
 
-export default lackStyles;
+export default noteStyles;

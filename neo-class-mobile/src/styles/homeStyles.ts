@@ -1,7 +1,7 @@
-import { StyleSheet } from "react-native";
+// src/styles/homeStyles.ts
+import { StyleSheet, Platform } from "react-native";
 
-export default StyleSheet.create({ 
-
+export default StyleSheet.create({
   topSafe: {
     backgroundColor: "#333C56",
   },
@@ -11,7 +11,7 @@ export default StyleSheet.create({
     justifyContent: "flex-end",
     paddingHorizontal: 24,
     paddingVertical: 12,
-    marginTop: 38, // espaço extra para status bar
+    marginTop: Platform.OS === "android" ? 38 : 0,
   },
   topBarSpacer: {
     flex: 1,
@@ -26,17 +26,9 @@ export default StyleSheet.create({
     resizeMode: "contain",
   },
 
-  // ===================================================================
-  // 2. SafeAreaView inferior (conteúdo principal, fundo branco)
-  // ===================================================================
-  bottomSafe: {
-    flex: 1,
-    backgroundColor: "#FFF",
-  },
-
-  // ====== Modal de perfil ======
   modalOverlay: {
     flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContainer: {
     position: "absolute",
@@ -80,7 +72,65 @@ export default StyleSheet.create({
     resizeMode: "contain",
   },
 
-  // 3. CALENDÁRIO
+  changeOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  changeContainer: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    borderRadius: 8,
+    padding: 16,
+  },
+  changeTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  changeInput: {
+    borderWidth: 1,
+    borderColor: "#CCC",
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    height: 44,
+    marginBottom: 8,
+  },
+  errorText: {
+    color: "#f66",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  changeButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  cancelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginRight: 8,
+  },
+  cancelText: {
+    color: "#333",
+    fontWeight: "500",
+  },
+  saveButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#333C56",
+    borderRadius: 4,
+  },
+  saveText: {
+    color: "#FFF",
+    fontWeight: "600",
+  },
+
+  bottomSafe: {
+    flex: 1,
+    backgroundColor: "#FFF",
+  },
   calendarContainer: {
     marginHorizontal: 24,
     marginTop: 10,
@@ -92,8 +142,6 @@ export default StyleSheet.create({
   calendar: {
     borderRadius: 8,
   },
-
-  // 4. BOTÃO “CALENDÁRIO ACADÊMICO”
   calendarButton: {
     flexDirection: "row",
     backgroundColor: "#E6BC51",
@@ -120,15 +168,12 @@ export default StyleSheet.create({
     resizeMode: "contain",
   },
 
-  // 5. DISTRIBUIÇÃO DE BOTÕES (Disciplinas / Notas / Faltas)
   buttonsWrapper: {
     flexDirection: "row",
     marginHorizontal: 24,
     marginTop: 10,
-    justifyContent: "flex-start", // alinha à esquerda
-    height: 232, // igual à altura de discButton
+    height: 232,
   },
-  // 5.1 DISCIPLINAS (esquerda)
   discButton: {
     width: 175,
     height: 232,
@@ -136,8 +181,8 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 1,
-    overflow: "hidden", // para que decoração não vaze dos cantos
-    marginRight: 12, // espaço menor entre colunas
+    overflow: "hidden",
+    marginRight: 12,
   },
   discButtonBlue: {
     backgroundColor: "#A0BFE8",
@@ -158,7 +203,6 @@ export default StyleSheet.create({
     left: 0,
     resizeMode: "contain",
   },
-  // Ícone “disciplinas” no canto superior esquerdo da célula
   discIcon: {
     position: "absolute",
     top: 16,
@@ -168,7 +212,6 @@ export default StyleSheet.create({
     resizeMode: "contain",
     tintColor: "#4A6FA5",
   },
-  // Wrapper para centralizar verticalmente o texto dentro do botão
   discTextWrapper: {
     flex: 1,
     justifyContent: "center",
@@ -181,23 +224,21 @@ export default StyleSheet.create({
     color: "#FFF",
     textAlign: "center",
   },
-
-  // 5.2 COLUNA DIREITA (Notas em cima, Faltas embaixo)
   rightColumn: {
-    width: 175, // mesma largura de discButton
+    width: 175,
     justifyContent: "space-between",
   },
   smallButton: {
-    width: "100%", // preenche toda a largura de rightColumn (175)
-    height: "48%", // metade da altura de buttonsWrapper (232)
+    width: "100%",
+    height: "48%",
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     elevation: 1,
-    overflow: "hidden", // para decoração de faltas não vazar
+    overflow: "hidden",
   },
   smallButtonWhite: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFF",
     borderWidth: 1,
     borderColor: "#DDD",
   },
@@ -224,7 +265,6 @@ export default StyleSheet.create({
     resizeMode: "contain",
   },
 
-  // 6. BOTÃO DE SUPORTE (FULL WIDTH)
   supportButton: {
     flexDirection: "row",
     height: 56,
@@ -235,7 +275,7 @@ export default StyleSheet.create({
     paddingHorizontal: 24,
     marginTop: 10,
     elevation: 2,
-    overflow: "hidden", // para decoração não vazar dos cantos
+    overflow: "hidden",
   },
   supportButtonGrey: {},
   supportTriangleLeft: {
@@ -245,7 +285,7 @@ export default StyleSheet.create({
     left: -25,
     top: 8,
     resizeMode: "contain",
-    zIndex: 0, // triângulo ficará atrás
+    zIndex: 0,
   },
   supportTriangleRight: {
     width: 175,
@@ -254,9 +294,8 @@ export default StyleSheet.create({
     right: -25,
     top: 0,
     resizeMode: "contain",
-    zIndex: 0, // triângulo ficará atrás
+    zIndex: 0,
   },
-  // Texto “Suporte” alinhado à esquerda (com flex:1 para empurrar o ícone)
   supportText: {
     flex: 1,
     fontSize: 20,
@@ -266,7 +305,6 @@ export default StyleSheet.create({
     textAlign: "left",
     zIndex: 1,
   },
-  // Ícone de engrenagem acima de tudo
   supportIcon: {
     width: 30,
     height: 30,
@@ -275,12 +313,7 @@ export default StyleSheet.create({
     marginLeft: 8,
     zIndex: 1,
   },
-
-  // Utilitário para envio de triângulos decorativos para camada de fundo
   triangleDecor: {
     zIndex: 0,
-  }
-
-
-
+  },
 });

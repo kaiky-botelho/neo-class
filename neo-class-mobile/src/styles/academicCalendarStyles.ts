@@ -1,7 +1,8 @@
+// src/styles/academicCalendarStyles.ts
 import { StyleSheet, Platform } from 'react-native';
 
-const lackStyles = StyleSheet.create({
-  // === Header / Modal ===
+const academicCalendarStyles = StyleSheet.create({
+  // SafeAreaView superior (fundo escuro)
   topSafe: {
     backgroundColor: '#333C56',
   },
@@ -12,15 +13,21 @@ const lackStyles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: Platform.OS === 'android' ? 38 : 0,
   },
-  backButton: { padding: 4 },
+  backButton: {
+    padding: 4,
+  },
   backIcon: {
     width: 28,
     height: 28,
     tintColor: '#FFF',
     resizeMode: 'contain',
   },
-  topBarSpacer: { flex: 1 },
-  profileButton: { padding: 4 },
+  topBarSpacer: {
+    flex: 1,
+  },
+  profileButton: {
+    padding: 4,
+  },
   profileIcon: {
     width: 35,
     height: 35,
@@ -28,6 +35,7 @@ const lackStyles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
+  // Modal de perfil
   modalOverlay: {
     flex: 1,
     backgroundColor: '#00000088',
@@ -74,7 +82,7 @@ const lackStyles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
-  // === Conteúdo Principal ===
+  // Conteúdo principal
   bottomSafe: {
     flex: 1,
     backgroundColor: '#FFF',
@@ -85,11 +93,17 @@ const lackStyles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
   },
-  headerTitle: {
+  title: {
     fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    color: '#333',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
     color: '#333',
   },
   errorText: {
@@ -98,36 +112,42 @@ const lackStyles = StyleSheet.create({
     marginTop: 16,
   },
 
-  // === Lista de Faltas ===
-  listContainer: {
-    paddingBottom: 24,
-  },
-  listItem: {
+  // Tabela
+  tableHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F3F3',
-    borderRadius: 8,
-    marginVertical: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: '#EEE',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
-  subjectText: {
+  headerCell: {
     flex: 1,
-    fontSize: 16,
+    fontWeight: '700',
+    fontSize: 14,
+    textAlign: 'center',
     color: '#333',
   },
-  badge: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    backgroundColor: '#EB5757',
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     alignItems: 'center',
-    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#DDD',
   },
-  badgeText: {
-    color: '#FFF',
-    fontWeight: '700',
+  cell: {
+    flex: 1,
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#333',
+  },
+  provaRow: {
+    backgroundColor: '#FFF4CC',
+  },
+  trabalhoRow: {
+    backgroundColor: '#CCE5FF',
   },
 });
 
-export default lackStyles;
+export default academicCalendarStyles;
