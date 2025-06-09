@@ -1,7 +1,9 @@
+// src/main/java/com/neoclass/security/JwtFilter.java
 package com.neoclass.security;
 
 import io.jsonwebtoken.JwtException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -12,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -24,23 +27,23 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest  req,
+            HttpServletRequest req,
             HttpServletResponse res,
-            FilterChain         chain
+            FilterChain chain
     ) throws ServletException, IOException {
-        String path   = req.getServletPath();
+        String path = req.getServletPath();
         String method = req.getMethod();
 
         System.out.println("[JwtFilter] → request: " + method + " " + path);
 
-        // 1) Rotas públicas que não exigem JWT: os três logins + criação de secretaria + Swagger + OPTIONS
+        // 1) Rotas públicas que não exigem JWT: os três logins + criação de secretaria (POST) + Swagger + OPTIONS
         if (
-            pathMatcher.match("/api/login/secretaria", path)  ||
-            pathMatcher.match("/api/login/aluno", path)       ||
-            pathMatcher.match("/api/login/professor", path)   ||
-            pathMatcher.match("/api/secretarias", path)       ||
-            pathMatcher.match("/v3/api-docs/**", path)        ||
-            pathMatcher.match("/swagger-ui/**", path)         ||
+            pathMatcher.match("/api/login/secretaria", path) ||
+            pathMatcher.match("/api/login/aluno", path) ||
+            pathMatcher.match("/api/login/professor", path) ||
+            (pathMatcher.match("/api/secretarias", path) && "POST".equalsIgnoreCase(method)) || // CORREÇÃO AQUI
+            pathMatcher.match("/v3/api-docs/**", path) ||
+            pathMatcher.match("/swagger-ui/**", path) ||
             "OPTIONS".equalsIgnoreCase(method)
         ) {
             System.out.println("[JwtFilter] → Rota pública ou OPTIONS");
@@ -59,13 +62,24 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = header.substring(7);
         try {
-            String email = jwtUtil.validarToken(token);
-            System.out.println("[JwtFilter] → Token válido! subject (email) = " + email);
+            JwtUtil.JwtClaims jwtClaims = jwtUtil.validarToken(token);
+            String email = jwtClaims.getSubject();
+            List<String> roles = jwtClaims.getRoles();
+
+            System.out.println("[JwtFilter] → Token válido! subject (email) = " + email + ", roles = " + roles);
+
+            // Converte as strings de roles para SimpleGrantedAuthority
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role)) // Spring Security prefixa roles com "ROLE_"
+                .collect(Collectors.toList());
+
+            // Cria o objeto de autenticação com o email e as authorities (roles)
             UsernamePasswordAuthenticationToken auth =
-                new UsernamePasswordAuthenticationToken(email, null, List.of());
+                new UsernamePasswordAuthenticationToken(email, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
+
         } catch (JwtException ex) {
-            System.out.println("[JwtFilter] → Token inválido ou expirado. Retornando 401.");
+            System.out.println("[JwtFilter] → Token inválido ou expirado. Retornando 401. Erro: " + ex.getMessage());
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
