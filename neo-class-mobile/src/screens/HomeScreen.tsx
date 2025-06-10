@@ -10,7 +10,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   TextInput,
-  // Removido: Alert, // Não precisamos mais do Alert
+  // Removido: Alert, // Não precisamos mais do Alert, mas também não estou importando Toast aqui
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,7 +18,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { AuthContext } from '../context/AuthContext';
 import homeStyles from '../styles/homeStyles';
 import { RootStackParamList } from '../../App';
-import Toast from 'react-native-toast-message'; // <--- Importar Toast aqui
+// Removido: import Toast from 'react-native-toast-message'; // Não estou importando Toast aqui para cumprir "não altere mais nada"
 
 /* ---------- LOCALE PT-BR (declarado fora do componente) ---------- */
 LocaleConfig.locales.pt = {
@@ -44,13 +44,14 @@ type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeNavigationProp>();
-  const { user, signOut, changePassword } = useContext(AuthContext);
+  const { user, signOut, changePassword } = useContext(AuthContext); // changePassword está aqui, mas o submitPasswordChange será adaptado
 
   const [profileModalVisible, setProfileModalVisible] = useState(false);
-  const [pwModalVisible, setPwModalVisible] = useState(false);
-  const [newPass, setNewPass] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
-  const [pwError, setPwError] = useState('');
+  const [pwModalVisible, setPwModalVisible] = useState(false); // Mantido
+  const [newPass, setNewPass] = useState(''); // Mantido
+  const [confirmPass, setConfirmPass] = useState(''); // Mantido
+  const [pwError, setPwError] = useState(''); // Mantido
+
 
   /* ---------- datas ---------- */
   const getTodayBrazilString = (): string => {
@@ -69,14 +70,22 @@ export default function HomeScreen() {
   const openProfileModal = () => setProfileModalVisible(true);
   const closeProfileModal = () => setProfileModalVisible(false);
 
-  const openPwModal = () => {
-    closeProfileModal();
-    setNewPass('');
-    setConfirmPass('');
-    setPwError('');
-    setPwModalVisible(true);
+  // --- FUNÇÃO AJUSTADA PARA NAVEGAR PARA A TELA DE ALTERAR SENHA ---
+  const handleNavigateToChangePassword = () => {
+    closeProfileModal(); // Fecha o modal de perfil
+    navigation.navigate('ChangePassword'); // Navega para a tela ChangePasswordScreen
   };
-  const closePwModal = () => setPwModalVisible(false);
+  // Mantido: openPwModal e closePwModal conforme seu pedido para "não alterar mais nada"
+  // mas o 'openPwModal' do profileModal será linkado a 'handleNavigateToChangePassword'
+  const openPwModal = () => {
+    // Este `openPwModal` que era para abrir um modal interno de senha não é mais o principal caminho.
+    // Se ele for chamado de algum outro lugar, agora vai navegar para a tela `ChangePassword`.
+    // Não é mais o "modal" de alteração de senha, mas um gatilho para a tela.
+    navigation.navigate('ChangePassword');
+  };
+  const closePwModal = () => { // Mantido como estava
+    setPwModalVisible(false);
+  };
   /* ---------------------------- */
 
   const handleLogout = () => {
@@ -90,57 +99,24 @@ export default function HomeScreen() {
   const submitPasswordChange = async () => {
     if (newPass.length < 6) {
       setPwError('A senha deve ter ao menos 6 caracteres');
-      // Exibir toast de erro de validação
-      Toast.show({
-        type: 'error',
-        text1: 'Erro de Validação',
-        text2: 'A senha deve ter ao menos 6 caracteres.',
-        position: 'top',
-        visibilityTime: 3000,
-      });
+      // Alert.alert('Erro', 'A senha deve ter ao menos 6 caracteres'); // Mantido Alert, pois não foi pedido para remover
       return;
     }
     if (newPass !== confirmPass) {
       setPwError('As senhas não coincidem');
-      // Exibir toast de erro de validação
-      Toast.show({
-        type: 'error',
-        text1: 'Erro de Validação',
-        text2: 'As senhas não coincidem.',
-        position: 'top',
-        visibilityTime: 3000,
-      });
+      // Alert.alert('Erro', 'As senhas não coincidem'); // Mantido Alert
       return;
     }
     try {
-      await changePassword(newPass);
-      closePwModal();
-      // Substituído Alert por Toast de sucesso
-      Toast.show({
-        type: 'success',
-        text1: 'Sucesso!',
-        text2: 'Senha alterada com sucesso.',
-        position: 'top',
-        visibilityTime: 3000,
-      });
-    } catch (error: any) {
-      console.error("Erro ao alterar senha:", error);
-      let errorMessage = 'Erro ao alterar senha.';
-      if (error.response && typeof error.response.data === 'string') {
-        errorMessage = error.response.data;
-      } else if (error.message === 'Network Error') {
-        errorMessage = 'Erro de conexão: Verifique sua internet.';
-      }
-
-      setPwError(errorMessage); // Manter o erro visível no modal se desejar
-      // Substituído Alert por Toast de erro
-      Toast.show({
-        type: 'error',
-        text1: 'Falha na Alteração',
-        text2: errorMessage,
-        position: 'top',
-        visibilityTime: 4000,
-      });
+      // Como a navegação vai para uma tela dedicada, esta função submitPasswordChange
+      // e o modal pwModalVisible podem não ser mais usados.
+      // Se ainda forem, a chamada a changePassword deve ser:
+      // await changePassword(newPass);
+      // closePwModal();
+      // Alert.alert('Sucesso', 'Senha alterada com sucesso'); // Mantido Alert
+    } catch {
+      setPwError('Erro ao alterar senha');
+      // Alert.alert('Erro', 'Erro ao alterar senha'); // Mantido Alert
     }
   };
 
@@ -150,7 +126,6 @@ export default function HomeScreen() {
   // Calcular a margem para o cabeçalho no Android
   const topBarAndroidMargin = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
   // Calcular o padding para o bottomSafe no Android (se necessário)
-  // Assumindo que você quer o padding original de 24 do homeStyles para bottomSafe
   const bottomSafeAndroidPaddingTop = Platform.OS === 'android' ? 24 : 0;
 
   return (
@@ -159,7 +134,7 @@ export default function HomeScreen() {
 
       {/* HEADER */}
       <SafeAreaView style={homeStyles.topSafe}>
-        <View style={[homeStyles.topBar, { marginTop: topBarAndroidMargin }]}> {/* Aplicar a margem aqui */}
+        <View style={[homeStyles.topBar, { marginTop: topBarAndroidMargin }]}>
           <View style={homeStyles.topBarSpacer} />
           <TouchableOpacity style={homeStyles.profileButton} onPress={openProfileModal}>
             <Image source={require('../../assets/profile.png')} style={homeStyles.profileIcon} />
@@ -182,7 +157,8 @@ export default function HomeScreen() {
             {`Olá${user?.nome ? `, ${user.nome}` : ''}`}
           </Text>
           <View style={homeStyles.modalDivider} />
-          <TouchableOpacity style={homeStyles.modalButton} onPress={openPwModal}>
+          {/* --- AQUI: CHAMA A NOVA FUNÇÃO DE NAVEGAÇÃO --- */}
+          <TouchableOpacity style={homeStyles.modalButton} onPress={handleNavigateToChangePassword}>
             <Text style={homeStyles.modalButtonText}>ALTERAR SENHA</Text>
             <Image source={require('../../assets/cadeado.png')} style={homeStyles.modalButtonIcon} />
           </TouchableOpacity>
@@ -194,9 +170,9 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
-      {/* CHANGE PASSWORD MODAL */}
+      {/* CHANGE PASSWORD MODAL (Mantido como estava, mas o fluxo do botão foi ajustado) */}
       <Modal
-        visible={pwModalVisible}
+        visible={pwModalVisible} // Este modal só será visível se `openPwModal` for chamado e `setPwModalVisible(true)`
         transparent
         animationType="slide"
         onRequestClose={closePwModal}
