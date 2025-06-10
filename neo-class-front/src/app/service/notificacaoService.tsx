@@ -1,6 +1,6 @@
 import ApiService from "../apiService";
 import type { AxiosResponse } from "axios";
-import type { NotificacaoDTO } from "./type";
+import type { RespostaDTO, NotificacaoDTO } from "./type";
 
 class NotificacaoService extends ApiService {
     constructor() {
@@ -19,8 +19,11 @@ class NotificacaoService extends ApiService {
         return this.post<NotificacaoDTO>("", notificacao);
     }
 
-    responder(notificacao: NotificacaoDTO): Promise<AxiosResponse<NotificacaoDTO>> {
-        return this.put<NotificacaoDTO>(`/${notificacao.id}/responder`, notificacao);
+    responder(
+        id: number,
+        payload: RespostaDTO
+    ): Promise<AxiosResponse<NotificacaoDTO>> {
+        return this.put<NotificacaoDTO>(`/${id}/responder`, payload);
     }
 
     buscarPorId(id: number): Promise<AxiosResponse<NotificacaoDTO>> {

@@ -9,11 +9,11 @@ interface LoginResponseBackend {
   token: string;
   user: {
     id: number;
-    nome: string;               // nome completo do usuário
+    nome: string;
     emailInstitucional: string;
     turmaId?: number | null;
   };
-  roles: string[];              // ["PROFESSOR"] ou ["SECRETARIA"]
+  roles: string[]; // e.g. ["PROFESSOR"] ou ["SECRETARIA"]
 }
 
 const Login: React.FC = () => {
@@ -44,18 +44,21 @@ const Login: React.FC = () => {
       }
     }
 
-    // se chegou aqui, data já está preenchido
+    // se chegou aqui, data está preenchido
     const { token, user, roles } = data!;
-    const role = roles[0];           // pega a primeira role
+    const role = roles[0];   // pega a primeira role
     const id = user.id;
-
-    console.log("Login retornou roles =", roles);
 
     // salva no localStorage
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     localStorage.setItem("id", id.toString());
     localStorage.setItem("email", user.emailInstitucional);
+
+    // se for secretaria, salva também secretariaId
+    if (role === "SECRETARIA") {
+      localStorage.setItem("secretariaId", id.toString());
+    }
 
     // redireciona conforme a role
     if (role === "PROFESSOR") {

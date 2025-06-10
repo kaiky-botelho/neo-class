@@ -1,3 +1,4 @@
+// src/pages/secretaria/HomeSecretaria.tsx
 import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sideBar/sideBar";
 import { ReactComponent as HomeIcon } from "../../assets/icons/home.svg";
@@ -10,12 +11,20 @@ import Calendario from "../../components/calendario/calendario";
 import NotificacaoService from "../../app/service/notificacaoService";
 import AlunoService from "../../app/service/alunoService";
 import ProfessorService from "../../app/service/professorService";
-import { NotificacaoDTO, AlunoDTO, ProfessorDTO } from "../../app/service/type";
+import type {
+  NotificacaoDTO,
+  AlunoDTO,
+  ProfessorDTO,
+  RespostaDTO
+} from "../../app/service/type";
 import NotificacaoText from "../../components/notificacaoText/notificacaoText";
 import BlueCard from "../../components/blueCard/blueCard";
+import Modal from "../../components/modal/modal";
+import Input from "../../components/input/input";
+import TextArea from "../../components/textArea/textArea";
 import "../../styles/home.css";
 
-// Extensão para incluir possível nome do aluno vindo embutido
+// Estende NotificacaoDTO para incluir nome do aluno
 interface NotificacaoExt extends NotificacaoDTO {
   alunoNome?: string;
 }
@@ -38,40 +47,85 @@ const HomeSecretaria: React.FC = () => {
   const [notificacoes, setNotificacoes] = useState<NotificacaoExt[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Modal e estado de resposta
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNotificacao, setSelectedNotificacao] = useState<NotificacaoExt | null>(null);
+  const [resposta, setResposta] = useState("");
+
+  // Carrega secretariaId (ajuste conforme seu auth)
+  const [secretariaId, setSecretariaId] = useState<number | null>(null);
   useEffect(() => {
-    const fetchData = async () => {
+    const sid = localStorage.getItem("secretariaId");
+    if (sid) setSecretariaId(Number(sid));
+  }, []);
+
+  // Busca inicial de dados
+  useEffect(() => {
+    (async () => {
       try {
-        // Busca alunos, professores e notificações em paralelo
         const [alunosRes, profRes, notRes] = await Promise.all([
           alunoService.listarTodos(),
           professorService.listarTodos(),
           notificacaoService.listarPendentes()
         ]);
-
         setAlunos(alunosRes.data);
         setProfessores(profRes.data);
 
-        const rawData = notRes.data as any[];
-        const normalized: NotificacaoExt[] = rawData.map(n => ({
+        // Anexa alunoNome em cada notificação
+        const enriched: NotificacaoExt[] = notRes.data.map(n => ({
           ...n,
-          alunoId: n.alunoId ?? n.aluno_id,
-          alunoNome: n.aluno?.nome ?? n.alunoNome
+          alunoNome: alunosRes.data.find(a => a.id === n.alunoId)?.nome
         }));
-        setNotificacoes(normalized);
+        setNotificacoes(enriched);
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, []);
+
+  // Abre o modal e inicializa o form
+  const handleResponderClick = (notifica: NotificacaoExt) => {
+    setSelectedNotificacao(notifica);
+    setResposta("");             // limpa resposta anterior
+    setIsModalOpen(true);
+  };
+
+  // Envia apenas { resposta, secretariaId }
+  const handleEnviarResposta = async () => {
+    if (!selectedNotificacao?.id || secretariaId == null) {
+      console.warn("Faltam dados para enviar:", selectedNotificacao, secretariaId);
+      return;
+    }
+
+    const payload: RespostaDTO = {
+      resposta,
+      secretariaId
+    };
+
+    console.log("Payload de resposta:", payload);
+
+    try {
+      await notificacaoService.responder(selectedNotificacao.id, payload);
+      // Recarrega notificações pendentes
+      const pend = await notificacaoService.listarPendentes();
+      const enriched: NotificacaoExt[] = pend.data.map(n => ({
+        ...n,
+        alunoNome: alunos.find(a => a.id === n.alunoId)?.nome
+      }));
+      setNotificacoes(enriched);
+    } catch (err) {
+      console.error("Erro ao enviar resposta:", err);
+    } finally {
+      setIsModalOpen(false);
+      setSelectedNotificacao(null);
+    }
+  };
 
   return (
     <div className="gridTemplate">
-      <div>
-        <SideBar buttonText="Sair" navItems={navItems} />
-      </div>
+      <SideBar buttonText="Sair" navItems={navItems} />
 
       <div className="home-container">
         <div className="container-h">
@@ -80,9 +134,7 @@ const HomeSecretaria: React.FC = () => {
 
           <div className="home-container-principal">
             <div className="acoes-container">
-              <div className="title-home acoes">
-                <h2>Ações</h2>
-              </div>
+              <div className="title-home acoes"><h2>Ações</h2></div>
               <div className="link-buttons-container">
                 <LinkButton text={"Cadastrar\nAluno"} href="/cadastroAluno" image={require("../../assets/chapeu.png")} />
                 <LinkButton text={"Cadastrar\nProfessor"} href="/cadastroProfessor" image={require("../../assets/lousa.png")} />
@@ -90,41 +142,31 @@ const HomeSecretaria: React.FC = () => {
                 <LinkButton text={"Cadastrar\nMatéria"} href="/cadastroMateria" image={require("../../assets/papeis.png")} />
               </div>
             </div>
-            <div className="calendario-container">
-              <Calendario />
-            </div>
+            <div className="calendario-container"><Calendario /></div>
           </div>
 
           <div className="home-container-secundario">
             <div className="notificacao-container">
-              <div className="title-home noti">
-                <h2>NOTIFICAÇÕES</h2>
-              </div>
+              <div className="title-home noti"><h2>NOTIFICAÇÕES</h2></div>
               <div className="noti-list">
-                {loading ? (
-                  <p>Carregando notificações...</p>
-                ) : notificacoes.length === 0 ? (
-                  <p className="SemNotificacao">Nenhuma notificação aqui</p>
-                ) : (
-                  notificacoes.map(n => {
-                    const nome = n.alunoNome || alunos.find(a => a.id === n.alunoId)?.nome;
-                    if (!nome) console.warn(`Aluno não encontrado para ID ${n.alunoId}`);
-                    return (
-                      <NotificacaoText
-                        key={n.id}
-                        title={nome ?? "Aluno desconhecido"}
-                        text={n.texto}
-                      />
-                    );
-                  })
-                )}
+                {loading
+                  ? <p>Carregando notificações...</p>
+                  : notificacoes.length === 0
+                    ? <p className="SemNotificacao">Nenhuma notificação aqui</p>
+                    : notificacoes.map(n => (
+                        <NotificacaoText
+                          key={n.id}
+                          title={n.alunoNome ?? "Aluno desconhecido"}
+                          text={n.texto}
+                          onResponder={() => handleResponderClick(n)}
+                        />
+                      ))
+                }
               </div>
             </div>
 
             <div className="estatistica-container">
-              <div className="title-home estat">
-                <h2>ESTATÍSTICAS</h2>
-              </div>
+              <div className="title-home estat"><h2>ESTATÍSTICAS</h2></div>
               <div className="estatistica-cards">
                 <BlueCard title={"ALUNOS\nMATRICULADOS"} text={alunos.length} />
                 <BlueCard title={"PROFESSORES\nCADASTRADOS"} text={professores.length} />
@@ -133,6 +175,34 @@ const HomeSecretaria: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Resposta */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h3>Responder Notificação</h3>
+
+        <Input
+          label="Aluno"
+          value={selectedNotificacao?.alunoNome || ""}
+          disabled
+        />
+
+        <TextArea
+          label="Notificação"
+          value={selectedNotificacao?.texto || ""}
+          disabled
+        />
+
+        <TextArea
+          label="Sua Resposta"
+          value={resposta}
+          placeholder="Digite sua resposta..."
+          onChange={setResposta}
+        />
+
+        <button type="button" onClick={handleEnviarResposta}>
+          Enviar
+        </button>
+      </Modal>
     </div>
   );
 };

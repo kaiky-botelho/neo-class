@@ -117,3 +117,9 @@ export interface FrequenciaDTO {
   turmaId: number;
   materiaId: number;
 }
+
+// src/app/service/type.ts
+export interface RespostaDTO {
+  resposta: string;
+  secretariaId: number;
+}
