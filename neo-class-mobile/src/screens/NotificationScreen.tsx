@@ -9,17 +9,16 @@ import {
   TouchableOpacity,
   Modal,
   TouchableWithoutFeedback,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
-  StatusBar,
+  StatusBar, // <--- KEEP THIS IMPORT!
 } from "react-native";
 import { useNavigation, CommonActions } from "@react-navigation/native";
 import api from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import notificationStyles from "../styles/notificationStyles";
-import { AxiosError } from 'axios';
+import { AxiosError } from "axios";
 
 interface ChatMessage {
   id: string;
@@ -46,8 +45,16 @@ export default function NotificationScreen() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+
+  const predefinedMessages = [
+    "Solicitar Histórico Escolar",
+    "Solicitar Declaração de Matrícula",
+    "Solicitar Segunda Via de Identidade Estudantil",
+    "Solicitar Atestado de Frequência",
+    "Solicitar Ementa de Disciplinas"
+  ];
 
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
 
@@ -63,42 +70,35 @@ export default function NotificationScreen() {
       const res = await api.get<NotificacaoDTO[]>("/notificacoes");
       const fetchedNotifs = res.data.filter((n) => n.alunoId === user!.id);
 
-      const newChatMessages: ChatMessage[] = [];
+      const receivedResponses: ChatMessage[] = [];
 
       fetchedNotifs.forEach((notif) => {
-        let sentTimestamp: Date;
-        try {
-          sentTimestamp = new Date(notif.dataEnvio);
-          if (isNaN(sentTimestamp.getTime())) {
-            console.warn("Data de envio inválida do backend para notificação ID:", notif.id, "Data:", notif.dataEnvio);
-            sentTimestamp = new Date();
-          }
-        } catch (e) {
-          console.warn("Erro ao parsear data de envio do backend para notificação ID:", notif.id, "Data:", notif.dataEnvio, "Erro:", e);
-          sentTimestamp = new Date();
-        }
-
-        newChatMessages.push({
-          id: `sent-${notif.id}`,
-          type: "sent",
-          text: notif.texto,
-          timestamp: sentTimestamp,
-        });
-
         if (notif.status === "RESPONDIDA" && notif.resposta && notif.dataResposta) {
           let receivedTimestamp: Date;
           try {
             receivedTimestamp = new Date(notif.dataResposta);
             if (isNaN(receivedTimestamp.getTime())) {
-                console.warn("Data de resposta inválida do backend para notificação ID:", notif.id, "Data:", notif.dataResposta);
-                receivedTimestamp = new Date();
+              console.warn(
+                "Data de resposta inválida do backend para notificação ID:",
+                notif.id,
+                "Data:",
+                notif.dataResposta
+              );
+              receivedTimestamp = new Date();
             }
           } catch (e) {
-            console.warn("Erro ao parsear data de resposta do backend para notificação ID:", notif.id, "Data:", notif.dataResposta, "Erro:", e);
+            console.warn(
+              "Erro ao parsear data de resposta do backend para notificação ID:",
+              notif.id,
+              "Data:",
+              notif.dataResposta,
+              "Erro:",
+              e
+            );
             receivedTimestamp = new Date();
           }
 
-          newChatMessages.push({
+          receivedResponses.push({
             id: `received-${notif.id}`,
             type: "received",
             text: notif.resposta,
@@ -107,10 +107,10 @@ export default function NotificationScreen() {
         }
       });
 
-      newChatMessages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-      setChatMessages(newChatMessages);
+      receivedResponses.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      setChatMessages(receivedResponses);
 
-      if (newChatMessages.length > 0) {
+      if (receivedResponses.length > 0) {
         setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       }
     } catch (err) {
@@ -120,32 +120,41 @@ export default function NotificationScreen() {
     }
   }
 
-  async function handleSend() {
-    if (!message.trim()) return;
+  const handleSelectMessage = (messageText: string) => {
+    setSelectedMessage(messageText === selectedMessage ? null : messageText);
+  };
+
+  async function handleConfirmSend() {
+    if (!selectedMessage) {
+      console.warn("Nenhuma mensagem selecionada para enviar.");
+      return;
+    }
     setSending(true);
     Keyboard.dismiss();
 
     const currentLocalTime = new Date();
+    // Use the current time (Ribeirao Preto is -03, so 2:16:29 PM is correct for now)
+    // The toISOString() method will convert it to UTC (e.g., 2025-06-10T17:16:29.000Z)
+    // The backend should handle this UTC string and convert it to its local time zone if needed.
     const isoStringUTC = currentLocalTime.toISOString();
 
-    console.log("Data/Hora Local ANTES de enviar:", currentLocalTime.toLocaleString());
+    console.log("Data/Hora Local ANTES de enviar (Ribeirao Preto):", currentLocalTime.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
     console.log("Data/Hora UTC ENVIADA para a API:", isoStringUTC);
-    const testDate = new Date();
-    console.log(`[FUSO DIAGNOSE] current Date().toString(): ${testDate.toString()}`);
-    console.log(`[FUSO DIAGNOSE] current Date().getTimezoneOffset(): ${testDate.getTimezoneOffset()}`);
-    console.log(`[FUSO DIAGNOSE] current Date().toLocaleTimeString(): ${testDate.toLocaleTimeString()}`);
+    console.log(`[FUSO DIAGNOSE] current Date().toString(): ${currentLocalTime.toString()}`);
+    console.log(`[FUSO DIAGNOSE] current Date().getTimezoneOffset(): ${currentLocalTime.getTimezoneOffset()}`);
+    console.log(`[FUSO DIAGNOSE] current Date().toLocaleTimeString(): ${currentLocalTime.toLocaleTimeString()}`);
 
 
     try {
       const response = await api.post("/notificacoes", {
-        texto: message.trim(),
+        texto: selectedMessage.trim(),
         dataEnvio: isoStringUTC,
         alunoId: user!.id,
         status: "PENDENTE",
       });
       console.log("Mensagem enviada com sucesso. Dados da resposta da API:", response.data);
 
-      setMessage("");
+      setSelectedMessage(null);
       await loadChatMessages();
 
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
@@ -169,29 +178,22 @@ export default function NotificationScreen() {
   }
 
   const renderChatItem = ({ item }: { item: ChatMessage }) => {
-    const isSent = item.type === "sent";
-
-    console.log(`[RENDER] ID: ${item.id}, Type: ${item.type}`);
-    console.log(`[RENDER] Timestamp Objeto: ${item.timestamp}`);
-    console.log(`[RENDER] Timestamp ISO (interno): ${item.timestamp.toISOString()}`);
-    console.log(`[RENDER] Timestamp Local (exibição): ${item.timestamp.toLocaleDateString("pt-BR")} ${item.timestamp.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}`);
-
+    if (item.type !== "received") return null;
 
     return (
       <View
         style={[
           notificationStyles.chatMessageContainer,
-          isSent ? notificationStyles.sentMessage : notificationStyles.receivedMessage,
+          notificationStyles.receivedMessage,
         ]}
       >
         <Text style={notificationStyles.messageText}>{item.text}</Text>
         <Text
           style={[
             notificationStyles.messageDate,
-            !isSent && notificationStyles.receivedMessageDate,
           ]}
         >
-          {item.timestamp.toLocaleDateString("pt-BR")}
+          {item.timestamp.toLocaleDateString("pt-BR", {day: '2-digit', month: '2-digit', year: 'numeric'})}
         </Text>
       </View>
     );
@@ -214,14 +216,21 @@ export default function NotificationScreen() {
     );
   };
 
-  const keyboardVerticalOffset = Platform.OS === 'ios'
-    ? (notificationStyles.topBar.paddingVertical || 0) * 2 + (notificationStyles.topBar.marginTop || 0) + (StatusBar.currentHeight || 0)
-    : 0;
+  // Calculate topBarAndroidMargin here in the component, outside StyleSheet.create
+  const topBarAndroidMargin = Platform.OS === "android" ? (StatusBar.currentHeight || 0) : 0;
+
+  const keyboardVerticalOffset =
+    Platform.OS === "ios"
+      ? (notificationStyles.topBar.paddingVertical || 0) * 2 +
+        topBarAndroidMargin + // Use the calculated margin here
+        (StatusBar.currentHeight || 0) // Consider actual StatusBar height for iOS if needed
+      : 0;
 
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: notificationStyles.topSafe.backgroundColor }}>
-      <View style={notificationStyles.topBar}>
+      {/* Apply marginTop as an inline style */}
+      <View style={[notificationStyles.topBar, { marginTop: topBarAndroidMargin }]}>
         <TouchableOpacity
           style={notificationStyles.backButton}
           onPress={() => navigation.goBack()}
@@ -261,9 +270,7 @@ export default function NotificationScreen() {
             style={notificationStyles.modalButton}
             onPress={handleChangePassword}
           >
-            <Text style={notificationStyles.modalButtonText}>
-              ALTERAR SENHA
-            </Text>
+            <Text style={notificationStyles.modalButtonText}>ALTERAR SENHA</Text>
             <Image
               source={require("../../assets/cadeado.png")}
               style={notificationStyles.modalButtonIcon}
@@ -288,9 +295,45 @@ export default function NotificationScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
-        {/* FlatList agora diretamente dentro do KeyboardAvoidingView, com justifyContent no contentContainerStyle */}
+        {/* Section for predefined buttons and confirm button */}
+        <View style={notificationStyles.predefinedButtonsSection}>
+          <View style={notificationStyles.predefinedButtonsContainer}>
+            {predefinedMessages.map((msg, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  notificationStyles.predefinedButton,
+                  selectedMessage === msg && notificationStyles.predefinedButtonSelected,
+                ]}
+                onPress={() => handleSelectMessage(msg)}
+                disabled={sending}
+              >
+                <Text style={notificationStyles.predefinedButtonText}>{msg}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={[
+              notificationStyles.confirmSendButton,
+              (!selectedMessage || sending) && notificationStyles.confirmSendButtonDisabled,
+            ]}
+            onPress={handleConfirmSend}
+            disabled={!selectedMessage || sending}
+          >
+            {sending ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Text style={notificationStyles.confirmSendButtonText}>Confirmar Envio</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+
+        {/* Respostas da Secretaria Section */}
+        <Text style={notificationStyles.historyHeader}>Caixa de Entrada da Secretaria</Text>
         {loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: '#FFF' }}>
             <ActivityIndicator size="large" color="#EAAD3B" />
           </View>
         ) : (
@@ -299,42 +342,15 @@ export default function NotificationScreen() {
             data={chatMessages}
             keyExtractor={(item) => item.id}
             renderItem={renderChatItem}
-            // AQUI A MUDANÇA MAIS IMPORTANTE: Aplicar justifyContent: 'flex-end' diretamente no contentContainerStyle
-            contentContainerStyle={[notificationStyles.mainContentContainer, { justifyContent: 'flex-end' }]}
-            inverted={true}
+            contentContainerStyle={notificationStyles.mainContentContainer}
             ListEmptyComponent={
               <Text style={notificationStyles.emptyChatText}>
-                Inicie uma conversa ou aguarde uma mensagem.
+                Nenhuma resposta da secretaria ainda.
               </Text>
             }
             keyboardShouldPersistTaps="handled"
           />
         )}
-
-        <View style={notificationStyles.bottomInputContainer}>
-          <TextInput
-            style={notificationStyles.textInput}
-            placeholder="Digite sua mensagem..."
-            placeholderTextColor="#999"
-            value={message}
-            onChangeText={setMessage}
-            returnKeyType="send"
-            onSubmitEditing={handleSend}
-          />
-          <TouchableOpacity
-            style={[
-              notificationStyles.sendButton,
-              sending && notificationStyles.sendButtonDisabled,
-            ]}
-            onPress={handleSend}
-            disabled={sending}
-          >
-            <Image
-              source={require("../../assets/arrow.png")}
-              style={notificationStyles.sendIcon}
-            />
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

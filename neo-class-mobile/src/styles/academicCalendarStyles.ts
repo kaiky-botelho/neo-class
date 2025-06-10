@@ -1,4 +1,3 @@
-// src/styles/academicCalendarStyles.ts
 import { StyleSheet, Platform } from 'react-native';
 
 const academicCalendarStyles = StyleSheet.create({
@@ -11,7 +10,7 @@ const academicCalendarStyles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    marginTop: Platform.OS === 'android' ? 38 : 0,
+    marginTop: Platform.OS === 'android' ? 38 : 0, // Mantido como estava
   },
   backButton: {
     padding: 4,
@@ -38,12 +37,11 @@ const academicCalendarStyles = StyleSheet.create({
   // Modal de perfil
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#00000088',
   },
   modalContainer: {
     position: 'absolute',
     top: 50,
-    right: 0,
+    right: 0, // Corrigido para remover o espaço à direita
     width: 280,
     backgroundColor: '#333C56',
     borderBottomRightRadius: 12,
@@ -86,7 +84,7 @@ const academicCalendarStyles = StyleSheet.create({
   bottomSafe: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: Platform.OS === 'android' ? 24 : 0,
+    paddingTop: Platform.OS === 'android' ? 24 : 0, // Mantido como estava
   },
   container: {
     flex: 1,

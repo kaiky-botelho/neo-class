@@ -30,7 +30,6 @@ const lackStyles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#00000088',
   },
   modalContainer: {
     position: 'absolute',
@@ -86,8 +85,8 @@ const lackStyles = StyleSheet.create({
     paddingTop: 16,
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 25,
     textAlign: 'center',
     marginBottom: 12,
     color: '#333',
@@ -106,27 +105,37 @@ const lackStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F3F3F3',
-    borderRadius: 8,
-    marginVertical: 6,
+    borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(132, 132, 132, 0.20)',
+    shadowColor: '#C0C0C0',
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 1,
+    elevation: 1, 
   },
   subjectText: {
+    fontFamily: 'Poppins-Medium',
     flex: 1,
-    fontSize: 16,
+    fontSize: 18,
     color: '#333',
   },
   badge: {
     width: 32,
     height: 32,
-    borderRadius: 6,
-    backgroundColor: '#EB5757',
+    borderRadius: 5,
+    backgroundColor: '#FF9C9C',
     alignItems: 'center',
     justifyContent: 'center',
+
   },
   badgeText: {
-    color: '#FFF',
+    fontFamily: 'Poppins-Medium',
+    color: '#2D2D2D',
     fontWeight: '700',
+    fontSize: 18
   },
 });
 

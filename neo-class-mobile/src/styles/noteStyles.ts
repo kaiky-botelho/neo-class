@@ -12,21 +12,15 @@ const noteStyles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: Platform.OS === 'android' ? 38 : 0,
   },
-  backButton: {
-    padding: 4,
-  },
+  backButton: { padding: 4 },
   backIcon: {
     width: 28,
     height: 28,
     tintColor: '#FFF',
     resizeMode: 'contain',
   },
-  topBarSpacer: {
-    flex: 1,
-  },
-  profileButton: {
-    padding: 4,
-  },
+  topBarSpacer: { flex: 1 },
+  profileButton: { padding: 4 },
   profileIcon: {
     width: 35,
     height: 35,
@@ -36,7 +30,6 @@ const noteStyles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#00000088',
   },
   modalContainer: {
     position: 'absolute',
@@ -49,8 +42,8 @@ const noteStyles = StyleSheet.create({
     paddingVertical: 12,
   },
   modalHeader: {
+    fontFamily: 'Poppins-Bold',
     fontSize: 18,
-    fontWeight: '700',
     color: '#FFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -69,8 +62,8 @@ const noteStyles = StyleSheet.create({
   },
   modalButtonText: {
     flex: 1,
+    fontFamily: 'Poppins-Medium',
     fontSize: 16,
-    fontWeight: '600',
     color: '#FFF',
   },
   modalButtonIcon: {
@@ -92,13 +85,14 @@ const noteStyles = StyleSheet.create({
     paddingTop: 16,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 25,
     textAlign: 'center',
     marginBottom: 12,
     color: '#333',
   },
   errorText: {
+    fontFamily: 'Poppins-Regular',
     fontSize: 16,
     color: '#f66',
     textAlign: 'center',
@@ -108,36 +102,45 @@ const noteStyles = StyleSheet.create({
     paddingBottom: 24,
   },
 
-  // === Table ===
+  // === Tabela ===
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#EEE',
+    backgroundColor: '#FFF',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DDD',
   },
   headerCell: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 21,
     textAlign: 'center',
     color: '#333',
+    borderRightWidth: 1,
+    borderColor: '#DDD',
   },
   tableRow: {
     flexDirection: 'row',
     backgroundColor: '#F9F9F9',
-    borderBottomWidth: 1,
-    borderColor: '#DDD',
     paddingHorizontal: 12,
     paddingVertical: 10,
     alignItems: 'center',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#DDD',
   },
   cell: {
     flex: 1,
-    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 19,
     textAlign: 'center',
     color: '#333',
+    borderRightWidth: 1,
+    borderColor: '#DDD',
   },
 });
 

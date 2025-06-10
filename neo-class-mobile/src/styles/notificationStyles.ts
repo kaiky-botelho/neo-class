@@ -1,70 +1,72 @@
 import { StyleSheet, Platform } from "react-native";
 
 const notificationStyles = StyleSheet.create({
-  // === SafeAreaView superior / header ===
   topSafe: {
     backgroundColor: "#333C56",
   },
   topBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    marginTop: Platform.OS === "android" ? 38 : 0, // Este é o marginTop específico para Android
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: "#333C56",
   },
-  backButton: { padding: 4 },
+  backButton: {
+    padding: 8,
+  },
   backIcon: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
     tintColor: "#FFF",
     resizeMode: "contain",
   },
   topBarSpacer: { flex: 1 },
-  profileButton: { padding: 4 },
+  profileButton: {
+    padding: 8,
+  },
   profileIcon: {
-    width: 35,
-    height: 35,
+    width: 32,
+    height: 32,
     tintColor: "#FFF",
     resizeMode: "contain",
   },
 
-  // === Modal de perfil ===
   modalOverlay: {
     flex: 1,
-    backgroundColor: "#00000088",
   },
   modalContainer: {
     position: "absolute",
-    top: 50,
-    right: 0,
-    width: 280,
+    top: Platform.OS === "ios" ? 80 : 70,
+    // REMOVIDO: right: 15, // <--- REMOVIDO PARA GRUDAR NA DIREITA
+    right: 0, // <--- ADICIONADO PARA GRUDAR NA DIREITA
+    width: 250,
     backgroundColor: "#333C56",
-    borderBottomRightRadius: 12,
-    borderBottomLeftRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 8,
+    overflow: 'hidden',
     ...Platform.select({
       ios: {
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
       },
       android: {
-        elevation: 5,
+        elevation: 8,
       },
     }),
   },
   modalHeader: {
     color: "#FFF",
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "700",
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
+    backgroundColor: "#333C56",
   },
   modalDivider: {
     height: 1,
     backgroundColor: "#FFF",
-    opacity: 0.2,
+    opacity: 0.15,
     marginHorizontal: 16,
   },
   modalButton: {
@@ -72,111 +74,153 @@ const notificationStyles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     paddingHorizontal: 16,
+    backgroundColor: "#333C56",
   },
   modalButtonText: {
     color: "#FFF",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     flex: 1,
   },
   modalButtonIcon: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     tintColor: "#FFF",
     resizeMode: "contain",
   },
 
-    // === Conteúdo do Chat ===
-  mainContentContainer: {
-    flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    // REMOVIDO: Se tinha aqui, pois agora será aplicado via array no componente diretamente
-    // justifyContent: 'flex-end',
+  predefinedButtonsSection: {
+    backgroundColor: "#F2F4F7",
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
   },
-  chatMessageContainer: {
-    maxWidth: '80%',
-    padding: 10,
+  predefinedButtonsContainer: {
+    flexDirection: "column",
+  },
+  predefinedButton: {
     borderRadius: 10,
-    marginVertical: 4,
+    borderWidth: 1,
+    borderColor: "rgba(132, 132, 132, 0.20)",
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    marginVertical: 6,
+    alignItems: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 1,
+        shadowColor: "rgba(192, 192, 192, 0.25)",
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
       },
       android: {
         elevation: 1,
       },
     }),
   },
-  sentMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#DCF8C6',
-    borderBottomRightRadius: 2,
+  predefinedButtonSelected: {
+    backgroundColor: "#E6BC51",
+    borderColor: "rgba(132, 132, 132, 0.20)",
+    borderWidth: 1,
+    ...Platform.select({
+      ios: {
+        shadowColor: "rgba(192, 192, 192, 0.25)",
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
+  },
+  predefinedButtonText: {
+    color: "#333C56",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+
+  confirmSendButton: {
+    backgroundColor: "#EA9216",
+    borderRadius: 8,
+    paddingVertical: 14,
+    marginHorizontal: 20,
+    marginVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  confirmSendButtonDisabled: {
+    backgroundColor: "#F3C588",
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  confirmSendButtonText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  historyHeader: {
+    fontSize: 17,
+    fontWeight: "bold",
+    textAlign: "left",
+    color: "#333C56",
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 10,
+    backgroundColor: '#F2F4F7',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+
+  mainContentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#FFF',
+  },
+  chatMessageContainer: {
+    maxWidth: "85%",
+    padding: 12,
+    borderRadius: 12,
+    marginVertical: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
   },
   receivedMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#E0E0E0',
-    borderBottomLeftRadius: 2,
+    alignSelf: "flex-start",
+    backgroundColor: "#EFEFEF",
+    borderBottomLeftRadius: 4,
   },
   messageText: {
     fontSize: 15,
-    color: '#333',
+    color: "#333333",
+    lineHeight: 22,
   },
   messageDate: {
-    fontSize: 10,
-    color: '#666',
-    marginTop: 4,
-    textAlign: 'right',
-  },
-  receivedMessageDate: {
-    textAlign: 'left',
+    fontSize: 11,
+    color: "#888888",
+    marginTop: 6,
+    textAlign: "left",
   },
   emptyChatText: {
     textAlign: "center",
     color: "#999",
-    marginVertical: 20,
+    marginVertical: 30,
     fontSize: 16,
-  },
-
-  // === Input + Botão enviar ===
-  bottomInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#FFF",
-    borderTopWidth: 1,
-    borderColor: "#EEE",
-    paddingBottom: Platform.OS === "ios" ? 20 : 8, // padding para iOS safe area inferior
-  },
-  textInput: {
-    flex: 1,
-    height: 40,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    fontSize: 15,
-    color: "#333",
-    backgroundColor: "#F0F0F0",
-    marginRight: 12,
-  },
-  sendButton: {
-    padding: 10,
-    backgroundColor: "#2D2D2D",
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sendButtonDisabled: {
-    backgroundColor: "#999",
-  },
-  sendIcon: {
-    width: 22,
-    height: 22,
-    tintColor: "#FFF",
-    resizeMode: "contain",
+    lineHeight: 24,
   },
 });
 

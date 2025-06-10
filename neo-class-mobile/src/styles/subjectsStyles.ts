@@ -30,7 +30,6 @@ const subjectsStyles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#00000088',
   },
   modalContainer: {
     position: 'absolute',
@@ -85,8 +84,8 @@ const subjectsStyles = StyleSheet.create({
     paddingTop: 16,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 25,
     textAlign: 'center',
     marginBottom: 12,
     color: '#333',
@@ -101,17 +100,22 @@ const subjectsStyles = StyleSheet.create({
     paddingBottom: 24,
   },
 
-  // === Subject buttons ===
   subjectButton: {
-    backgroundColor: '#CCE5FF',
+    backgroundColor: '#A0BFE8',
     paddingVertical: 14,
-    borderRadius: 8,
+    borderRadius: 10, 
     marginVertical: 6,
     alignItems: 'center',
+    borderColor: 'rgba(132, 132, 132, 0.25)', 
+    borderWidth: 1, 
+    shadowColor: 'rgba(192, 192, 192, 0.25)', 
+    shadowOffset: { width: 1, height: 1 }, 
+    shadowOpacity: 1, 
+    shadowRadius: 0 
   },
   subjectText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 18,
     color: '#333',
   },
  });
