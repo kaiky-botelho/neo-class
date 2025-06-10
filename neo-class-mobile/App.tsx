@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState, useEffect } from 'react';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -11,7 +10,11 @@ import LackScreen from './src/screens/LackScreen';
 import NoteScreen from './src/screens/NoteScreen';
 import AcademicCalendarScreen from './src/screens/AcademicCalendarScreen';
 import SubjectsScreen from './src/screens/SubjectsScreen';
-import NotificationScreen from './src/screens/NotificationScreen'; 
+import NotificationScreen from './src/screens/NotificationScreen';
+import Toast from 'react-native-toast-message'; // Import Toast here
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 // 1) Defina e exporte o tipo do stack navigation:
 export type RootStackParamList = {
@@ -21,8 +24,8 @@ export type RootStackParamList = {
   Note: undefined;
   AcademicCalendar: undefined;
   Subjects: undefined;
-  Notification: undefined;        // <-- adiciona Notification
-  ChangePassword: undefined;
+  Notification: undefined;
+  ChangePassword: undefined; // Assuming this is a screen in your app
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -44,14 +47,15 @@ export default function App() {
         console.warn(e);
       } finally {
         setFontsLoaded(true);
-        await SplashScreen.hideAsync();
+        // Hide the splash screen only after fonts are loaded
+        SplashScreen.hideAsync();
       }
     }
     prepare();
   }, []);
 
   if (!fontsLoaded) {
-    // Mantém a splash aberta até as fontes carregarem
+    // Return null or a loading component while fonts are loading
     return null;
   }
 
@@ -66,8 +70,14 @@ export default function App() {
           <Stack.Screen name="AcademicCalendar" component={AcademicCalendarScreen} />
           <Stack.Screen name="Subjects" component={SubjectsScreen} />
           <Stack.Screen name="Notification" component={NotificationScreen} />
+          {/* Ensure ChangePassword screen is also defined if it exists */}
+          {/* <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} /> */}
         </Stack.Navigator>
       </AuthProvider>
+      {/* The Toast component DEVE be rendered last in the component tree,
+          outside the Stack.Navigator, but inside NavigationContainer/Providers,
+          so it appears on top of all screens. */}
+      <Toast />
     </NavigationContainer>
   );
 }

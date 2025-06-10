@@ -10,7 +10,7 @@ const noteStyles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    marginTop: Platform.OS === 'android' ? 38 : 0,
+    // REMOVIDO: marginTop: Platform.OS === 'android' ? 38 : 0, // <-- Removido para ser tratado no componente (NoteScreen.tsx)
   },
   backButton: { padding: 4 },
   backIcon: {
@@ -30,16 +30,28 @@ const noteStyles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)', // Adicionado background para o overlay do modal
   },
   modalContainer: {
     position: 'absolute',
     top: 50,
-    right: 0,
+    right: 0, // Corrigido para não ter espaço à direita
     width: 280,
-    backgroundColor: '#333C56',
+    backgroundColor: '#333C56', // Cor do cabeçalho
     borderBottomRightRadius: 12,
     borderBottomLeftRadius: 12,
     paddingVertical: 12,
+    ...Platform.select({ // Adicionado sombra para consistência com outros modais
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   modalHeader: {
     fontFamily: 'Poppins-Bold',
@@ -77,7 +89,7 @@ const noteStyles = StyleSheet.create({
   bottomSafe: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: Platform.OS === 'android' ? 24 : 0,
+    paddingTop: Platform.OS === 'android' ? 24 : 0, // Mantido como estava
   },
   container: {
     flex: 1,
@@ -91,15 +103,17 @@ const noteStyles = StyleSheet.create({
     marginBottom: 12,
     color: '#333',
   },
-  errorText: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 16,
-    color: '#f66',
-    textAlign: 'center',
-    marginTop: 16,
-  },
+  // REMOVIDO: errorText, pois o Toast lida com isso agora
+  // errorText: {
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 16,
+  //   color: '#f66',
+  //   textAlign: 'center',
+  //   marginTop: 16,
+  // },
   listContainer: {
     paddingBottom: 24,
+    flexGrow: 1, // Adicionado para permitir o scroll em FlatList vazia
   },
 
   // === Tabela ===
@@ -141,6 +155,14 @@ const noteStyles = StyleSheet.create({
     color: '#333',
     borderRightWidth: 1,
     borderColor: '#DDD',
+  },
+  // NOVO: Estilo para quando não há dados
+  noDataText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#999',
+    marginTop: 20,
+    fontFamily: 'Poppins-Regular', // Definindo a fonte
   },
 });
 

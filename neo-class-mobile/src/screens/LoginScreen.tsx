@@ -1,4 +1,3 @@
-// src/screens/LoginScreen.tsx
 import React, { useState, useContext } from 'react';
 import {
   View,
@@ -13,34 +12,60 @@ import {
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import loginStyles from '../styles/LoginStyles';
+import Toast from 'react-native-toast-message'; // Import Toast from the library
 
 export default function LoginScreen() {
   const navigation = useNavigation();
   const { signIn, loading } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    setError('');
     try {
       await signIn(email.trim(), senha);
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        })
-      );
+
+      // --- ADICIONADO: Toast de sucesso após login bem-sucedido ---
+      Toast.show({
+        type: 'success', // Tipo de toast para sucesso
+        text1: 'Login Bem-Sucedido!', // Título do toast
+        text2: 'Redirecionando para a tela inicial...', // Mensagem de detalhe
+        position: 'top',
+        visibilityTime: 2000, // Tempo de exibição menor, pois a navegação é rápida
+        autoHide: true,
+        onHide: () => { // Callback para navegar APÓS o toast ser escondido
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                })
+            );
+        },
+      });
+      // --- FIM DA ADIÇÃO ---
+
     } catch (err: any) {
+      let errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
+
       if (err.response) {
-        const msg =
-          typeof err.response.data === 'string'
-            ? err.response.data
-            : `Erro ${err.response.status}`;
-        setError(msg);
-      } else {
-        setError('Erro de rede ou servidor');
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data && err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else {
+          errorMessage = `Erro na requisição (${err.response.status}).`;
+        }
+      } else if (err.message === 'Network Error') {
+        errorMessage = 'Erro de conexão: Verifique sua internet.';
       }
+
+      Toast.show({
+        type: 'error',
+        text1: 'Erro de Login',
+        text2: errorMessage,
+        position: 'top',
+        visibilityTime: 4000,
+        autoHide: true,
+      });
     }
   };
 
@@ -57,8 +82,6 @@ export default function LoginScreen() {
 
       <View style={loginStyles.card}>
         <Text style={loginStyles.title}>LOGIN</Text>
-
-        {error ? <Text style={loginStyles.errorText}>{error}</Text> : null}
 
         <Text style={loginStyles.label}>E-mail</Text>
         <View style={loginStyles.inputWrapper}>

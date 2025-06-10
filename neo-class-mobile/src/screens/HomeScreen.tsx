@@ -1,4 +1,3 @@
-// src/screens/HomeScreen.tsx
 import React, { useContext, useState } from 'react';
 import {
   View,
@@ -11,7 +10,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   TextInput,
-  Alert,
+  // Removido: Alert, // Não precisamos mais do Alert
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,6 +18,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { AuthContext } from '../context/AuthContext';
 import homeStyles from '../styles/homeStyles';
 import { RootStackParamList } from '../../App';
+import Toast from 'react-native-toast-message'; // <--- Importar Toast aqui
 
 /* ---------- LOCALE PT-BR (declarado fora do componente) ---------- */
 LocaleConfig.locales.pt = {
@@ -56,7 +56,7 @@ export default function HomeScreen() {
   const getTodayBrazilString = (): string => {
     const now = new Date();
     const utcMillis = now.getTime() + now.getTimezoneOffset() * 60000;
-    const brasilMillis = utcMillis - 3 * 60 * 60 * 1000; // UTC-3
+    const brasilMillis = utcMillis - 3 * 60 * 60 * 1000; // UTC-3 (Horário de Brasília)
     return new Date(brasilMillis).toISOString().split('T')[0];
   };
   const todayString = getTodayBrazilString();
@@ -90,23 +90,68 @@ export default function HomeScreen() {
   const submitPasswordChange = async () => {
     if (newPass.length < 6) {
       setPwError('A senha deve ter ao menos 6 caracteres');
+      // Exibir toast de erro de validação
+      Toast.show({
+        type: 'error',
+        text1: 'Erro de Validação',
+        text2: 'A senha deve ter ao menos 6 caracteres.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
     if (newPass !== confirmPass) {
       setPwError('As senhas não coincidem');
+      // Exibir toast de erro de validação
+      Toast.show({
+        type: 'error',
+        text1: 'Erro de Validação',
+        text2: 'As senhas não coincidem.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
       return;
     }
     try {
       await changePassword(newPass);
       closePwModal();
-      Alert.alert('Sucesso', 'Senha alterada com sucesso');
-    } catch {
-      setPwError('Erro ao alterar senha');
+      // Substituído Alert por Toast de sucesso
+      Toast.show({
+        type: 'success',
+        text1: 'Sucesso!',
+        text2: 'Senha alterada com sucesso.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
+    } catch (error: any) {
+      console.error("Erro ao alterar senha:", error);
+      let errorMessage = 'Erro ao alterar senha.';
+      if (error.response && typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
+      } else if (error.message === 'Network Error') {
+        errorMessage = 'Erro de conexão: Verifique sua internet.';
+      }
+
+      setPwError(errorMessage); // Manter o erro visível no modal se desejar
+      // Substituído Alert por Toast de erro
+      Toast.show({
+        type: 'error',
+        text1: 'Falha na Alteração',
+        text2: errorMessage,
+        position: 'top',
+        visibilityTime: 4000,
+      });
     }
   };
 
   const onDayPress = (day: { dateString: string }) =>
     console.log('Dia selecionado:', day.dateString);
+
+  // Calcular a margem para o cabeçalho no Android
+  const topBarAndroidMargin = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
+  // Calcular o padding para o bottomSafe no Android (se necessário)
+  // Assumindo que você quer o padding original de 24 do homeStyles para bottomSafe
+  const bottomSafeAndroidPaddingTop = Platform.OS === 'android' ? 24 : 0;
 
   return (
     <>
@@ -114,7 +159,7 @@ export default function HomeScreen() {
 
       {/* HEADER */}
       <SafeAreaView style={homeStyles.topSafe}>
-        <View style={homeStyles.topBar}>
+        <View style={[homeStyles.topBar, { marginTop: topBarAndroidMargin }]}> {/* Aplicar a margem aqui */}
           <View style={homeStyles.topBarSpacer} />
           <TouchableOpacity style={homeStyles.profileButton} onPress={openProfileModal}>
             <Image source={require('../../assets/profile.png')} style={homeStyles.profileIcon} />
@@ -187,13 +232,13 @@ export default function HomeScreen() {
       </Modal>
 
       {/* MAIN CONTENT */}
-      <SafeAreaView style={homeStyles.bottomSafe}>
+      <SafeAreaView style={[homeStyles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}>
         <View style={homeStyles.calendarContainer}>
           <Calendar
             current={todayString}
             onDayPress={onDayPress}
             markedDates={markedDates}
-            firstDay={1}               /* semana começa na segunda */
+            firstDay={1}           /* semana começa na segunda */
             disableAllTouchEventsForDisabledDays
             theme={{
               arrowColor: '#2D2D2D',

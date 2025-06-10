@@ -1,4 +1,3 @@
-// src/screens/AcademicCalendarScreen.tsx
 import React, { useEffect, useState, useContext } from 'react';
 import {
   View,
@@ -11,11 +10,13 @@ import {
   TouchableOpacity,
   Modal,
   TouchableWithoutFeedback,
+  StatusBar, // <--- Importar StatusBar aqui
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import styles from '../styles/academicCalendarStyles';
+import Toast from 'react-native-toast-message'; // <--- Importar Toast aqui
 
 interface ProvaDTO {
   id: number;
@@ -39,7 +40,8 @@ export default function AcademicCalendarScreen() {
   const [provas, setProvas] = useState<ProvaDTO[]>([]);
   const [trabalhos, setTrabalhos] = useState<TrabalhoDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  // Removido: const [error, setError] = useState(''); // Não precisamos mais deste estado para exibir erro
+
   const [modalVisible, setModalVisible] = useState(false);
 
   const formatDateBr = (iso: string) =>
@@ -56,7 +58,26 @@ export default function AcademicCalendarScreen() {
           setProvas(pRes.data.filter(p => p.turmaId === user.turmaId));
           setTrabalhos(tRes.data.filter(t => t.turmaId === user.turmaId));
         })
-        .catch(() => setError('Não foi possível carregar o calendário'))
+        .catch((err) => {
+          console.error("Erro ao carregar calendário:", err);
+          let errorMessage = 'Não foi possível carregar o calendário.';
+          if (err.response && typeof err.response.data === 'string') {
+            errorMessage = err.response.data;
+          } else if (err.message === 'Network Error') {
+            errorMessage = 'Erro de conexão: Verifique sua internet.';
+          }
+
+          // Exibe o toast de erro
+          Toast.show({
+            type: 'error',
+            text1: 'Erro ao Carregar Dados',
+            text2: errorMessage,
+            position: 'top',
+            visibilityTime: 4000,
+            autoHide: true,
+          });
+          // setError('Não foi possível carregar o calendário'); // Removido
+        })
         .finally(() => setLoading(false));
     }
   }, [authLoading, user]);
@@ -98,10 +119,17 @@ export default function AcademicCalendarScreen() {
     </View>
   );
 
+  // Calcular a margem para o cabeçalho no Android
+  const topBarAndroidMargin = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
+  // Calcular o padding para o bottomSafe no Android (se necessário)
+  // Assumindo que você quer o padding original de 24 do academicCalendarStyles para bottomSafe
+  const bottomSafeAndroidPaddingTop = Platform.OS === 'android' ? 24 : 0;
+
+
   return (
     <>
       <SafeAreaView style={styles.topSafe}>
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { marginTop: topBarAndroidMargin }]}> {/* Aplicar a margem aqui */}
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
@@ -162,15 +190,13 @@ export default function AcademicCalendarScreen() {
         </View>
       </Modal>
 
-      <SafeAreaView style={styles.bottomSafe}>
+      <SafeAreaView style={[styles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}> {/* Aplicar o padding aqui */}
         <View style={styles.container}>
           <Text style={styles.title}>CALENDÁRIO ACADÊMICO</Text>
 
           {loading ? (
             <ActivityIndicator size="large" color="#333" />
-          ) : error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : (
+          ) : ( // Removida a verificação 'error ?' e o Text de erro
             <>
               <Text style={styles.sectionTitle}>Provas</Text>
               {renderHeader()}

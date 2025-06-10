@@ -10,7 +10,7 @@ const lackStyles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    marginTop: Platform.OS === 'android' ? 38 : 0,
+    // REMOVIDO: marginTop: Platform.OS === 'android' ? 38 : 0, // <-- Esta linha foi removida
   },
   backButton: { padding: 4 },
   backIcon: {
@@ -77,7 +77,7 @@ const lackStyles = StyleSheet.create({
   bottomSafe: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: Platform.OS === 'android' ? 24 : 0,
+    paddingTop: Platform.OS === 'android' ? 24 : 0, // Mantido como estava
   },
   container: {
     flex: 1,
@@ -91,7 +91,7 @@ const lackStyles = StyleSheet.create({
     marginBottom: 12,
     color: '#333',
   },
-  errorText: {
+  errorText: { // Este estilo é para Text na tela, não para Toast
     color: '#f66',
     textAlign: 'center',
     marginTop: 16,
@@ -108,6 +108,7 @@ const lackStyles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 16,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: 'rgba(132, 132, 132, 0.20)',
     shadowColor: '#C0C0C0',
@@ -129,13 +130,20 @@ const lackStyles = StyleSheet.create({
     backgroundColor: '#FF9C9C',
     alignItems: 'center',
     justifyContent: 'center',
-
+    marginLeft: 10,
   },
   badgeText: {
     fontFamily: 'Poppins-Medium',
     color: '#2D2D2D',
     fontWeight: '700',
     fontSize: 18
+  },
+  // Adicionando o estilo noDataText que estava faltando
+  noDataText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#999',
+    marginTop: 20,
   },
 });
 

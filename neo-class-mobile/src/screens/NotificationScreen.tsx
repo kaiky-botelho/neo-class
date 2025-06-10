@@ -19,6 +19,7 @@ import api from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import notificationStyles from "../styles/notificationStyles";
 import { AxiosError } from "axios";
+import Toast from 'react-native-toast-message'; // <--- Importar Toast aqui
 
 interface ChatMessage {
   id: string;
@@ -113,8 +114,31 @@ export default function NotificationScreen() {
       if (receivedResponses.length > 0) {
         setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       }
-    } catch (err) {
+    } catch (err: any) { // Captura o erro para exibir no toast
       console.error("Erro ao carregar mensagens de chat:", err);
+      let errorMessage = 'Não foi possível carregar as respostas.';
+
+      if (err.response) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data && err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else {
+          errorMessage = `Erro na requisição (${err.response.status}).`;
+        }
+      } else if (err.message === 'Network Error') {
+        errorMessage = 'Erro de conexão: Verifique sua internet.';
+      }
+
+      // Exibe o toast de erro
+      Toast.show({
+        type: 'error',
+        text1: 'Erro ao Carregar Respostas',
+        text2: errorMessage,
+        position: 'top',
+        visibilityTime: 4000,
+        autoHide: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -127,15 +151,21 @@ export default function NotificationScreen() {
   async function handleConfirmSend() {
     if (!selectedMessage) {
       console.warn("Nenhuma mensagem selecionada para enviar.");
+      // Exibe um toast para o usuário
+      Toast.show({
+        type: 'info', // Use 'info' ou 'error' para essa validação
+        text1: 'Atenção',
+        text2: 'Selecione uma mensagem para enviar.',
+        position: 'top',
+        visibilityTime: 3000,
+        autoHide: true,
+      });
       return;
     }
     setSending(true);
     Keyboard.dismiss();
 
     const currentLocalTime = new Date();
-    // Use the current time (Ribeirao Preto is -03, so 2:16:29 PM is correct for now)
-    // The toISOString() method will convert it to UTC (e.g., 2025-06-10T17:16:29.000Z)
-    // The backend should handle this UTC string and convert it to its local time zone if needed.
     const isoStringUTC = currentLocalTime.toISOString();
 
     console.log("Data/Hora Local ANTES de enviar (Ribeirao Preto):", currentLocalTime.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
@@ -155,23 +185,49 @@ export default function NotificationScreen() {
       console.log("Mensagem enviada com sucesso. Dados da resposta da API:", response.data);
 
       setSelectedMessage(null);
-      await loadChatMessages();
+      await loadChatMessages(); // Recarrega todas as mensagens (incluindo a enviada e novas respostas)
+
+      // Exibe toast de sucesso
+      Toast.show({
+        type: 'success',
+        text1: 'Mensagem Enviada!',
+        text2: 'Sua solicitação foi enviada com sucesso para a secretaria.',
+        position: 'top',
+        visibilityTime: 3000,
+        autoHide: true,
+      });
 
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
-    } catch (err) {
+    } catch (err: any) { // Captura o erro para exibir no toast
+      let errorMessage = 'Erro ao enviar sua mensagem.';
       if (err instanceof AxiosError) {
         console.error("Erro Axios ao enviar mensagem:", err.message);
         if (err.response) {
           console.error("Status de erro do servidor:", err.response.status);
           console.error("Dados da resposta de erro do servidor:", err.response.data);
+          errorMessage = typeof err.response.data === 'string'
+            ? err.response.data
+            : `Erro do servidor: ${err.response.status}`;
         } else if (err.request) {
           console.error("Nenhuma resposta recebida para a requisição:", err.request);
+          errorMessage = 'Erro de rede: Nenhuma resposta do servidor.';
         } else {
           console.error("Erro na configuração da requisição:", err.message);
+          errorMessage = 'Erro na configuração da sua solicitação.';
         }
       } else {
         console.error("Erro inesperado ao enviar mensagem:", err);
       }
+
+      // Exibe o toast de erro
+      Toast.show({
+        type: 'error',
+        text1: 'Falha no Envio!',
+        text2: errorMessage,
+        position: 'top',
+        visibilityTime: 4000,
+        autoHide: true,
+      });
     } finally {
       setSending(false);
     }
@@ -222,8 +278,8 @@ export default function NotificationScreen() {
   const keyboardVerticalOffset =
     Platform.OS === "ios"
       ? (notificationStyles.topBar.paddingVertical || 0) * 2 +
-        topBarAndroidMargin + // Use the calculated margin here
-        (StatusBar.currentHeight || 0) // Consider actual StatusBar height for iOS if needed
+        topBarAndroidMargin +
+        (StatusBar.currentHeight || 0)
       : 0;
 
 

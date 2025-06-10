@@ -34,10 +34,6 @@ const loginStyles = StyleSheet.create({
     color: '#FFF',
     marginBottom: 16,
   },
-  errorText: {
-    color: '#f66',
-    marginBottom: 12,
-  },
   label: {
     alignSelf: 'flex-start',
     marginBottom: 6,
@@ -85,6 +81,8 @@ const loginStyles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
   },
+  // Custom toast styles (toastOverlay, toastContainer, etc.) have been removed
+  // as react-native-toast-message provides its own styling.
 });
 
 export default loginStyles;
