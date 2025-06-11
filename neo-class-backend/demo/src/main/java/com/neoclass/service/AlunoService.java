@@ -35,6 +35,7 @@ public class AlunoService implements CrudService<Aluno, Long> {
     @Override
     public Aluno salvar(Aluno a) {
         // --- CORREÇÃO AQUI: HASHEAR A SENHA ANTES DE SALVAR (se ainda não for um hash) ---
+        // Verifica se a senha não é nula e se ainda não é um hash BCrypt (hashes BCrypt começam com "$2a$")
         if (a.getSenha() != null && !a.getSenha().startsWith("$2a$")) {
             String hash = passwordEncoder.encode(a.getSenha());
             a.setSenha(hash);
@@ -79,6 +80,6 @@ public class AlunoService implements CrudService<Aluno, Long> {
         Aluno aluno = buscarPorId(alunoId);
         String hash = passwordEncoder.encode(novaSenha);
         aluno.setSenha(hash);
-        repo.save(aluno); // Já será hasheada aqui
+        repo.save(aluno);
     }
 }

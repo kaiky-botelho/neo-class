@@ -4,8 +4,8 @@ import com.neoclass.dto.AuthRequestDTO;
 import com.neoclass.dto.ChangePasswordRequestDTO; // Importar o novo DTO
 import com.neoclass.dto.LoginResponseDTO;
 import com.neoclass.dto.SecretariaDTO;
-import com.neoclass.dto.AlunoResumoDTO;
-import com.neoclass.dto.ProfessorResumoDTO;
+import com.neoclass.dto.AlunoResumoDTO; // Assumindo que este DTO existe
+import com.neoclass.dto.ProfessorResumoDTO; // Assumindo que este DTO existe
 import com.neoclass.model.Aluno;
 import com.neoclass.model.Professor;
 import com.neoclass.model.Secretaria;
@@ -13,6 +13,7 @@ import com.neoclass.security.JwtUtil;
 import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
 import com.neoclass.service.ProfessorService;
+import jakarta.validation.Valid; // NOVO: Importar @Valid
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication; // Importar Authentication
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/login")
+@RequestMapping("/api/login") // <--- RequestMapping da classe
 public class AuthController {
 
     private final SecretariaService secretariaService;
@@ -109,8 +110,8 @@ public class AuthController {
     }
 
     // NOVO ENDPOINT: Alterar Senha para Aluno Autenticado (via email do token JWT)
-    @PutMapping("/aluno/senha") // <-- Endpoint sem o ID no PathVariable
-    public ResponseEntity<?> alterarSenhaAluno(@RequestBody ChangePasswordRequestDTO request) {
+    @PutMapping("/aluno/senha") // <--- PutMapping do método. Endpoint completo é /api/login/aluno/senha
+    public ResponseEntity<?> alterarSenhaAluno(@Valid @RequestBody ChangePasswordRequestDTO request) { // <--- @Valid aqui
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authenticatedEmail = authentication.getName(); // Email institucional do usuário logado do JWT
 
@@ -120,8 +121,6 @@ public class AuthController {
             alunoService.alterarSenha(alunoAutenticado.getId(), request.getNovaSenha());
             return ResponseEntity.ok().build(); // 200 OK sem corpo
         } catch (IllegalArgumentException e) {
-            // Isso pode acontecer se o email do token não corresponder a um aluno válido,
-            // ou se o serviço retornar essa exceção por outro motivo.
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             System.err.println("Erro ao alterar senha para aluno " + authenticatedEmail + ": " + e.getMessage());

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/alunos")
+@RequestMapping("/api/alunos") // <--- RequestMapping da classe
 public class AlunoController {
 
     private final AlunoService alunoService;
@@ -81,12 +81,10 @@ public class AlunoController {
         a.setDataMatricula(dto.getDataMatricula());
         a.setSituacaoMatricula(dto.getSituacaoMatricula());
         a.setEmailInstitucional(dto.getEmailInstitucional());
-        // ATENÇÃO: Ao converter DTO para Entidade em um UPDATE,
-        // é crucial NÃO sobrescrever a senha hasheada com uma senha em texto puro
-        // se o DTO não for especificamente para alterar a senha.
-        // O ideal é carregar a entidade existente e copiar campo por campo, exceto a senha.
-        a.setSenha(dto.getSenha()); // Mantido como estava, mas com esta ressalva importante
-        // Caso de uso: Se este toEntity for usado para um POST de criação, a senha virá em texto puro e será hasheada no service.
+        // ATENÇÃO: Se este `toEntity` for usado para um PUT/update genérico de perfil,
+        // é crucial NÃO sobrescrever a senha hasheada com uma senha em texto puro.
+        // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e salvar.
+        a.setSenha(dto.getSenha()); // Mantido conforme seu código, mas com a ressalva acima.
 
         if (dto.getTurmaId() != null) {
             Long idTurma = dto.getTurmaId();
@@ -117,8 +115,7 @@ public class AlunoController {
     @PostMapping
     public ResponseEntity<AlunoDTO> criar(@RequestBody AlunoDTO dto) {
         Aluno entidade = toEntity(dto);
-        // O `alunoService.salvar` agora hasheia a senha se necessário.
-        Aluno salva = alunoService.salvar(entidade);
+        Aluno salva = alunoService.salvar(entidade); // O `alunoService.salvar` agora hasheia a senha se necessário.
         return ResponseEntity.status(201).body(toDTO(salva));
     }
 
@@ -128,10 +125,7 @@ public class AlunoController {
             @RequestBody AlunoDTO dto
     ) {
         dto.setId(id);
-        // Para um PUT genérico, você precisaria carregar o Aluno existente do banco,
-        // copiar os campos do DTO (EXCETO a senha, para não sobrescrever o hash), e salvar.
-        // O `toEntity` aqui pode ser problemático se o DTO tiver senha e não for para alterá-la.
-        Aluno entidade = toEntity(dto); // Isto pode sobrescrever a senha se dto.getSenha() != null
+        Aluno entidade = toEntity(dto);
         Aluno atualizado = alunoService.salvar(entidade);
         return ResponseEntity.ok(toDTO(atualizado));
     }

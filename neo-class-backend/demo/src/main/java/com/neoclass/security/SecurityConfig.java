@@ -42,7 +42,7 @@ public class SecurityConfig {
 
                 // NOVO: Rota para alterar senha do aluno (protegida por ROLE_ALUNO)
                 // Usando o endpoint no AuthController, sem ID no path.
-                .requestMatchers(HttpMethod.PUT, "/api/login/aluno/senha").hasRole("ALUNO") // <--- Esta linha está correta
+                .requestMatchers(HttpMethod.PUT, "/api/login/aluno/senha").hasRole("ALUNO")
 
 
                 .anyRequest().authenticated()
