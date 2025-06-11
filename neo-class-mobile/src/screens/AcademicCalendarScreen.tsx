@@ -10,13 +10,13 @@ import {
   TouchableOpacity,
   Modal,
   TouchableWithoutFeedback,
-  StatusBar, // <--- Importar StatusBar aqui
+  StatusBar,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import styles from '../styles/academicCalendarStyles';
-import Toast from 'react-native-toast-message'; // <--- Importar Toast aqui
+import Toast from 'react-native-toast-message';
 
 interface ProvaDTO {
   id: number;
@@ -40,8 +40,6 @@ export default function AcademicCalendarScreen() {
   const [provas, setProvas] = useState<ProvaDTO[]>([]);
   const [trabalhos, setTrabalhos] = useState<TrabalhoDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  // Removido: const [error, setError] = useState(''); // Não precisamos mais deste estado para exibir erro
-
   const [modalVisible, setModalVisible] = useState(false);
 
   const formatDateBr = (iso: string) =>
@@ -67,7 +65,6 @@ export default function AcademicCalendarScreen() {
             errorMessage = 'Erro de conexão: Verifique sua internet.';
           }
 
-          // Exibe o toast de erro
           Toast.show({
             type: 'error',
             text1: 'Erro ao Carregar Dados',
@@ -76,7 +73,6 @@ export default function AcademicCalendarScreen() {
             visibilityTime: 4000,
             autoHide: true,
           });
-          // setError('Não foi possível carregar o calendário'); // Removido
         })
         .finally(() => setLoading(false));
     }
@@ -119,17 +115,15 @@ export default function AcademicCalendarScreen() {
     </View>
   );
 
-  // Calcular a margem para o cabeçalho no Android
   const topBarAndroidMargin = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
-  // Calcular o padding para o bottomSafe no Android (se necessário)
-  // Assumindo que você quer o padding original de 24 do academicCalendarStyles para bottomSafe
   const bottomSafeAndroidPaddingTop = Platform.OS === 'android' ? 24 : 0;
 
-
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
+      <StatusBar barStyle="light-content" backgroundColor="#333C56" />
+
       <SafeAreaView style={styles.topSafe}>
-        <View style={[styles.topBar, { marginTop: topBarAndroidMargin }]}> {/* Aplicar a margem aqui */}
+        <View style={[styles.topBar, { marginTop: topBarAndroidMargin }]}> 
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
@@ -190,13 +184,13 @@ export default function AcademicCalendarScreen() {
         </View>
       </Modal>
 
-      <SafeAreaView style={[styles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}> {/* Aplicar o padding aqui */}
+      <SafeAreaView style={[styles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}> 
         <View style={styles.container}>
           <Text style={styles.title}>CALENDÁRIO ACADÊMICO</Text>
 
           {loading ? (
             <ActivityIndicator size="large" color="#333" />
-          ) : ( // Removida a verificação 'error ?' e o Text de erro
+          ) : (
             <>
               <Text style={styles.sectionTitle}>Provas</Text>
               {renderHeader()}
@@ -207,9 +201,7 @@ export default function AcademicCalendarScreen() {
                 scrollEnabled={false}
               />
 
-              <Text
-                style={[styles.sectionTitle, { marginTop: 24 }]}
-              >{`Trabalhos`}</Text>
+              <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Trabalhos</Text>
               {renderHeader()}
               <FlatList
                 data={trabalhos}
@@ -221,6 +213,8 @@ export default function AcademicCalendarScreen() {
           )}
         </View>
       </SafeAreaView>
-    </>
+
+      <Toast />
+    </SafeAreaView>
   );
 }

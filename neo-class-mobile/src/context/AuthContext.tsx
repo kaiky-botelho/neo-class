@@ -1,15 +1,14 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api, { setAuthToken } from '../services/api';
-// Importar AxiosError se usar try/catch para erros de rede
 import { AxiosError } from 'axios';
-import Toast from 'react-native-toast-message'; // Importar Toast
+import Toast from 'react-native-toast-message';
 
 export interface User {
   id: number;
   nome: string;
   emailInstitucional: string;
-  turmaId?: number; // turmaId pode ser opcional ou não vir de Login
+  turmaId?: number;
 }
 
 interface AuthContextData {
@@ -17,7 +16,6 @@ interface AuthContextData {
   loading: boolean;
   signIn(email: string, senha: string): Promise<void>;
   signOut(): void;
-  // -> CORRIGIDO: changePassword AGORA ESPERA APENAS 1 ARGUMENTO <-
   changePassword(novaSenha: string): Promise<void>;
 }
 
@@ -43,20 +41,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   async function signIn(email: string, senha: string) {
     setLoading(true);
     try {
-      const response = await api.post<{
-        token: string;
-        user: User;
-      }>('/login/aluno', { email, senha });
-
+      const response = await api.post<{ token: string; user: User }>('/login/aluno', { email, senha });
       const { token, user: userData } = response.data;
-      await AsyncStorage.setItem('@app:token', token);
-      await AsyncStorage.setItem('@app:user', JSON.stringify(userData));
+      await AsyncStorage.multiSet([
+        ['@app:token', token],
+        ['@app:user', JSON.stringify(userData)],
+      ]);
       setAuthToken(token);
       setUser(userData);
-    } catch (e) {
-      setUser(null);
-      // Re-throw the error for LoginScreen to catch and display Toast
-      throw e; 
+    } catch (error) {
+      console.error('Erro no AuthContext.signIn:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -64,8 +59,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   function signOut() {
     AsyncStorage.multiRemove(['@app:token', '@app:user']);
-    setUser(null);
     setAuthToken(null);
+    setUser(null);
     Toast.show({
       type: 'info',
       text1: 'Sessão Encerrada',
@@ -75,18 +70,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   }
 
-  // --- FUNÇÃO changePassword CORRIGIDA PARA 1 ARGUMENTO ---
   async function changePassword(novaSenha: string): Promise<void> {
-    if (!user) { // Verificação extra caso o usuário não esteja logado (não deve acontecer se a rota for protegida)
+    if (!user) {
       throw new Error('Usuário não autenticado.');
     }
     try {
-      // Chama o novo endpoint que altera a senha do aluno autenticado via JWT
-      await api.put('/login/aluno/senha', { novaSenha });
-    } catch (error: any) { // Capturar o erro para re-lançar e ser tratado pela tela
-      console.error("Erro no AuthContext.changePassword:", error);
-      // Propagar o erro para a tela exibir o Toast
-      throw error; 
+      // Endpoint espera { senha: ... }
+      await api.put('/login/aluno/senha', { senha: novaSenha });
+      Toast.show({
+        type: 'success',
+        text1: 'Senha Atualizada',
+        text2: 'Sua senha foi alterada com sucesso.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
+    } catch (err: any) {
+      console.error('Erro no AuthContext.changePassword:', err);
+      let msg = 'Erro ao alterar a senha. Tente novamente.';
+      if (err.response?.data) {
+        const data = err.response.data;
+        msg = typeof data === 'string' ? data : data.message || JSON.stringify(data);
+      }
+      // Propaga mensagem customizada
+      throw new Error(msg);
     }
   }
 

@@ -94,53 +94,56 @@ const changePasswordStyles = StyleSheet.create({
   },
 
   // === Conteúdo principal da tela de Alterar Senha ===
-  container: {
+  mainContentWrapper: { // Este era `container` antes
     flex: 1,
     backgroundColor: '#F2F4F7', // Fundo cinza claro para o corpo da tela
-    alignItems: 'center',
     justifyContent: 'center', // Centraliza o conteúdo verticalmente
-    paddingHorizontal: 24,
-    paddingBottom: 50, // Adiciona padding inferior para não ficar muito grudado
+    alignItems: 'center', // Centraliza o conteúdo horizontalmente
+    paddingHorizontal: 24, // Padding horizontal aqui
+  },
+  formContainer: { // NOVO: Container para o formulário (inputs e botão)
+    width: '100%', // Ocupa a largura máxima dentro do paddingHorizontal
+    // Não precisa de flex: 1, pois `mainContentWrapper` já centraliza o conteúdo.
   },
   title: {
-    fontSize: 26, // Aumenta o tamanho do título
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333C56', // Cor mais escura para o título
-    marginBottom: 40, // Mais espaço abaixo do título
+    color: '#333C56',
+    marginBottom: 40,
     textAlign: 'center',
   },
   input: {
     width: '100%',
-    backgroundColor: '#FFFFFF', // Fundo branco para os inputs
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     paddingHorizontal: 16,
-    height: 55, // Aumenta a altura dos inputs
+    height: 55,
     fontSize: 16,
     color: '#333',
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#DCDCDC', // Borda mais suave
-    shadowColor: '#000', // Sombra sutil para inputs
+    borderColor: '#DCDCDC',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  errorText: {
-    color: '#D32F2F', // Vermelho para erros
+  errorText: { // Este estilo é para Text na tela, não para Toast
+    color: '#D32F2F',
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 10,
-    marginTop: -5, // Ajusta o espaçamento se houver erro
+    marginTop: -5,
   },
   button: {
     width: '100%',
-    backgroundColor: '#EA9216', // Laranja vibrante
+    backgroundColor: '#EA9216',
     borderRadius: 8,
-    paddingVertical: 16, // Mais padding para um botão maior
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30, // Mais espaço acima do botão
+    marginTop: 30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -148,7 +151,7 @@ const changePasswordStyles = StyleSheet.create({
     elevation: 5,
   },
   buttonDisabled: {
-    backgroundColor: '#F3C588', // Laranja mais claro para desativado
+    backgroundColor: '#F3C588',
     opacity: 0.8,
   },
   buttonText: {

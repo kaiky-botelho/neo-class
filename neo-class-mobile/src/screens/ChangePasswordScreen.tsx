@@ -11,8 +11,8 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Keyboard,
-  Modal, // Importar Modal
-  TouchableWithoutFeedback, // Importar TouchableWithoutFeedback
+  Modal,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
@@ -25,23 +25,17 @@ export default function ChangePasswordScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(''); // Para mensagens de validação local
+  // Removido: const [error, setError] = useState(''); // Este estado NÃO É MAIS NECESSÁRIO para exibir o erro diretamente na tela
 
-  // --- Estados e funções para o Modal de Perfil ---
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const openProfileModal = () => setProfileModalVisible(true);
   const closeProfileModal = () => setProfileModalVisible(false);
 
-  // Esta função agora navega para a própria tela de alteração de senha
-  // Pode ser renomeada para evitar confusão ou deixar como está se for chamada apenas no modal de perfil
   const navigateToSelfChangePassword = () => {
-    closeProfileModal(); // Fecha o modal de perfil
-    // Já estamos na tela de alteração de senha, então não navegamos para ela novamente.
-    // Poderia ser usada para reiniciar o formulário, por exemplo:
+    closeProfileModal();
     setNewPassword('');
     setConfirmPassword('');
-    setError('');
-    // Ou simplesmente não fazer nada se o botão for para a própria tela
+    // Removido: setError(''); // Não precisa mais zerar o estado de erro, o toast é transitório
   };
 
   const handleLogout = () => {
@@ -54,15 +48,12 @@ export default function ChangePasswordScreen() {
       })
     );
   };
-  // --- Fim dos estados e funções para o Modal de Perfil ---
 
   const handleSubmit = async () => {
-    setError('');
+    // Removido: setError(''); // Não precisa mais zerar o estado de erro, o toast é transitório
     Keyboard.dismiss();
 
-    // Validações básicas
     if (newPassword.length < 6) {
-      setError('A nova senha deve ter no mínimo 6 caracteres.');
       Toast.show({
         type: 'error',
         text1: 'Senha Fraca',
@@ -73,7 +64,6 @@ export default function ChangePasswordScreen() {
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('As senhas não coincidem.');
       Toast.show({
         type: 'error',
         text1: 'Senhas Diferentes',
@@ -101,14 +91,18 @@ export default function ChangePasswordScreen() {
     } catch (err: any) {
       console.error('Erro ao alterar senha:', err);
       let msg = 'Erro ao alterar a senha. Tente novamente.';
-      if (err.response && typeof err.response.data === 'string') {
-        msg = err.response.data;
-      } else if (err.response && err.response.data && err.response.data.message) {
-        msg = err.response.data.message;
+      if (err.response) {
+        if (typeof err.response.data === 'string') {
+          msg = err.response.data;
+        } else if (err.response.data && err.response.data.message) {
+          msg = err.response.data.message;
+        } else {
+          msg = `Erro na requisição (${err.response.status}).`;
+        }
       } else if (err.message === 'Network Error') {
         msg = 'Erro de conexão. Verifique sua internet.';
       }
-      setError(msg);
+      // Removido: setError(msg); // Não precisamos mais exibir o erro no texto abaixo dos inputs
       Toast.show({
         type: 'error',
         text1: 'Falha ao Alterar Senha',
@@ -130,13 +124,11 @@ export default function ChangePasswordScreen() {
           <Image source={require('../../assets/voltar.png')} style={changePasswordStyles.backIcon} />
         </TouchableOpacity>
         <View style={changePasswordStyles.topBarSpacer} />
-        {/* Adicionado o botão de perfil no header */}
         <TouchableOpacity style={changePasswordStyles.profileButton} onPress={openProfileModal}>
           <Image source={require('../../assets/profile.png')} style={changePasswordStyles.profileIcon} />
         </TouchableOpacity>
       </View>
 
-      {/* --- PROFILE MODAL (Copiado da HomeScreen) --- */}
       <Modal
         visible={profileModalVisible}
         transparent
@@ -151,7 +143,6 @@ export default function ChangePasswordScreen() {
             {`Olá${user?.nome ? `, ${user.nome}` : ''}`}
           </Text>
           <View style={changePasswordStyles.modalDivider} />
-          {/* O botão ALTERAR SENHA no modal, agora, navega para a própria tela de alteração */}
           <TouchableOpacity style={changePasswordStyles.modalButton} onPress={navigateToSelfChangePassword}>
             <Text style={changePasswordStyles.modalButtonText}>ALTERAR SENHA</Text>
             <Image source={require('../../assets/cadeado.png')} style={changePasswordStyles.modalButtonIcon} />
@@ -163,44 +154,47 @@ export default function ChangePasswordScreen() {
           </TouchableOpacity>
         </View>
       </Modal>
-      {/* --- FIM DO PROFILE MODAL --- */}
 
       <KeyboardAvoidingView
-        style={changePasswordStyles.container}
+        style={changePasswordStyles.mainContentWrapper}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Text style={changePasswordStyles.title}>Alterar Senha</Text>
+        <View style={changePasswordStyles.formContainer}>
+          <Text style={changePasswordStyles.title}>Alterar Senha</Text>
 
-        <TextInput
-          placeholder="Nova Senha"
-          placeholderTextColor="#999"
-          secureTextEntry
-          style={changePasswordStyles.input}
-          value={newPassword}
-          onChangeText={setNewPassword}
-        />
-        <TextInput
-          placeholder="Confirme a Nova Senha"
-          placeholderTextColor="#999"
-          secureTextEntry
-          style={changePasswordStyles.input}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
+          <TextInput
+            placeholder="Nova Senha"
+            placeholderTextColor="#999"
+            secureTextEntry
+            style={changePasswordStyles.input}
+            value={newPassword}
+            onChangeText={setNewPassword}
+          />
+          <TextInput
+            placeholder="Confirme a Nova Senha"
+            placeholderTextColor="#999"
+            secureTextEntry
+            style={changePasswordStyles.input}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
 
-        {error ? <Text style={changePasswordStyles.errorText}>{error}</Text> : null}
+          {/* ESTA LINHA FOI O PROBLEMA: {error ? <Text style={changePasswordStyles.errorText}>{error}</Text> : null}
+              Removemos o estado `error` e a sua renderização explícita,
+              já que os erros agora são tratados por Toast.show(). */}
 
-        <TouchableOpacity
-          style={[changePasswordStyles.button, loading && changePasswordStyles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <Text style={changePasswordStyles.buttonText}>SALVAR NOVA SENHA</Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[changePasswordStyles.button, loading && changePasswordStyles.buttonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={changePasswordStyles.buttonText}>SALVAR NOVA SENHA</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
