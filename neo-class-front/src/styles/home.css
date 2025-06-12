@@ -1,0 +1,13 @@
+
+
+.home-container {
+  background-color: #f9f9f9;
+  padding: 20px;
+  overflow-y: auto;
+ 
+}
+
+.container h1 {
+  color: #333;
+  font-weight: 600;
+}

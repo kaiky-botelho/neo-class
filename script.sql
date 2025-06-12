@@ -7,9 +7,15 @@ CREATE TABLE turma (
   turno       VARCHAR(20),
   sala        VARCHAR(50)
 );
+<<<<<<< HEAD
+
+SELECT * FROM turma;
+
+=======
  
 SELECT * FROM turma;
  
+>>>>>>> master
 -- Tabela de Alunos
 CREATE TABLE aluno (
   id                  SERIAL PRIMARY KEY,
@@ -120,7 +126,11 @@ CREATE TABLE notificacao (
   secretaria_id   INTEGER   REFERENCES secretaria(id),        -- quem respondeu
   status          VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'    -- PENDENTE ou RESPONDIDA
 );
+<<<<<<< HEAD
+
+=======
  
+>>>>>>> master
 CREATE TABLE frequencia (
   id             SERIAL PRIMARY KEY,
   data            DATE       NOT NULL,

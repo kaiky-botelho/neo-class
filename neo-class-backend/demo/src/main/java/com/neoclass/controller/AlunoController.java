@@ -48,7 +48,12 @@ public class AlunoController {
         dto.setEmailInstitucional(a.getEmailInstitucional());
         // NÃO RETORNA A SENHA NO DTO POR SEGURANÇA!
 <<<<<<< HEAD
+<<<<<<< HEAD
         // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está ativa
+=======
+        // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está
+        // ativa
+>>>>>>> desenvolvimento-Kaiky
 =======
         // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está
         // ativa
@@ -64,7 +69,12 @@ public class AlunoController {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // Converte DTO → entidade (use com cautela para atualizações de perfil: não sobrescrever senha)
+=======
+    // Converte DTO → entidade (use com cautela para atualizações de perfil: não
+    // sobrescrever senha)
+>>>>>>> desenvolvimento-Kaiky
 =======
     // Converte DTO → entidade (use com cautela para atualizações de perfil: não
     // sobrescrever senha)
@@ -94,7 +104,12 @@ public class AlunoController {
         // ATENÇÃO: Se este `toEntity` for usado para um PUT/update genérico de perfil,
         // é crucial NÃO sobrescrever a senha hasheada com uma senha em texto puro.
 <<<<<<< HEAD
+<<<<<<< HEAD
         // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e salvar.
+=======
+        // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e
+        // salvar.
+>>>>>>> desenvolvimento-Kaiky
 =======
         // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e
         // salvar.
