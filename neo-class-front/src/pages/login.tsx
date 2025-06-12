@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
 import Input from "../components/input/input";
 import LoginService from "../app/service/loginService";
+import ReactLoading from "react-loading";
 
 interface LoginResponseBackend {
   token: string;
@@ -13,19 +14,21 @@ interface LoginResponseBackend {
     emailInstitucional: string;
     turmaId?: number | null;
   };
-  roles: string[]; // e.g. ["PROFESSOR"] ou ["SECRETARIA"]
+  roles: string[]; 
 }
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Novo estado de loading
   const loginService = new LoginService();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     let data: LoginResponseBackend | null = null;
 
@@ -40,27 +43,27 @@ const Login: React.FC = () => {
         data = resSec.data as LoginResponseBackend;
       } catch (err: any) {
         setError(err.response?.data?.message || "Erro ao fazer login");
+        setLoading(false); // Finaliza loading se erro
         return;
       }
     }
 
     // se chegou aqui, data está preenchido
     const { token, user, roles } = data!;
-    const role = roles[0];   // pega a primeira role
+    const role = roles[0];
     const id = user.id;
 
-    // salva no localStorage
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     localStorage.setItem("id", id.toString());
     localStorage.setItem("email", user.emailInstitucional);
 
-    // se for secretaria, salva também secretariaId
     if (role === "SECRETARIA") {
       localStorage.setItem("secretariaId", id.toString());
     }
 
-    // redireciona conforme a role
+    setLoading(false);
+
     if (role === "PROFESSOR") {
       navigate("/homeProfessor", { replace: true });
     } else if (role === "SECRETARIA") {
@@ -96,7 +99,13 @@ const Login: React.FC = () => {
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
               />
-              <button type="submit">ENTRAR</button>
+              <button type="submit" disabled={loading}>
+                {loading ? (
+                  <ReactLoading type="spin" color="#3a74f2" height={20} width={20} />
+                ) : (
+                  "ENTRAR"
+                )}
+              </button>
             </form>
           </div>
         </div>

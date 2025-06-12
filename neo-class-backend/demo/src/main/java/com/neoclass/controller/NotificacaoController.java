@@ -1,4 +1,3 @@
-// src/main/java/com/neoclass/controller/NotificacaoController.java
 package com.neoclass.controller;
 
 import com.neoclass.dto.NotificacaoDTO;
@@ -11,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.time.Instant; // Adicione esta importação para garantir
 
 @RestController
 @RequestMapping("/api/notificacoes")
@@ -44,17 +44,14 @@ public class NotificacaoController {
 
     @PostMapping
     public NotificacaoDTO criar(@RequestBody NotificacaoDTO dto) {
-        // 1) Converte DTO → Entidade
         Notificacao n = new Notificacao();
         BeanUtils.copyProperties(dto, n, "id", "aluno", "secretaria");
-        // seta o aluno
+        
         Aluno a = new Aluno();
         a.setId(dto.getAlunoId());
         n.setAluno(a);
 
-        // salva
         Notificacao salvo = service.salvar(n);
-        // 2) Retorna DTO de resposta
         return toDTO(salvo);
     }
 
@@ -74,7 +71,6 @@ public class NotificacaoController {
         service.excluir(id);
     }
 
-    // ——— Auxiliar para mapear Entidade → DTO ———
     private NotificacaoDTO toDTO(Notificacao n) {
         NotificacaoDTO dto = new NotificacaoDTO();
         BeanUtils.copyProperties(n, dto);

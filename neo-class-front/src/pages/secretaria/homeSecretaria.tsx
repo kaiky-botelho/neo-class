@@ -22,6 +22,7 @@ import BlueCard from "../../components/blueCard/blueCard";
 import Modal from "../../components/modal/modal";
 import Input from "../../components/input/input";
 import TextArea from "../../components/textArea/textArea";
+import ReactLoading from "react-loading"; // IMPORTANTE!
 import "../../styles/home.css";
 
 // Estende NotificacaoDTO para incluir nome do aluno
@@ -51,6 +52,7 @@ const HomeSecretaria: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNotificacao, setSelectedNotificacao] = useState<NotificacaoExt | null>(null);
   const [resposta, setResposta] = useState("");
+  const [sending, setSending] = useState(false); // NOVO: estado de loading do envio
 
   // Carrega secretariaId (ajuste conforme seu auth)
   const [secretariaId, setSecretariaId] = useState<number | null>(null);
@@ -99,12 +101,12 @@ const HomeSecretaria: React.FC = () => {
       return;
     }
 
+    setSending(true); // ATIVA O LOADING DO BOTÃO
+
     const payload: RespostaDTO = {
       resposta,
       secretariaId
     };
-
-    console.log("Payload de resposta:", payload);
 
     try {
       await notificacaoService.responder(selectedNotificacao.id, payload);
@@ -118,6 +120,7 @@ const HomeSecretaria: React.FC = () => {
     } catch (err) {
       console.error("Erro ao enviar resposta:", err);
     } finally {
+      setSending(false); // DESATIVA O LOADING DO BOTÃO
       setIsModalOpen(false);
       setSelectedNotificacao(null);
     }
@@ -199,8 +202,17 @@ const HomeSecretaria: React.FC = () => {
           onChange={setResposta}
         />
 
-        <button type="button" onClick={handleEnviarResposta}>
-          Enviar
+        <button
+          type="button"
+          className="button-not"
+          onClick={handleEnviarResposta}
+          disabled={sending}
+        >
+          {sending ? (
+            <ReactLoading type="spin" color="#fff" height={20} width={20} />
+          ) : (
+            "Enviar"
+          )}
         </button>
       </Modal>
     </div>

@@ -1,10 +1,11 @@
 package com.neoclass.controller;
 
 import com.neoclass.dto.AuthRequestDTO;
+import com.neoclass.dto.ChangePasswordRequestDTO; // Importar o novo DTO
 import com.neoclass.dto.LoginResponseDTO;
 import com.neoclass.dto.SecretariaDTO;
-import com.neoclass.dto.AlunoResumoDTO;
-import com.neoclass.dto.ProfessorResumoDTO;
+import com.neoclass.dto.AlunoResumoDTO; // Assumindo que este DTO existe
+import com.neoclass.dto.ProfessorResumoDTO; // Assumindo que este DTO existe
 import com.neoclass.model.Aluno;
 import com.neoclass.model.Professor;
 import com.neoclass.model.Secretaria;
@@ -12,20 +13,23 @@ import com.neoclass.security.JwtUtil;
 import com.neoclass.service.SecretariaService;
 import com.neoclass.service.AlunoService;
 import com.neoclass.service.ProfessorService;
+import jakarta.validation.Valid; // NOVO: Importar @Valid
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication; // Importar Authentication
+import org.springframework.security.core.context.SecurityContextHolder; // Importar SecurityContextHolder
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/login")
+@RequestMapping("/api/login") // <--- RequestMapping da classe
 public class AuthController {
 
     private final SecretariaService secretariaService;
-    private final AlunoService      alunoService;
+    private final AlunoService    alunoService;
     private final ProfessorService  professorService;
-    private final JwtUtil           jwtUtil;
+    private final JwtUtil         jwtUtil;
 
     public AuthController(
         SecretariaService secretariaService,
@@ -49,7 +53,7 @@ public class AuthController {
         }
 
         Secretaria entidade = opt.get();
-        List<String> roles = List.of("SECRETARIA");                // Define os papéis
+        List<String> roles = List.of("SECRETARIA");
         String token = jwtUtil.gerarToken(entidade.getEmail(), roles);
 
         SecretariaDTO dto = new SecretariaDTO();
@@ -70,7 +74,7 @@ public class AuthController {
         }
 
         Aluno entidade = opt.get();
-        List<String> roles = List.of("ALUNO");                     // Define os papéis
+        List<String> roles = List.of("ALUNO");
         String token = jwtUtil.gerarToken(entidade.getEmailInstitucional(), roles);
 
         AlunoResumoDTO dto = new AlunoResumoDTO();
@@ -93,7 +97,7 @@ public class AuthController {
         }
 
         Professor entidade = opt.get();
-        List<String> roles = List.of("PROFESSOR");                 // Define os papéis
+        List<String> roles = List.of("PROFESSOR");
         String token = jwtUtil.gerarToken(entidade.getEmailInstitucional(), roles);
 
         ProfessorResumoDTO dto = new ProfessorResumoDTO();
@@ -103,5 +107,24 @@ public class AuthController {
 
         LoginResponseDTO resposta = new LoginResponseDTO(token, dto, roles);
         return ResponseEntity.ok(resposta);
+    }
+
+    // NOVO ENDPOINT: Alterar Senha para Aluno Autenticado (via email do token JWT)
+    @PutMapping("/aluno/senha") // <--- PutMapping do método. Endpoint completo é /api/login/aluno/senha
+    public ResponseEntity<?> alterarSenhaAluno(@Valid @RequestBody ChangePasswordRequestDTO request) { // <--- @Valid aqui
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String authenticatedEmail = authentication.getName(); // Email institucional do usuário logado do JWT
+
+        try {
+            // Busca o aluno pelo email obtido do token para ter certeza de que é o usuário correto
+            Aluno alunoAutenticado = alunoService.buscarPorEmailInstitucional(authenticatedEmail);
+            alunoService.alterarSenha(alunoAutenticado.getId(), request.getNovaSenha());
+            return ResponseEntity.ok().build(); // 200 OK sem corpo
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Erro ao alterar senha para aluno " + authenticatedEmail + ": " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno ao alterar senha.");
+        }
     }
 }

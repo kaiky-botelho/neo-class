@@ -1,4 +1,3 @@
-// src/pages/professor/CadastroProva.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../styles/cadastro.css";
@@ -9,6 +8,7 @@ import TurmaService from "../../app/service/turmaService";
 import MateriaService from "../../app/service/materiaService";
 import ProvaService from "../../app/service/provaService";
 import type { TurmaDTO, MateriaDTO, ProvaDTO } from "../../app/service/type";
+import ReactLoading from "react-loading";
 
 const CadastroProva: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,11 +19,8 @@ const CadastroProva: React.FC = () => {
   const provaService = new ProvaService();
   const professorId = Number(localStorage.getItem("id")!);
 
-  // listas para selects
   const [turmas, setTurmas] = useState<TurmaDTO[]>([]);
   const [materias, setMaterias] = useState<MateriaDTO[]>([]);
-
-  // estado do formulário, com campo de nota
   const [form, setForm] = useState({
     nome: "",
     bimestre: "",
@@ -35,10 +32,11 @@ const CadastroProva: React.FC = () => {
   const [msgSucesso, setMsgSucesso] = useState<string | null>(null);
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // carrega turmas e matérias
   useEffect(() => {
-    Promise.all([ turmaService.listarTodos(), materiaService.listarTodos() ])
+    Promise.all([turmaService.listarTodos(), materiaService.listarTodos()])
       .then(([resTur, resMat]) => {
         setTurmas(resTur.data);
         setMaterias(resMat.data);
@@ -49,13 +47,11 @@ const CadastroProva: React.FC = () => {
   // se existe id, busca prova e popula o formulário
   useEffect(() => {
     if (!id || turmas.length === 0 || materias.length === 0) return;
-
     provaService.buscarPorId(Number(id))
       .then(res => {
         const p = res.data as ProvaDTO;
         const turma = turmas.find(t => t.id === p.turmaId);
         const materia = materias.find(m => m.id === p.materiaId);
-
         setForm({
           nome: p.nome || "",
           bimestre: p.bimestre.toString(),
@@ -68,7 +64,6 @@ const CadastroProva: React.FC = () => {
       .catch(err => console.error("Erro ao carregar prova:", err));
   }, [id, turmas, materias]);
 
-  // limpa mensagens automaticamente após 1.5s
   useEffect(() => {
     if (msgSucesso || msgErro || msgCampoVazio) {
       const timer = setTimeout(() => {
@@ -90,13 +85,13 @@ const CadastroProva: React.FC = () => {
     setMsgCampoVazio(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsgErro(null);
     setMsgSucesso(null);
     setMsgCampoVazio(null);
+    setLoading(true);
 
-    // validação: nenhum campo pode ficar vazio
     const campos = [
       form.nome,
       form.bimestre,
@@ -107,6 +102,7 @@ const CadastroProva: React.FC = () => {
     ];
     if (campos.some(c => !c.trim())) {
       setMsgCampoVazio("Por favor, preencha todos os campos obrigatórios.");
+      setLoading(false);
       return;
     }
 
@@ -114,10 +110,10 @@ const CadastroProva: React.FC = () => {
     const materiaSel = materias.find(m => m.nome === form.materiaNome);
     if (!turmaSel || !materiaSel) {
       setMsgErro("Selecione turma e matéria válidas.");
+      setLoading(false);
       return;
     }
 
-    // monta payload incluindo o id quando for edição
     const payload: ProvaDTO = {
       id: id ? Number(id) : undefined,
       nome: form.nome,
@@ -129,20 +125,21 @@ const CadastroProva: React.FC = () => {
       turmaId: turmaSel.id!
     };
 
-    const request = id
-      ? provaService.editar(payload)
-      : provaService.salvar(payload);
-
-    request
-      .then(() =>
-        setMsgSucesso(
-          id ? "Prova atualizada com sucesso!" : "Prova cadastrada com sucesso!"
-        )
-      )
-      .catch(err => {
-        console.error("Erro ao salvar prova:", err);
-        setMsgErro("Erro ao salvar prova. Tente novamente.");
-      });
+    try {
+      if (id) {
+        await provaService.editar(payload);
+        setMsgSucesso("Prova atualizada com sucesso!");
+      } else {
+        await provaService.salvar(payload);
+        setMsgSucesso("Prova cadastrada com sucesso!");
+      }
+      setTimeout(() => navigate(-1), 1200); // volta para página anterior após sucesso
+    } catch (err) {
+      console.error("Erro ao salvar prova:", err);
+      setMsgErro("Erro ao salvar prova. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -165,12 +162,7 @@ const CadastroProva: React.FC = () => {
               label="Bimestre*"
               name="bimestre"
               value={form.bimestre}
-              options={[
-                "1º Bimestre",
-                "2º Bimestre",
-                "3º Bimestre",
-                "4º Bimestre"
-              ]}
+              options={["1", "2", "3", "4"]}
               title="o bimestre"
               onChange={handleChange}
             />
@@ -214,16 +206,18 @@ const CadastroProva: React.FC = () => {
             <button
               type="button"
               className="btn-voltar"
-              onClick={() => navigate("/homeProfessor")}
+              onClick={() => navigate(-1)}
+              disabled={loading}
             >
               Voltar
             </button>
-            <button type="submit" className="btn-cadastrar">
-              {id ? "Atualizar" : "Cadastrar"}
+            <button type="submit" className="btn-cadastrar" disabled={loading}>
+              {loading ? (
+                <ReactLoading type="spin" color="#fff" height={20} width={20} />
+              ) : id ? "Atualizar" : "Cadastrar"}
             </button>
           </div>
         </form>
-
         <div className="avisos">
           {msgSucesso && <div className="msg-sucesso">{msgSucesso}</div>}
           {msgErro && <div className="msg-erro">{msgErro}</div>}

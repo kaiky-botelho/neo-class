@@ -9,6 +9,7 @@ import TurmaService from "../../app/service/turmaService";
 import MateriaService from "../../app/service/materiaService";
 import TrabalhoService from "../../app/service/trabalhoService";
 import { TurmaDTO, MateriaDTO, TrabalhoDTO } from "../../app/service/type";
+import ReactLoading from "react-loading";
 
 const CadastroTrabalho: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,8 +21,6 @@ const CadastroTrabalho: React.FC = () => {
 
   const [turmas, setTurmas] = useState<TurmaDTO[]>([]);
   const [materias, setMaterias] = useState<MateriaDTO[]>([]);
-
-  // adiciona campo nota no estado
   const [form, setForm] = useState({
     nome: "",
     bimestre: "",
@@ -33,6 +32,7 @@ const CadastroTrabalho: React.FC = () => {
   const [msgSucesso, setMsgSucesso] = useState<string | null>(null);
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([materiaService.listarTodos(), turmaService.listarTodos()])
@@ -85,16 +85,18 @@ const CadastroTrabalho: React.FC = () => {
     setMsgCampoVazio(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsgErro(null);
     setMsgSucesso(null);
     setMsgCampoVazio(null);
+    setLoading(true);
 
     // validação incluindo nota
     const campos = [form.nome, form.bimestre, form.turmaNome, form.materiaNome, form.dataEntrega, form.nota];
     if (campos.some(c => !c.trim())) {
       setMsgCampoVazio("Por favor, preencha todos os campos obrigatórios.");
+      setLoading(false);
       return;
     }
 
@@ -102,6 +104,7 @@ const CadastroTrabalho: React.FC = () => {
     const materiaSel = materias.find(m => m.nome === form.materiaNome);
     if (!turmaSel || !materiaSel) {
       setMsgErro("Selecione turma e matéria válidas.");
+      setLoading(false);
       return;
     }
 
@@ -116,13 +119,21 @@ const CadastroTrabalho: React.FC = () => {
       professorId
     };
 
-    const request = id ? trabalhoService.editar(payload) : trabalhoService.salvar(payload);
-    request
-      .then(() => setMsgSucesso(id ? "Trabalho atualizado com sucesso!" : "Trabalho cadastrado com sucesso!"))
-      .catch(err => {
-        console.error("Erro ao salvar trabalho", err);
-        setMsgErro("Erro ao salvar trabalho. Tente novamente.");
-      });
+    try {
+      if (id) {
+        await trabalhoService.editar(payload);
+        setMsgSucesso("Trabalho atualizado com sucesso!");
+      } else {
+        await trabalhoService.salvar(payload);
+        setMsgSucesso("Trabalho cadastrado com sucesso!");
+      }
+      setTimeout(() => navigate(-1), 1200);
+    } catch (err) {
+      console.error("Erro ao salvar trabalho", err);
+      setMsgErro("Erro ao salvar trabalho. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -183,8 +194,23 @@ const CadastroTrabalho: React.FC = () => {
             />
           </div>
           <div className="buttons">
-            <button type="button" className="btn-voltar" onClick={() => navigate("/homeProfessor")}>Voltar</button>
-            <button type="submit" className="btn-cadastrar">{id ? "Atualizar" : "Cadastrar"}</button>
+            <button
+              type="button"
+              className="btn-voltar"
+              onClick={() => navigate(-1)}
+              disabled={loading}
+            >
+              Voltar
+            </button>
+            <button
+              type="submit"
+              className="btn-cadastrar"
+              disabled={loading}
+            >
+              {loading ? (
+                <ReactLoading type="spin" color="#fff" height={20} width={20} />
+              ) : id ? "Atualizar" : "Cadastrar"}
+            </button>
           </div>
         </form>
         <div className="avisos">

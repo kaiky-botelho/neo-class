@@ -1,4 +1,3 @@
-// src/main/java/com/neoclass/controller/AlunoController.java
 package com.neoclass.controller;
 
 import com.neoclass.dto.AlunoDTO;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/alunos")
+@RequestMapping("/api/alunos") // <--- RequestMapping da classe
 public class AlunoController {
 
     private final AlunoService alunoService;
@@ -24,7 +23,7 @@ public class AlunoController {
         this.turmaService = turmaService;
     }
 
-    // Converte entidade → DTO
+    // Converte entidade → DTO (IMPORTANTE: NÃO INCLUIR SENHA AQUI)
     private AlunoDTO toDTO(Aluno a) {
         AlunoDTO dto = new AlunoDTO();
         dto.setId(a.getId());
@@ -47,9 +46,10 @@ public class AlunoController {
         dto.setDataMatricula(a.getDataMatricula());
         dto.setSituacaoMatricula(a.getSituacaoMatricula());
         dto.setEmailInstitucional(a.getEmailInstitucional());
-        dto.setSenha(a.getSenha());
+        // NÃO RETORNA A SENHA NO DTO POR SEGURANÇA!
+        // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está
+        // ativa
 
-        // Se turma for != null, preenche o campo turmaId no DTO
         if (a.getTurma() != null) {
             dto.setTurmaId(a.getTurma().getId());
         } else {
@@ -59,10 +59,11 @@ public class AlunoController {
         return dto;
     }
 
-    // Converte DTO → entidade
+    // Converte DTO → entidade (use com cautela para atualizações de perfil: não
+    // sobrescrever senha)
     private Aluno toEntity(AlunoDTO dto) {
         Aluno a = new Aluno();
-        a.setId(dto.getId());  // Se id == null, JPA considera como INSERT; caso contrário, UPDATE
+        a.setId(dto.getId());
         a.setNome(dto.getNome());
         a.setDataNascimento(dto.getDataNascimento());
         a.setRg(dto.getRg());
@@ -82,13 +83,14 @@ public class AlunoController {
         a.setDataMatricula(dto.getDataMatricula());
         a.setSituacaoMatricula(dto.getSituacaoMatricula());
         a.setEmailInstitucional(dto.getEmailInstitucional());
-        a.setSenha(dto.getSenha());
+        // ATENÇÃO: Se este `toEntity` for usado para um PUT/update genérico de perfil,
+        // é crucial NÃO sobrescrever a senha hasheada com uma senha em texto puro.
+        // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e
+        // salvar.
+        a.setSenha(dto.getSenha()); // Mantido conforme seu código, mas com a ressalva acima.
 
-        // Faz a associação com Turma: se dto.getTurmaId() for != null, cria Turma(turmaId)
         if (dto.getTurmaId() != null) {
             Long idTurma = dto.getTurmaId();
-            // Pode-se obter a própria Turma do banco viaTurmaService.buscarPorId(idTurma),
-            // mas como queremos apenas fixar o FK (sem carregar toda a entidade), basta:
             Turma turmaRef = new Turma(idTurma);
             a.setTurma(turmaRef);
         } else {
@@ -102,8 +104,8 @@ public class AlunoController {
     public ResponseEntity<List<AlunoDTO>> listarTodos() {
         List<Aluno> lista = alunoService.listarTodos();
         List<AlunoDTO> dtos = lista.stream()
-                                   .map(this::toDTO)
-                                   .collect(Collectors.toList());
+                .map(this::toDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
 
@@ -116,15 +118,14 @@ public class AlunoController {
     @PostMapping
     public ResponseEntity<AlunoDTO> criar(@RequestBody AlunoDTO dto) {
         Aluno entidade = toEntity(dto);
-        Aluno salva = alunoService.salvar(entidade);
+        Aluno salva = alunoService.salvar(entidade); // O `alunoService.salvar` agora hasheia a senha se necessário.
         return ResponseEntity.status(201).body(toDTO(salva));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AlunoDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody AlunoDTO dto
-    ) {
+            @RequestBody AlunoDTO dto) {
         dto.setId(id);
         Aluno entidade = toEntity(dto);
         Aluno atualizado = alunoService.salvar(entidade);
@@ -136,4 +137,6 @@ public class AlunoController {
         alunoService.excluir(id);
         return ResponseEntity.noContent().build();
     }
+    // O endpoint de alterar senha para aluno (`@PutMapping("/{id}/senha")`)
+    // foi removido daqui e adicionado no AuthController.
 }

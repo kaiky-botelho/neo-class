@@ -1,4 +1,3 @@
-// src/pages/professor/LancarNotas.tsx
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import TurmaService from "../../app/service/turmaService";
 import MateriaService from "../../app/service/materiaService";
@@ -8,6 +7,8 @@ import type { TurmaDTO, MateriaDTO, AlunoDTO, NotaDTO } from "../../app/service/
 import Select from "../../components/select/select";
 import Input from "../../components/input/input";
 import Header from "../../components/header/header";
+import { useNavigate } from "react-router-dom";
+import ReactLoading from "react-loading";
 import "../../styles/cadastro.css";
 
 const turmaService = new TurmaService();
@@ -16,7 +17,7 @@ const alunoService = new AlunoService();
 const notaService = new NotaService();
 
 const LancarNotas: React.FC = () => {
-  // leitura do professorId e manipulação de estados
+  const navigate = useNavigate();
   const rawId = localStorage.getItem("id");
   const professorId = rawId ? Number(rawId) : null;
 
@@ -26,18 +27,16 @@ const LancarNotas: React.FC = () => {
   const [listaTurmasDoProfessor, setListaTurmasDoProfessor] = useState<TurmaDTO[]>([]);
   const [todosAlunos, setTodosAlunos] = useState<AlunoDTO[]>([]);
   const [todasNotas, setTodasNotas] = useState<NotaDTO[]>([]);
-
   const [turmaSelecionada, setTurmaSelecionada] = useState<string>("");
   const [materiaSelecionada, setMateriaSelecionada] = useState<string>("");
   const [materiasFiltradas, setMateriasFiltradas] = useState<MateriaDTO[]>([]);
   const [alunosDaTurma, setAlunosDaTurma] = useState<AlunoDTO[]>([]);
-
   const [notas, setNotas] = useState<Record<number, Record<number, string>>>({});
   const [abaAtiva, setAbaAtiva] = useState<number>(0);
   const [msgSucesso, setMsgSucesso] = useState<string | null>(null);
   const [msgErro, setMsgErro] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // 1) Carrega dados iniciais
   useEffect(() => {
     turmaService.listarTodos().then(r => setTodasTurmas(r.data)).catch(console.error);
     materiaService.listarTodos().then(r => setTodasMaterias(r.data)).catch(console.error);
@@ -45,7 +44,6 @@ const LancarNotas: React.FC = () => {
     notaService.listarTodas().then(r => setTodasNotas(r.data)).catch(console.error);
   }, []);
 
-  // 2) Filtra matérias e turmas do professor
   useEffect(() => {
     if (!professorId) return;
     const matProf = todasMaterias.filter(m => m.professorId === professorId);
@@ -54,14 +52,12 @@ const LancarNotas: React.FC = () => {
     setListaTurmasDoProfessor(todasTurmas.filter(t => t.id != null && turmaIds.has(t.id)));
   }, [professorId, todasMaterias, todasTurmas]);
 
-  // 3) Filtra alunos da turma
   useEffect(() => {
     if (!turmaSelecionada) return setAlunosDaTurma([]);
     const turma = listaTurmasDoProfessor.find(t => t.nome === turmaSelecionada);
     setAlunosDaTurma(turma ? todosAlunos.filter(a => a.turmaId === turma.id) : []);
   }, [turmaSelecionada, todosAlunos, listaTurmasDoProfessor]);
 
-  // 4) Filtra matérias da turma
   useEffect(() => {
     if (!turmaSelecionada) {
       setMateriasFiltradas([]);
@@ -71,7 +67,6 @@ const LancarNotas: React.FC = () => {
     setMateriasFiltradas(turma ? materiasDoProfessor.filter(m => m.turmaId === turma.id) : []);
   }, [turmaSelecionada, materiasDoProfessor, listaTurmasDoProfessor]);
 
-  // 5) Prepara mapa de notas existentes + vazias
   useEffect(() => {
     if (!turmaSelecionada) return setNotas({});
     const turma = listaTurmasDoProfessor.find(t => t.nome === turmaSelecionada);
@@ -87,29 +82,27 @@ const LancarNotas: React.FC = () => {
     setNotas(init);
   }, [turmaSelecionada, alunosDaTurma, todasNotas, listaTurmasDoProfessor]);
 
-  // 6) handle change nota
   const handleChangeNota = (alunoId: number, bix: number, val: string) => {
     setNotas(prev => ({...prev,[alunoId]:{...prev[alunoId],[bix]:val}}));
   };
 
-  // 7) limpa msgs
   useEffect(() => {
     if (!msgSucesso && !msgErro) return;
-    const t = setTimeout(()=>{setMsgSucesso(null);setMsgErro(null);},2000);
+    const t = setTimeout(()=>{
+      setMsgSucesso(null);setMsgErro(null);
+      if (msgSucesso) setTimeout(() => navigate(-1), 500); // volta após salvar
+    }, 1200);
     return ()=>clearTimeout(t);
-  },[msgSucesso,msgErro]);
+  },[msgSucesso,msgErro, navigate]);
 
-  // 8) Submeter: apenas valores >0 e inclui materiaId
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault(); setMsgSucesso(null); setMsgErro(null);
-    if (!turmaSelecionada) return setMsgErro("Selecione uma turma.");
-    if (!alunosDaTurma.length) return setMsgErro("Sem alunos nesta turma.");
-
+    e.preventDefault(); setMsgSucesso(null); setMsgErro(null); setLoading(true);
+    if (!turmaSelecionada) { setMsgErro("Selecione uma turma."); setLoading(false); return; }
+    if (!alunosDaTurma.length) { setMsgErro("Sem alunos nesta turma."); setLoading(false); return; }
     const turma = listaTurmasDoProfessor.find(t => t.nome===turmaSelecionada)!;
     const bimestre = abaAtiva+1;
     const materiaObj = materiasFiltradas.find(m => m.nome===materiaSelecionada);
-    if (!materiaObj) return setMsgErro("Selecione uma matéria.");
-
+    if (!materiaObj) { setMsgErro("Selecione uma matéria."); setLoading(false); return; }
     const dtos: NotaDTO[] = alunosDaTurma.map(a=>{
       const valorNum = parseFloat(notas[a.id!][abaAtiva]||"0");
       const existente = todasNotas.find(n=>
@@ -125,6 +118,7 @@ const LancarNotas: React.FC = () => {
     } catch(e) {
       console.error(e); setMsgErro("Erro ao salvar notas.");
     }
+    setLoading(false);
   };
 
   return (
@@ -162,9 +156,11 @@ const LancarNotas: React.FC = () => {
           </div>
         </div>
         <div className="buttons">
-          <button type="button" className="btn-voltar" onClick={()=>window.history.back()}>VOLTAR</button>
+          <button type="button" className="btn-voltar" onClick={() => navigate(-1)} disabled={loading}>VOLTAR</button>
           <button type="submit" className="btn-cadastrar"
-            disabled={!turmaSelecionada||alunosDaTurma.length===0}>CADASTRAR</button>
+            disabled={!turmaSelecionada||alunosDaTurma.length===0||loading}>
+            {loading ? <ReactLoading type="spin" color="#fff" height={20} width={20} /> : "CADASTRAR"}
+          </button>
         </div>
       </form>
       <div className="avisos">

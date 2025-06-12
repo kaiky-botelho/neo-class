@@ -1,4 +1,3 @@
-// src/main/java/com/neoclass/repository/AlunoRepository.java
 package com.neoclass.repository;
 
 import com.neoclass.model.Aluno;
@@ -10,6 +9,8 @@ import java.util.Optional;
 @Repository
 public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
-    Optional<Aluno> findByEmailInstitucionalAndSenha(String emailInstitucional, String senha);
+    // REMOVIDO: Optional<Aluno> findByEmailInstitucionalAndSenha(String emailInstitucional, String senha);
+    // Agora a autenticação compara o hash da senha, não busca por senha em texto puro.
+
     Optional<Aluno> findByEmailInstitucional(String emailInstitucional);
 }

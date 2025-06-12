@@ -1,4 +1,3 @@
-// src/main/java/com/neoclass/security/SecurityConfig.java
 package com.neoclass.security;
 
 import org.springframework.context.annotation.Bean;
@@ -28,56 +27,47 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1) Habilita CORS
-            .cors().and()
+          .cors().and()
+          .csrf().disable()
+          .authorizeHttpRequests(auth -> auth
 
-            // 2) Desativa CSRF (REST stateless)
-            .csrf().disable()
+              // ─── PÚBLICOS ───────────────────────────────────
+              .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
+              .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
+              .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+              .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
 
-            // 3) Configura quem é público e quem exige token
-            .authorizeHttpRequests(auth -> auth
-                // cadastro de secretaria
-                .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
+              // ─── RESTRITOS POR PAPEL ─────────────────────────
+              .requestMatchers(HttpMethod.GET,  "/api/secretarias/admin").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.GET,  "/api/alunos/meus-cursos").hasRole("ALUNO")
+              .requestMatchers(HttpMethod.GET,  "/api/professores/minhas-turmas").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.PUT,  "/api/login/aluno/senha").hasRole("ALUNO")
 
-                // APIs de login
-                .requestMatchers(HttpMethod.POST, "/api/login/secretaria").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/login/aluno").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/login/professor").permitAll()
+              // ─── ENDPOINTS DE FREQUÊNCIA ────────────────────
+              .requestMatchers(HttpMethod.POST,   "/api/frequencias").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.PUT,    "/api/frequencias/**").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.DELETE, "/api/frequencias/**").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.GET,    "/api/frequencias/**").authenticated()
 
-                // Swagger/OpenAPI
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+              // ─── ENDPOINTS DE NOTA ──────────────────────────
+              .requestMatchers(HttpMethod.POST,   "/api/notas").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.PUT,    "/api/notas/**").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.DELETE, "/api/notas/**").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.GET,    "/api/notas/**").authenticated()
 
-                // preflight CORS
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                // Exemplo de rota protegida por ROLE
-                // Apenas secretarias podem acessar /api/secretarias/admin (GET)
-                .requestMatchers(HttpMethod.GET, "/api/secretarias/admin").hasRole("SECRETARIA")
-                // Apenas alunos podem acessar /api/alunos/meus-cursos (GET)
-                .requestMatchers(HttpMethod.GET, "/api/alunos/meus-cursos").hasRole("ALUNO")
-                // Apenas professores podem acessar /api/professores/minhas-turmas (GET)
-                .requestMatchers(HttpMethod.GET, "/api/professores/minhas-turmas").hasRole("PROFESSOR")
-
-
-                // todas as outras rotas precisam de JWT válido (e ter as roles necessárias, se definido)
-                .anyRequest().authenticated()
-            )
-
-            // 4) Stateless session
-            .sessionManagement(sm ->
-                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
-            // 5) Nosso filtro JWT antes do UsernamePasswordAuthenticationFilter
-            .addFilterBefore(
-                new JwtFilter(jwtUtil),
-                UsernamePasswordAuthenticationFilter.class
-            )
-
-            // 6) Para permitir console H2 (se usar)
-            .headers(headers ->
-                headers.frameOptions().disable()
-            );
+              // ─── QUALQUER OUTRA ROTA ────────────────────────
+              .anyRequest().authenticated()
+          )
+          .sessionManagement(sm ->
+              sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+          )
+          .addFilterBefore(
+              new JwtFilter(jwtUtil),
+              UsernamePasswordAuthenticationFilter.class
+          )
+          .headers(headers ->
+              headers.frameOptions().disable()
+          );
 
         return http.build();
     }
@@ -89,14 +79,14 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:8081"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:8081", "exp://*"));
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", cfg);
         return source;
     }
 }

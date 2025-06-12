@@ -1,6 +1,6 @@
 // src/pages/secretaria/cadastroAluno.tsx
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AlunoService from "../../app/service/alunoService";
 import TurmaService from "../../app/service/turmaService";
 import type { AlunoDTO } from "../../app/service/type";
@@ -10,6 +10,7 @@ import Select from "../../components/select/select";
 import "../../styles/cadastro.css";
 import { buscaEnderecoPorCep } from "../../utils/buscaEnderecoPorCep";
 import type { TurmaDTO } from "../../app/service/type";
+import ReactLoading from "react-loading";
 
 const alunoService = new AlunoService();
 const turmaService = new TurmaService();
@@ -19,6 +20,7 @@ const situacoesMatricula = ["Ativo", "Inativo", "Trancado"];
 
 const CadastroAluno: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   // Estado inclui turmaNome apenas para exibição/seleção
   const [aluno, setAluno] = useState<AlunoDTO & { turmaNome?: string }>({
@@ -49,6 +51,7 @@ const CadastroAluno: React.FC = () => {
   const [msgSucesso, setMsgSucesso] = useState<string | null>(null);
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Carrega todas as turmas ao iniciar
   useEffect(() => {
@@ -120,6 +123,7 @@ const CadastroAluno: React.FC = () => {
     setMsgSucesso(null);
     setMsgErro(null);
     setMsgCampoVazio(null);
+    setLoading(true);
 
     const camposObrigatorios = [
       "nome",
@@ -156,6 +160,7 @@ const CadastroAluno: React.FC = () => {
       setMsgCampoVazio(
         "Preencha todos os campos obrigatórios antes de salvar."
       );
+      setLoading(false);
       return;
     }
 
@@ -195,6 +200,9 @@ const CadastroAluno: React.FC = () => {
           turmaNome: "",
         });
       }
+      setTimeout(() => {
+        navigate(-1); // volta para a tela anterior após salvar
+      }, 1000);
     } catch (err: any) {
       if (err.response) {
         console.log(">>> STATUS:", err.response.status);
@@ -202,6 +210,8 @@ const CadastroAluno: React.FC = () => {
       }
       setMsgErro("Erro ao salvar aluno.");
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -404,11 +414,22 @@ const CadastroAluno: React.FC = () => {
           </div>
 
           <div className="buttons">
-            <a href="/#/homeSecretaria" className="btn-voltar">
+            <button
+              type="button"
+              className="btn-voltar"
+              onClick={() => navigate(-1)}
+              disabled={loading}
+            >
               Voltar
-            </a>
-            <button type="submit" className="btn-cadastrar">
-              {aluno.id ? "Atualizar" : "Cadastrar"}
+            </button>
+            <button
+              type="submit"
+              className="btn-cadastrar"
+              disabled={loading}
+            >
+              {loading ? (
+                <ReactLoading type="spin" color="#fff" height={20} width={20} />
+              ) : aluno.id ? "Atualizar" : "Cadastrar"}
             </button>
           </div>
         </form>

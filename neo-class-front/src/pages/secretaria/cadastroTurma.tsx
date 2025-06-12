@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header/header";
 import Input from "../../components/input/input";
 import { TurmaDTO } from "../../app/service/type";
 import "../../styles/cadastro.css";
 import Select from "../../components/select/select";
 import TurmaService from "../../app/service/turmaService";
+import ReactLoading from "react-loading";
 
 const turmaService = new TurmaService();
-
 const Turno = ["MANHA", "TARDE", "NOITE"];
 
 const CadastroTurma: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
   const [msgSucesso, setMsgSucesso] = useState<string | null>(null);
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const [turma, setTurma] = useState<TurmaDTO>({
     nome: "",
@@ -38,6 +41,7 @@ const CadastroTurma: React.FC = () => {
         });
     }
   }, [id]);
+
   function handleChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
@@ -60,8 +64,10 @@ const CadastroTurma: React.FC = () => {
     setMsgSucesso(null);
     setMsgErro(null);
     setMsgCampoVazio(null);
+    setLoading(true);
 
-    const camposObrigatorios = Object.keys(turma).filter((key) => key !== "id");
+    // Somente os campos obrigatórios!
+    const camposObrigatorios = ["nome", "anoLetivo", "serie", "turno", "sala"];
 
     const camposPreenchidos = camposObrigatorios.every((key) => {
       const valor = (turma as any)[key];
@@ -73,6 +79,7 @@ const CadastroTurma: React.FC = () => {
 
     if (!camposPreenchidos) {
       setMsgCampoVazio("Preencha todos os campos obrigatórios.");
+      setLoading(false);
       return;
     }
 
@@ -84,25 +91,29 @@ const CadastroTurma: React.FC = () => {
         await turmaService.salvar(turma);
         setMsgSucesso("Turma cadastrada com sucesso!");
       }
+      setTimeout(() => {
+        navigate(-1);
+      }, 1000);
     } catch (error) {
       console.error("Erro ao salvar turma:", error);
       setMsgErro("Erro ao salvar turma. Tente novamente mais tarde.");
+    } finally {
+      setLoading(false);
     }
   }
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        if (msgSucesso) setMsgSucesso(null);
-        if (msgErro) setMsgErro(null);
-        if (msgCampoVazio) setMsgCampoVazio(null);
-      }, 1000);
-  
-      return () => clearTimeout(timer);
-    }, [msgSucesso, msgErro, msgCampoVazio]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (msgSucesso) setMsgSucesso(null);
+      if (msgErro) setMsgErro(null);
+      if (msgCampoVazio) setMsgCampoVazio(null);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [msgSucesso, msgErro, msgCampoVazio]);
 
   return (
     <div>
-      <Header title={turma.id ? "editar Turma" : "Cadastro de Turma"} />
+      <Header title={turma.id ? "Editar Turma" : "Cadastro de Turma"} />
 
       <div className="container relative">
         <form className="form-cadastro center" onSubmit={handleSubmit}>
@@ -156,15 +167,26 @@ const CadastroTurma: React.FC = () => {
             />
           </div>
           <div className="buttons">
-            <a href="/#/homeSecretaria" className="btn-voltar">
+            <button
+              type="button"
+              className="btn-voltar"
+              onClick={() => navigate(-1)}
+              disabled={loading}
+            >
               Voltar
-            </a>
-            <button type="submit" className="btn-cadastrar">
-              {turma.id ? "Atualizar" : "Cadastrar"}
+            </button>
+            <button
+              type="submit"
+              className="btn-cadastrar"
+              disabled={loading}
+            >
+              {loading ? (
+                <ReactLoading type="spin" color="#fff" height={20} width={20} />
+              ) : turma.id ? "Atualizar" : "Cadastrar"}
             </button>
           </div>
         </form>
-                <div className="avisos">
+        <div className="avisos">
           {msgSucesso && <div className="msg-sucesso">{msgSucesso}</div>}
           {msgErro && <div className="msg-erro"><p>{msgErro}</p></div>}
           {msgCampoVazio && <div className="msg-vazio">{msgCampoVazio}</div>}

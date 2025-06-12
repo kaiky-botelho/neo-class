@@ -35,6 +35,11 @@ public class AlunoService implements CrudService<Aluno, Long> {
 
     @Override
     public Aluno salvar(Aluno a) {
+        // Se a senha veio em texto puro, gera o hash antes de salvar
+        if (a.getSenha() != null && !a.getSenha().startsWith("$2a$")) {
+            String hash = passwordEncoder.encode(a.getSenha());
+            a.setSenha(hash);
+        }
         return repo.save(a);
     }
 
@@ -43,25 +48,23 @@ public class AlunoService implements CrudService<Aluno, Long> {
         repo.deleteById(id);
     }
 
-    public Optional<Aluno> autenticar(String email, String senha) {
-        return repo.findByEmailInstitucionalAndSenha(email, senha);
+    /**
+     * Autentica aluno comparando texto puro com hash BCrypt.
+     */
+    public Optional<Aluno> autenticar(String emailInstitucional, String senhaTextoPuro) {
+        return repo.findByEmailInstitucional(emailInstitucional)
+                   .filter(a -> passwordEncoder.matches(senhaTextoPuro, a.getSenha()));
     }
 
     public Aluno buscarPorEmailInstitucional(String emailInstitucional) {
         return repo.findByEmailInstitucional(emailInstitucional)
                    .orElseThrow(() ->
                        new IllegalArgumentException(
-                         "Aluno não encontrado com e-mail institucional: " + emailInstitucional));
-    }
-
-    public Long buscarIdPorEmail(String emailInstitucional) {
-        return buscarPorEmailInstitucional(emailInstitucional).getId();
+                           "Aluno não encontrado com e-mail institucional: " + emailInstitucional));
     }
 
     /**
-     * Altera a senha de um aluno, gerando o hash via BCrypt e salvando no banco.
-     * @param alunoId     o ID do aluno
-     * @param novaSenha   a nova senha em texto puro
+     * Altera senha de aluno: recebe texto puro, gera hash e salva.
      */
     public void alterarSenha(Long alunoId, String novaSenha) {
         Aluno aluno = buscarPorId(alunoId);

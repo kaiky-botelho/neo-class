@@ -1,5 +1,6 @@
+// src/pages/secretaria/cadastroProfessor.tsx
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { AxiosResponse } from "axios";
 import ProfessorService from "../../app/service/professorService";
 import TurmaService from "../../app/service/turmaService";
@@ -9,6 +10,7 @@ import Input from "../../components/input/input";
 import Select from "../../components/select/select";
 import "../../styles/cadastro.css";
 import { buscaEnderecoPorCep } from "../../utils/buscaEnderecoPorCep";
+import ReactLoading from "react-loading";
 
 const professorService = new ProfessorService();
 const turmaService = new TurmaService();
@@ -19,6 +21,7 @@ const situacaoContratos = ["Ativo", "Inativo"];
 
 const CadastroProfessor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   // Inclui campo turmaNome para o select pelo nome
   const [professor, setProfessor] = useState<ProfessorDTO & { turmaNome?: string }>({
@@ -50,6 +53,7 @@ const CadastroProfessor: React.FC = () => {
   const [msgSucesso, setMsgSucesso] = useState<string | null>(null);
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Carrega turmas
   useEffect(() => {
@@ -124,6 +128,7 @@ const CadastroProfessor: React.FC = () => {
     setMsgSucesso(null);
     setMsgErro(null);
     setMsgCampoVazio(null);
+    setLoading(true);
 
     // Exclui o campo turmaNome na validação
     const camposObrigatorios = Object.keys(professor).filter(
@@ -142,6 +147,7 @@ const CadastroProfessor: React.FC = () => {
       setMsgCampoVazio(
         "Preencha todos os campos obrigatórios antes de salvar."
       );
+      setLoading(false);
       return;
     }
 
@@ -177,9 +183,14 @@ const CadastroProfessor: React.FC = () => {
           turmaNome: "",
         });
       }
+      setTimeout(() => {
+        navigate(-1); // volta para tela anterior após sucesso
+      }, 1000);
     } catch (error) {
       setMsgErro("Erro ao salvar professor.");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -389,11 +400,22 @@ const CadastroProfessor: React.FC = () => {
             />
           </div>
           <div className="buttons">
-            <a href="/#/homeSecretaria" className="btn-voltar">
+            <button
+              type="button"
+              className="btn-voltar"
+              onClick={() => navigate(-1)}
+              disabled={loading}
+            >
               Voltar
-            </a>
-            <button type="submit" className="btn-cadastrar">
-              {professor.id ? "Atualizar" : "Cadastrar"}
+            </button>
+            <button
+              type="submit"
+              className="btn-cadastrar"
+              disabled={loading}
+            >
+              {loading ? (
+                <ReactLoading type="spin" color="#fff" height={20} width={20} />
+              ) : professor.id ? "Atualizar" : "Cadastrar"}
             </button>
           </div>
         </form>

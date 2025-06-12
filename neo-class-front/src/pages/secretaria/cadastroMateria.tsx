@@ -8,12 +8,13 @@ import TurmaService from "../../app/service/turmaService";
 import ProfessorService from "../../app/service/professorService";
 import { MateriaDTO, TurmaDTO, ProfessorDTO } from "../../app/service/type";
 import "../../styles/cadastro.css";
+import ReactLoading from "react-loading";
 
 const materiaService = new MateriaService();
 const turmaService = new TurmaService();
 const professorService = new ProfessorService();
 
-const bimestres = [ "1", "2", "3", "4" ];
+const bimestres = ["1", "2", "3", "4"];
 
 interface FormState {
   id?: number;
@@ -38,6 +39,7 @@ const CadastroMateria: React.FC = () => {
   const [msgSucesso, setMsgSucesso] = useState<string | null>(null);
   const [msgErro, setMsgErro] = useState<string | null>(null);
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Carrega listas de turmas e professores
   useEffect(() => {
@@ -77,11 +79,14 @@ const CadastroMateria: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
+
     // Validação
     const turmaSel = turmas.find(t => t.nome === materia.turmaNome);
     const profSel = professores.find(p => p.nome === materia.professorNome);
     if (!materia.nome || !materia.bimestre || !turmaSel || !profSel) {
       setMsgCampoVazio("Preencha todos os campos obrigatórios.");
+      setLoading(false);
       return;
     }
     const dto: MateriaDTO = {
@@ -101,12 +106,13 @@ const CadastroMateria: React.FC = () => {
       }
       setMsgErro(null);
       setMsgCampoVazio(null);
-      // Redireciona após sucesso
-      setTimeout(() => navigate("/materias"), 1500);
+      setTimeout(() => navigate(-1), 1500);
     } catch (err) {
       console.error(err);
       setMsgErro("Erro ao salvar matéria. Tente novamente mais tarde.");
       setMsgSucesso(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -163,9 +169,22 @@ const CadastroMateria: React.FC = () => {
             />
           </div>
           <div className="buttons">
-            <a href="/#/homeSecretaria" className="btn-voltar">Voltar</a>
-            <button type="submit" className="btn-cadastrar">
-              {materia.id ? "Atualizar" : "Cadastrar"}
+            <button
+              type="button"
+              className="btn-voltar"
+              onClick={() => navigate(-1)}
+              disabled={loading}
+            >
+              Voltar
+            </button>
+            <button
+              type="submit"
+              className="btn-cadastrar"
+              disabled={loading}
+            >
+              {loading ? (
+                <ReactLoading type="spin" color="#fff" height={20} width={20} />
+              ) : materia.id ? "Atualizar" : "Cadastrar"}
             </button>
           </div>
         </form>

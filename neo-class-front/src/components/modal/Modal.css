@@ -15,7 +15,11 @@
   border-radius: 8px;
   position: relative;
   width: 400px;
+  display: flex;
+  flex-direction: column;
   max-width: 90%;
+  gap: 20px;
+  align-items: center;
 }
 
 .modal-close {
