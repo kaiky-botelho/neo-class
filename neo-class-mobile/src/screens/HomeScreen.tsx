@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,19 @@ import {
   StatusBar,
   Modal,
   TouchableWithoutFeedback,
-  TextInput,
-  // Removido: Alert, // Não precisamos mais do Alert, mas também não estou importando Toast aqui
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { AuthContext } from '../context/AuthContext';
 import homeStyles from '../styles/homeStyles';
+import api from '../services/api';
 import { RootStackParamList } from '../../App';
-// Removido: import Toast from 'react-native-toast-message'; // Não estou importando Toast aqui para cumprir "não altere mais nada"
 
-/* ---------- LOCALE PT-BR (declarado fora do componente) ---------- */
+//
+// Configuração de locale pt-BR para o calendário
+//
 LocaleConfig.locales.pt = {
   monthNames: [
     'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
@@ -31,63 +32,103 @@ LocaleConfig.locales.pt = {
     'Jul','Ago','Set','Out','Nov','Dez',
   ],
   dayNames: [
-    'Domingo','Segunda-feira','Terça-feira','Quarta-feira',
-    'Quinta-feira','Sexta-feira','Sábado',
+    'Domingo','Segunda','Terça','Quarta',
+    'Quinta','Sexta','Sábado',
   ],
   dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],
   today: 'Hoje',
 };
 LocaleConfig.defaultLocale = 'pt';
-/* ----------------------------------------------------------------- */
 
 type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
+interface ProvaDTO {
+  id: number;
+  nome: string;
+  data: string;    // YYYY-MM-DD
+  turmaId: number;
+  nota: number;
+}
+interface TrabalhoDTO {
+  id: number;
+  nome: string;
+  data: string;
+  turmaId: number;
+  nota: number;
+}
+
 export default function HomeScreen() {
   const navigation = useNavigation<HomeNavigationProp>();
-  const { user, signOut, changePassword } = useContext(AuthContext); // changePassword está aqui, mas o submitPasswordChange será adaptado
+  const { user, signOut } = useContext(AuthContext);
 
+  const [provas, setProvas] = useState<ProvaDTO[]>([]);
+  const [trabalhos, setTrabalhos] = useState<TrabalhoDTO[]>([]);
+  const [loading, setLoading] = useState(true);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
-  const [pwModalVisible, setPwModalVisible] = useState(false); // Mantido
-  const [newPass, setNewPass] = useState(''); // Mantido
-  const [confirmPass, setConfirmPass] = useState(''); // Mantido
-  const [pwError, setPwError] = useState(''); // Mantido
 
+  // Busca provas e trabalhos da turma do usuário
+  useEffect(() => {
+    if (user?.turmaId) {
+      setLoading(true);
+      Promise.all([
+        api.get<ProvaDTO[]>('/provas'),
+        api.get<TrabalhoDTO[]>('/trabalhos'),
+      ])
+        .then(([pRes, tRes]) => {
+          setProvas(pRes.data.filter(p => p.turmaId === user.turmaId));
+          setTrabalhos(tRes.data.filter(t => t.turmaId === user.turmaId));
+        })
+        .catch(err => console.error('Erro ao carregar calendário:', err))
+        .finally(() => setLoading(false));
+    }
+  }, [user]);
 
-  /* ---------- datas ---------- */
+  // Gera string de hoje em UTC-3
   const getTodayBrazilString = (): string => {
     const now = new Date();
-    const utcMillis = now.getTime() + now.getTimezoneOffset() * 60000;
-    const brasilMillis = utcMillis - 3 * 60 * 60 * 1000; // UTC-3 (Horário de Brasília)
-    return new Date(brasilMillis).toISOString().split('T')[0];
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const br = new Date(utc - 3 * 3600000);
+    return br.toISOString().split('T')[0];
   };
   const todayString = getTodayBrazilString();
-  const markedDates = {
+
+  // Monta markedDates (usando any para customStyles)
+  const markedDates: Record<string, any> = {
     [todayString]: { selected: true, selectedColor: '#E6BC51' },
   };
-  /* --------------------------- */
+  provas.forEach(p => {
+    markedDates[p.data] = {
+      customStyles: {
+        container: { backgroundColor: '#FF9C9C' },
+        text: { color: '#FFF', fontWeight: 'bold' },
+      }
+    };
+  });
+  trabalhos.forEach(t => {
+    if (markedDates[t.data]) {
+      const dayMark = markedDates[t.data]!;
+      dayMark.customStyles!.container.borderColor = '#A0BFE8';
+      dayMark.customStyles!.container.borderWidth = 2;
+    } else {
+      markedDates[t.data] = {
+        customStyles: {
+          container: { backgroundColor: '#A0BFE8' },
+          text: { color: '#FFF', fontWeight: 'bold' },
+        }
+      };
+    }
+  });
 
-  /* ---------- modais ---------- */
+  const onDayPress = (day: { dateString: string }) =>
+    console.log('Dia selecionado:', day.dateString);
+
+  // Perfil / modais
   const openProfileModal = () => setProfileModalVisible(true);
   const closeProfileModal = () => setProfileModalVisible(false);
-
-  // --- FUNÇÃO AJUSTADA PARA NAVEGAR PARA A TELA DE ALTERAR SENHA ---
   const handleNavigateToChangePassword = () => {
-    closeProfileModal(); // Fecha o modal de perfil
-    navigation.navigate('ChangePassword'); // Navega para a tela ChangePasswordScreen
-  };
-  // Mantido: openPwModal e closePwModal conforme seu pedido para "não alterar mais nada"
-  // mas o 'openPwModal' do profileModal será linkado a 'handleNavigateToChangePassword'
-  const openPwModal = () => {
-    // Este `openPwModal` que era para abrir um modal interno de senha não é mais o principal caminho.
-    // Se ele for chamado de algum outro lugar, agora vai navegar para a tela `ChangePassword`.
-    // Não é mais o "modal" de alteração de senha, mas um gatilho para a tela.
+    closeProfileModal();
     navigation.navigate('ChangePassword');
   };
-  const closePwModal = () => { // Mantido como estava
-    setPwModalVisible(false);
-  };
-  /* ---------------------------- */
-
   const handleLogout = () => {
     closeProfileModal();
     signOut();
@@ -96,36 +137,10 @@ export default function HomeScreen() {
     );
   };
 
-  const submitPasswordChange = async () => {
-    if (newPass.length < 6) {
-      setPwError('A senha deve ter ao menos 6 caracteres');
-      // Alert.alert('Erro', 'A senha deve ter ao menos 6 caracteres'); // Mantido Alert, pois não foi pedido para remover
-      return;
-    }
-    if (newPass !== confirmPass) {
-      setPwError('As senhas não coincidem');
-      // Alert.alert('Erro', 'As senhas não coincidem'); // Mantido Alert
-      return;
-    }
-    try {
-      // Como a navegação vai para uma tela dedicada, esta função submitPasswordChange
-      // e o modal pwModalVisible podem não ser mais usados.
-      // Se ainda forem, a chamada a changePassword deve ser:
-      // await changePassword(newPass);
-      // closePwModal();
-      // Alert.alert('Sucesso', 'Senha alterada com sucesso'); // Mantido Alert
-    } catch {
-      setPwError('Erro ao alterar senha');
-      // Alert.alert('Erro', 'Erro ao alterar senha'); // Mantido Alert
-    }
-  };
-
-  const onDayPress = (day: { dateString: string }) =>
-    console.log('Dia selecionado:', day.dateString);
-
-  // Calcular a margem para o cabeçalho no Android
-  const topBarAndroidMargin = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
-  // Calcular o padding para o bottomSafe no Android (se necessário)
+  // Ajuste de margens para Android
+  const topBarAndroidMargin = Platform.OS === 'android'
+    ? (StatusBar.currentHeight || 0)
+    : 0;
   const bottomSafeAndroidPaddingTop = Platform.OS === 'android' ? 24 : 0;
 
   return (
@@ -136,13 +151,19 @@ export default function HomeScreen() {
       <SafeAreaView style={homeStyles.topSafe}>
         <View style={[homeStyles.topBar, { marginTop: topBarAndroidMargin }]}>
           <View style={homeStyles.topBarSpacer} />
-          <TouchableOpacity style={homeStyles.profileButton} onPress={openProfileModal}>
-            <Image source={require('../../assets/profile.png')} style={homeStyles.profileIcon} />
+          <TouchableOpacity
+            style={homeStyles.profileButton}
+            onPress={openProfileModal}
+          >
+            <Image
+              source={require('../../assets/profile.png')}
+              style={homeStyles.profileIcon}
+            />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
-      {/* PROFILE MODAL */}
+      {/* MODAL DE PERFIL */}
       <Modal
         visible={profileModalVisible}
         transparent
@@ -157,96 +178,93 @@ export default function HomeScreen() {
             {`Olá${user?.nome ? `, ${user.nome}` : ''}`}
           </Text>
           <View style={homeStyles.modalDivider} />
-          {/* --- AQUI: CHAMA A NOVA FUNÇÃO DE NAVEGAÇÃO --- */}
-          <TouchableOpacity style={homeStyles.modalButton} onPress={handleNavigateToChangePassword}>
+          <TouchableOpacity
+            style={homeStyles.modalButton}
+            onPress={handleNavigateToChangePassword}
+          >
             <Text style={homeStyles.modalButtonText}>ALTERAR SENHA</Text>
-            <Image source={require('../../assets/cadeado.png')} style={homeStyles.modalButtonIcon} />
+            <Image
+              source={require('../../assets/cadeado.png')}
+              style={homeStyles.modalButtonIcon}
+            />
           </TouchableOpacity>
           <View style={homeStyles.modalDivider} />
-          <TouchableOpacity style={homeStyles.modalButton} onPress={handleLogout}>
+          <TouchableOpacity
+            style={homeStyles.modalButton}
+            onPress={handleLogout}
+          >
             <Text style={homeStyles.modalButtonText}>SAIR</Text>
-            <Image source={require('../../assets/exit.png')} style={homeStyles.modalButtonIcon} />
+            <Image
+              source={require('../../assets/exit.png')}
+              style={homeStyles.modalButtonIcon}
+            />
           </TouchableOpacity>
         </View>
       </Modal>
 
-      {/* CHANGE PASSWORD MODAL (Mantido como estava, mas o fluxo do botão foi ajustado) */}
-      <Modal
-        visible={pwModalVisible} // Este modal só será visível se `openPwModal` for chamado e `setPwModalVisible(true)`
-        transparent
-        animationType="slide"
-        onRequestClose={closePwModal}
+      {/* CONTEÚDO PRINCIPAL */}
+      <SafeAreaView
+        style={[homeStyles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}
       >
-        <View style={homeStyles.changeOverlay}>
-          <View style={homeStyles.changeContainer}>
-            <Text style={homeStyles.changeTitle}>Alterar Senha</Text>
-            <TextInput
-              placeholder="Nova senha"
-              secureTextEntry
-              style={homeStyles.changeInput}
-              value={newPass}
-              onChangeText={setNewPass}
+        {loading ? (
+          <ActivityIndicator size="large" color="#333" />
+        ) : (
+          <View style={homeStyles.calendarContainer}>
+            <Calendar
+              markingType="custom"
+              markedDates={markedDates}
+              onDayPress={onDayPress}
+              firstDay={1}
+              theme={{
+                arrowColor: '#2D2D2D',
+                todayTextColor: '#2D2D2D',
+                dayTextColor: '#2D2D2D',
+                textDisabledColor: '#B8B8B8',
+                monthTextColor: '#2D2D2D',
+                textMonthFontWeight: 'bold',
+                textDayFontFamily:
+                  Platform.OS === 'android' ? 'Roboto' : 'System',
+                textDayHeaderFontFamily:
+                  Platform.OS === 'android' ? 'Roboto' : 'System',
+                textMonthFontFamily:
+                  Platform.OS === 'android' ? 'Roboto' : 'System',
+              }}
+              style={homeStyles.calendar}
             />
-            <TextInput
-              placeholder="Confirme a senha"
-              secureTextEntry
-              style={homeStyles.changeInput}
-              value={confirmPass}
-              onChangeText={setConfirmPass}
-            />
-            {pwError ? <Text style={homeStyles.errorText}>{pwError}</Text> : null}
-            <View style={homeStyles.changeButtons}>
-              <TouchableOpacity style={homeStyles.cancelButton} onPress={closePwModal}>
-                <Text style={homeStyles.cancelText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={homeStyles.saveButton} onPress={submitPasswordChange}>
-                <Text style={homeStyles.saveText}>Salvar</Text>
-              </TouchableOpacity>
-            </View>
           </View>
-        </View>
-      </Modal>
-
-      {/* MAIN CONTENT */}
-      <SafeAreaView style={[homeStyles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}>
-        <View style={homeStyles.calendarContainer}>
-          <Calendar
-            current={todayString}
-            onDayPress={onDayPress}
-            markedDates={markedDates}
-            firstDay={1}           /* semana começa na segunda */
-            disableAllTouchEventsForDisabledDays
-            theme={{
-              arrowColor: '#2D2D2D',
-              todayTextColor: '#2D2D2D',
-              dayTextColor: '#2D2D2D',
-              textDisabledColor: '#B8B8B8',   // dias fora do mês
-              monthTextColor: '#2D2D2D',
-              textMonthFontWeight: 'bold',
-              textDayFontFamily: Platform.OS === 'android' ? 'Roboto' : 'System',
-              textDayHeaderFontFamily: Platform.OS === 'android' ? 'Roboto' : 'System',
-              textMonthFontFamily: Platform.OS === 'android' ? 'Roboto' : 'System',
-            }}
-            style={homeStyles.calendar}
-          />
-        </View>
+        )}
 
         <TouchableOpacity
           style={homeStyles.calendarButton}
           onPress={() => navigation.navigate('AcademicCalendar')}
         >
-          <Text style={homeStyles.calendarButtonText}>Calendário acadêmico</Text>
-          <Image source={require('../../assets/arrow.png')} style={homeStyles.arrowIcon} />
+          <Text style={homeStyles.calendarButtonText}>
+            Calendário acadêmico
+          </Text>
+          <Image
+            source={require('../../assets/arrow.png')}
+            style={homeStyles.arrowIcon}
+          />
         </TouchableOpacity>
 
+        {/* BOTÕES DE NAVEGAÇÃO */}
         <View style={homeStyles.buttonsWrapper}>
           <TouchableOpacity
             style={[homeStyles.discButton, homeStyles.discButtonBlue]}
             onPress={() => navigation.navigate('Subjects')}
           >
-            <Image source={require('../../assets/triangulo_inferior.png')} style={[homeStyles.discButtonTriangleTop, homeStyles.triangleDecor]} />
-            <Image source={require('../../assets/triangulo_superior.png')} style={[homeStyles.discButtonTriangleBottom, homeStyles.triangleDecor]} />
-            <Image source={require('../../assets/disciplinas.png')} style={homeStyles.discIcon} />
+            <Image
+              source={require('../../assets/triangulo_inferior.png')}
+              style={[homeStyles.discButtonTriangleTop, homeStyles.triangleDecor]}
+            />
+            <Image
+              source={require('../../assets/triangulo_superior.png')}
+              style={[homeStyles.discButtonTriangleBottom, homeStyles.triangleDecor]}
+            />
+            <Image
+              source={require('../../assets/disciplinas.png')}
+              style={homeStyles.discIcon}
+            />
             <View style={homeStyles.discTextWrapper}>
               <Text style={homeStyles.discText}>Disciplinas</Text>
             </View>
@@ -257,16 +275,26 @@ export default function HomeScreen() {
               style={[homeStyles.smallButton, homeStyles.smallButtonWhite]}
               onPress={() => navigation.navigate('Note')}
             >
-              <Image source={require('../../assets/notas.png')} style={homeStyles.smallIcon} />
-              <Text style={[homeStyles.smallText, { color: '#333' }]}>Notas</Text>
+              <Image
+                source={require('../../assets/notas.png')}
+                style={homeStyles.smallIcon}
+              />
+              <Text style={[homeStyles.smallText, { color: '#333' }]}>
+                Notas
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[homeStyles.smallButton, homeStyles.smallButtonRed]}
               onPress={() => navigation.navigate('Lack')}
             >
-              <Image source={require('../../assets/trianguloFalta.png')} style={[homeStyles.faltaTriangle, homeStyles.triangleDecor]} />
-              <Text style={[homeStyles.smallText, { color: '#2D2D2D' }]}>Faltas</Text>
+              <Image
+                source={require('../../assets/trianguloFalta.png')}
+                style={[homeStyles.faltaTriangle, homeStyles.triangleDecor]}
+              />
+              <Text style={[homeStyles.smallText, { color: '#2D2D2D' }]}>
+                Faltas
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -275,10 +303,19 @@ export default function HomeScreen() {
           style={[homeStyles.supportButton, homeStyles.supportButtonGrey]}
           onPress={() => navigation.navigate('Notification')}
         >
-          <Image source={require('../../assets/trianguloEsquerdo.png')} style={[homeStyles.supportTriangleLeft, homeStyles.triangleDecor]} />
+          <Image
+            source={require('../../assets/trianguloEsquerdo.png')}
+            style={[homeStyles.supportTriangleLeft, homeStyles.triangleDecor]}
+          />
           <Text style={homeStyles.supportText}>Suporte</Text>
-          <Image source={require('../../assets/suporte.png')} style={homeStyles.supportIcon} />
-          <Image source={require('../../assets/trianguloDireito.png')} style={[homeStyles.supportTriangleRight, homeStyles.triangleDecor]} />
+          <Image
+            source={require('../../assets/suporte.png')}
+            style={homeStyles.supportIcon}
+          />
+          <Image
+            source={require('../../assets/trianguloDireito.png')}
+            style={[homeStyles.supportTriangleRight, homeStyles.triangleDecor]}
+          />
         </TouchableOpacity>
       </SafeAreaView>
     </>

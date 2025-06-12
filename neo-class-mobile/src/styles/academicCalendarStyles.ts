@@ -113,7 +113,8 @@ const academicCalendarStyles = StyleSheet.create({
   // Tabela
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#EEE',
+    backgroundColor: '#00000',
+    borderWidth: 1,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderTopLeftRadius: 8,
@@ -132,19 +133,22 @@ const academicCalendarStyles = StyleSheet.create({
     paddingHorizontal: 12,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderColor: '#DDD',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#2D2D2D',
   },
   cell: {
     flex: 1,
+    fontFamily: 'Poppins-Medium',
     fontSize: 14,
     textAlign: 'center',
     color: '#333',
   },
   provaRow: {
-    backgroundColor: '#FFF4CC',
+    backgroundColor: '#F8E1A7',
   },
   trabalhoRow: {
-    backgroundColor: '#CCE5FF',
+    backgroundColor: '#B2CBED',
   },
 });
 
