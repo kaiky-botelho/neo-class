@@ -47,7 +47,12 @@ public class AlunoController {
         dto.setSituacaoMatricula(a.getSituacaoMatricula());
         dto.setEmailInstitucional(a.getEmailInstitucional());
         // NÃO RETORNA A SENHA NO DTO POR SEGURANÇA!
+<<<<<<< HEAD
         // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está ativa
+=======
+        // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está
+        // ativa
+>>>>>>> desenvolvimento-Kaiky
 
         if (a.getTurma() != null) {
             dto.setTurmaId(a.getTurma().getId());
@@ -58,7 +63,12 @@ public class AlunoController {
         return dto;
     }
 
+<<<<<<< HEAD
     // Converte DTO → entidade (use com cautela para atualizações de perfil: não sobrescrever senha)
+=======
+    // Converte DTO → entidade (use com cautela para atualizações de perfil: não
+    // sobrescrever senha)
+>>>>>>> desenvolvimento-Kaiky
     private Aluno toEntity(AlunoDTO dto) {
         Aluno a = new Aluno();
         a.setId(dto.getId());
@@ -83,7 +93,12 @@ public class AlunoController {
         a.setEmailInstitucional(dto.getEmailInstitucional());
         // ATENÇÃO: Se este `toEntity` for usado para um PUT/update genérico de perfil,
         // é crucial NÃO sobrescrever a senha hasheada com uma senha em texto puro.
+<<<<<<< HEAD
         // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e salvar.
+=======
+        // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e
+        // salvar.
+>>>>>>> desenvolvimento-Kaiky
         a.setSenha(dto.getSenha()); // Mantido conforme seu código, mas com a ressalva acima.
 
         if (dto.getTurmaId() != null) {
@@ -101,8 +116,8 @@ public class AlunoController {
     public ResponseEntity<List<AlunoDTO>> listarTodos() {
         List<Aluno> lista = alunoService.listarTodos();
         List<AlunoDTO> dtos = lista.stream()
-                                   .map(this::toDTO)
-                                   .collect(Collectors.toList());
+                .map(this::toDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
 
@@ -122,8 +137,7 @@ public class AlunoController {
     @PutMapping("/{id}")
     public ResponseEntity<AlunoDTO> atualizar(
             @PathVariable Long id,
-            @RequestBody AlunoDTO dto
-    ) {
+            @RequestBody AlunoDTO dto) {
         dto.setId(id);
         Aluno entidade = toEntity(dto);
         Aluno atualizado = alunoService.salvar(entidade);
