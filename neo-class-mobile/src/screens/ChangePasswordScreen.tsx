@@ -86,7 +86,7 @@ export default function ChangePasswordScreen() {
         visibilityTime: 3000,
         onHide: () => {
           navigation.goBack();
-        }
+        },
       });
     } catch (err: any) {
       console.error('Erro ao alterar senha:', err);
@@ -119,6 +119,7 @@ export default function ChangePasswordScreen() {
 
   return (
     <SafeAreaView style={changePasswordStyles.topSafe}>
+      {/* HEADER - EXATAMENTE COMO ESTAVA NO SEU CÓDIGO ORIGINAL */}
       <View style={[changePasswordStyles.topBar, { marginTop: topBarAndroidMargin }]}>
         <TouchableOpacity style={changePasswordStyles.backButton} onPress={() => navigation.goBack()}>
           <Image source={require('../../assets/voltar.png')} style={changePasswordStyles.backIcon} />
@@ -129,6 +130,7 @@ export default function ChangePasswordScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* MODAL - EXATAMENTE COMO ESTAVA NO SEU CÓDIGO ORIGINAL */}
       <Modal
         visible={profileModalVisible}
         transparent
@@ -155,6 +157,7 @@ export default function ChangePasswordScreen() {
         </View>
       </Modal>
 
+      {/* Main Content (Form) - APENAS ESTA SEÇÃO COM AS ALTERAÇÕES */}
       <KeyboardAvoidingView
         style={changePasswordStyles.mainContentWrapper}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -169,6 +172,7 @@ export default function ChangePasswordScreen() {
             style={changePasswordStyles.input}
             value={newPassword}
             onChangeText={setNewPassword}
+            autoCapitalize="none"
           />
           <TextInput
             placeholder="Confirme a Nova Senha"
@@ -177,11 +181,8 @@ export default function ChangePasswordScreen() {
             style={changePasswordStyles.input}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
+            autoCapitalize="none"
           />
-
-          {/* ESTA LINHA FOI O PROBLEMA: {error ? <Text style={changePasswordStyles.errorText}>{error}</Text> : null}
-              Removemos o estado `error` e a sua renderização explícita,
-              já que os erros agora são tratados por Toast.show(). */}
 
           <TouchableOpacity
             style={[changePasswordStyles.button, loading && changePasswordStyles.buttonDisabled]}

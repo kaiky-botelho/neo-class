@@ -25,11 +25,13 @@ public class SecretariaService implements CrudService<Secretaria, Long> {
     @Override
     public Secretaria buscarPorId(Long id) {
         return repo.findById(id)
-                   .orElseThrow(() -> new IllegalArgumentException("Secretaria não encontrada com id " + id));
+                   .orElseThrow(() ->
+                       new IllegalArgumentException("Secretaria não encontrada com id " + id));
     }
 
     @Override
     public Secretaria salvar(Secretaria s) {
+        // Se quiser manter senha em texto puro, salva direto.
         return repo.save(s);
     }
 
@@ -39,8 +41,7 @@ public class SecretariaService implements CrudService<Secretaria, Long> {
     }
 
     /**
-     * Usado pelo AuthController para autenticar:
-     * retorna um Optional vazio caso e-mail ou senha estejam incorretos.
+     * Autentica secretaria comparando texto puro.
      */
     public Optional<Secretaria> autenticar(String email, String senha) {
         return repo.findByEmailAndSenha(email, senha);

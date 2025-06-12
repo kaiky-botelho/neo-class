@@ -27,36 +27,47 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and()
-            .csrf().disable()
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/login/secretaria").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/login/aluno").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/login/professor").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/secretarias/admin").hasRole("SECRETARIA")
-                .requestMatchers(HttpMethod.GET, "/api/alunos/meus-cursos").hasRole("ALUNO")
-                .requestMatchers(HttpMethod.GET, "/api/professores/minhas-turmas").hasRole("PROFESSOR")
+          .cors().and()
+          .csrf().disable()
+          .authorizeHttpRequests(auth -> auth
 
-                // NOVO: Rota para alterar senha do aluno (protegida por ROLE_ALUNO)
-                // Usando o endpoint no AuthController, sem ID no path.
-                .requestMatchers(HttpMethod.PUT, "/api/login/aluno/senha").hasRole("ALUNO")
+              // ─── PÚBLICOS ───────────────────────────────────
+              .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
+              .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
+              .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+              .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+              // ─── RESTRITOS POR PAPEL ─────────────────────────
+              .requestMatchers(HttpMethod.GET,  "/api/secretarias/admin").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.GET,  "/api/alunos/meus-cursos").hasRole("ALUNO")
+              .requestMatchers(HttpMethod.GET,  "/api/professores/minhas-turmas").hasRole("PROFESSOR")
+              .requestMatchers(HttpMethod.PUT,  "/api/login/aluno/senha").hasRole("ALUNO")
 
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(sm ->
-                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .addFilterBefore(
-                new JwtFilter(jwtUtil),
-                UsernamePasswordAuthenticationFilter.class
-            )
-            .headers(headers ->
-                headers.frameOptions().disable()
-            );
+              // ─── ENDPOINTS DE FREQUÊNCIA ────────────────────
+              .requestMatchers(HttpMethod.POST,   "/api/frequencias").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.PUT,    "/api/frequencias/**").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.DELETE, "/api/frequencias/**").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.GET,    "/api/frequencias/**").authenticated()
+
+              // ─── ENDPOINTS DE NOTA ──────────────────────────
+              .requestMatchers(HttpMethod.POST,   "/api/notas").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.PUT,    "/api/notas/**").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.DELETE, "/api/notas/**").hasRole("SECRETARIA")
+              .requestMatchers(HttpMethod.GET,    "/api/notas/**").authenticated()
+
+              // ─── QUALQUER OUTRA ROTA ────────────────────────
+              .anyRequest().authenticated()
+          )
+          .sessionManagement(sm ->
+              sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+          )
+          .addFilterBefore(
+              new JwtFilter(jwtUtil),
+              UsernamePasswordAuthenticationFilter.class
+          )
+          .headers(headers ->
+              headers.frameOptions().disable()
+          );
 
         return http.build();
     }
@@ -68,14 +79,14 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:8081", "exp://*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:8081", "exp://*"));
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", cfg);
         return source;
     }
 }

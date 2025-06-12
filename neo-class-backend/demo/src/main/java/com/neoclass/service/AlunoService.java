@@ -1,3 +1,4 @@
+// src/main/java/com/neoclass/service/AlunoService.java
 package com.neoclass.service;
 
 import com.neoclass.model.Aluno;
@@ -34,8 +35,7 @@ public class AlunoService implements CrudService<Aluno, Long> {
 
     @Override
     public Aluno salvar(Aluno a) {
-        // --- CORREÇÃO AQUI: HASHEAR A SENHA ANTES DE SALVAR (se ainda não for um hash) ---
-        // Verifica se a senha não é nula e se ainda não é um hash BCrypt (hashes BCrypt começam com "$2a$")
+        // Se a senha veio em texto puro, gera o hash antes de salvar
         if (a.getSenha() != null && !a.getSenha().startsWith("$2a$")) {
             String hash = passwordEncoder.encode(a.getSenha());
             a.setSenha(hash);
@@ -48,16 +48,12 @@ public class AlunoService implements CrudService<Aluno, Long> {
         repo.deleteById(id);
     }
 
+    /**
+     * Autentica aluno comparando texto puro com hash BCrypt.
+     */
     public Optional<Aluno> autenticar(String emailInstitucional, String senhaTextoPuro) {
-        Optional<Aluno> alunoOpt = repo.findByEmailInstitucional(emailInstitucional);
-        if (alunoOpt.isPresent()) {
-            Aluno aluno = alunoOpt.get();
-            // COMPARAÇÃO DA SENHA: Usa o PasswordEncoder para comparar a senha em texto puro
-            if (passwordEncoder.matches(senhaTextoPuro, aluno.getSenha())) {
-                return Optional.of(aluno);
-            }
-        }
-        return Optional.empty(); // Retorna vazio se aluno não encontrado ou senha não coincide
+        return repo.findByEmailInstitucional(emailInstitucional)
+                   .filter(a -> passwordEncoder.matches(senhaTextoPuro, a.getSenha()));
     }
 
     public Aluno buscarPorEmailInstitucional(String emailInstitucional) {
@@ -67,14 +63,8 @@ public class AlunoService implements CrudService<Aluno, Long> {
                            "Aluno não encontrado com e-mail institucional: " + emailInstitucional));
     }
 
-    public Long buscarIdPorEmail(String emailInstitucional) {
-        return buscarPorEmailInstitucional(emailInstitucional).getId();
-    }
-
     /**
-     * Altera a senha de um aluno, gerando o hash via BCrypt e salvando no banco.
-     * @param alunoId    o ID do aluno
-     * @param novaSenha  a nova senha em texto puro
+     * Altera senha de aluno: recebe texto puro, gera hash e salva.
      */
     public void alterarSenha(Long alunoId, String novaSenha) {
         Aluno aluno = buscarPorId(alunoId);

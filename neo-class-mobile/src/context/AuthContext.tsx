@@ -1,7 +1,8 @@
+// src/context/AuthContext.tsx
+
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api, { setAuthToken } from '../services/api';
-import { AxiosError } from 'axios';
 import Toast from 'react-native-toast-message';
 
 export interface User {
@@ -19,8 +20,10 @@ interface AuthContextData {
   changePassword(novaSenha: string): Promise<void>;
 }
 
+// Criamos o contexto com tipagem
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
+// Aqui explicito que props incluem children do tipo ReactNode
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,12 +74,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   async function changePassword(novaSenha: string): Promise<void> {
-    if (!user) {
-      throw new Error('Usuário não autenticado.');
-    }
+    if (!user) throw new Error('Usuário não autenticado.');
     try {
-      // Endpoint espera { senha: ... }
-      await api.put('/login/aluno/senha', { senha: novaSenha });
+      await api.put('/login/aluno/senha', { novaSenha });
       Toast.show({
         type: 'success',
         text1: 'Senha Atualizada',
@@ -91,7 +91,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const data = err.response.data;
         msg = typeof data === 'string' ? data : data.message || JSON.stringify(data);
       }
-      // Propaga mensagem customizada
       throw new Error(msg);
     }
   }
