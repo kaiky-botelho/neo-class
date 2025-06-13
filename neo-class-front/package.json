@@ -11,11 +11,14 @@
     "bootswatch": "^4.3.1",
     "classnames": "^2.2.6",
     "currency-formatter": "^1.5.5",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "financas-pessoais-front": "file:",
+    "jwt-decode": "^4.0.0",
     "primeicons": "^2.0.0",
     "primereact": "^3.3.1",
     "react": "^18.3.1",
+    "react-big-calendar": "^1.19.3",
     "react-dom": "^18.3.1",
     "react-input-mask": "^2.0.4",
     "react-loading": "^2.0.3",
@@ -25,7 +28,9 @@
     "toastr": "^2.1.4"
   },
   "devDependencies": {
+    "@types/jwt-decode": "^2.2.1",
     "@types/react": "^19.1.4",
+    "@types/react-big-calendar": "^1.16.2",
     "@types/react-dom": "^19.1.5",
     "@types/react-input-mask": "^3.0.6",
     "@types/react-router-dom": "^5.3.3",
@@ -58,4 +63,3 @@
     ]
   }
 }
-

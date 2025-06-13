@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.43eb639d.css",
+    "main.js": "/static/js/main.7a242276.js",
+    "static/media/prancheta.png": "/static/media/prancheta.5c6cbe79a1ddbf0875f8.png",
+    "static/media/turma.svg": "/static/media/turma.bdbde5b49ad0ef8dd7c2c28c43099543.svg",
+    "static/media/calendario.svg": "/static/media/calendario.fd3986e5b299c1ec360d13bef3280547.svg",
+    "static/media/acoes.svg": "/static/media/acoes.581dc623afe596ae6254.svg",
+    "static/media/responder.svg": "/static/media/responder.7790ab5292f41f2ca6e2498ed44fc518.svg",
+    "static/media/aluno.svg": "/static/media/aluno.8295cb9946f171207dd1e170e92d9aa4.svg",
+    "static/media/noti.svg": "/static/media/noti.69c2472150da7f60b632.svg",
+    "static/media/professor.svg": "/static/media/professor.4440e38920c96516b6d9799cb08c3acd.svg",
+    "static/media/home.svg": "/static/media/home.21557eda7d4a87986d203ac50a68890b.svg",
+    "static/media/estati.svg": "/static/media/estati.dc32ffd0b1985a7bc58e.svg",
+    "static/media/materia.svg": "/static/media/materia.265bf7b36caf8620e7cec25129189689.svg",
+    "index.html": "/index.html",
+    "static/media/triangulo_superior.svg": "/static/media/triangulo_superior.b6aee68fd4a8215e31a0.svg",
+    "static/media/triangulo_inferior.svg": "/static/media/triangulo_inferior.2fffa0572deb093e7290.svg",
+    "main.43eb639d.css.map": "/static/css/main.43eb639d.css.map",
+    "main.7a242276.js.map": "/static/js/main.7a242276.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.43eb639d.css",
+    "static/js/main.7a242276.js"
+  ]
+}
