@@ -27,93 +27,46 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-          .cors().and()
-          .csrf().disable()
-          .authorizeHttpRequests(auth -> auth
+            .cors().and()
+            .csrf().disable()
+            .authorizeHttpRequests(auth -> auth
+                // ─── PÚBLICOS ───────────────────────────────────
+                .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-              // ─── PÚBLICOS ───────────────────────────────────
-              .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
-              .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
-              .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-<<<<<<< HEAD
-<<<<<<< HEAD
-              .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // ─── RESTRITOS POR PAPEL ─────────────────────────
+                .requestMatchers(HttpMethod.GET,  "/api/secretarias/admin").hasRole("SECRETARIA")
+                .requestMatchers(HttpMethod.GET,  "/api/alunos/meus-cursos").hasRole("ALUNO")
+                .requestMatchers(HttpMethod.GET,  "/api/professores/minhas-turmas").hasRole("PROFESSOR")
+                .requestMatchers(HttpMethod.PUT,  "/api/login/aluno/senha").hasRole("ALUNO")
 
-              // ─── RESTRITOS POR PAPEL ─────────────────────────
-              .requestMatchers(HttpMethod.GET,  "/api/secretarias/admin").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.GET,  "/api/alunos/meus-cursos").hasRole("ALUNO")
-              .requestMatchers(HttpMethod.GET,  "/api/professores/minhas-turmas").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.PUT,  "/api/login/aluno/senha").hasRole("ALUNO")
+                // ─── ENDPOINTS DE FREQUÊNCIA ────────────────────
+                .requestMatchers(HttpMethod.POST,   "/api/frequencias").hasRole("PROFESSOR")
+                .requestMatchers(HttpMethod.PUT,    "/api/frequencias/**").hasRole("PROFESSOR")
+                .requestMatchers(HttpMethod.DELETE, "/api/frequencias/**").hasRole("PROFESSOR")
+                .requestMatchers(HttpMethod.GET,    "/api/frequencias/**").authenticated()
 
-              // ─── ENDPOINTS DE FREQUÊNCIA ────────────────────
-              .requestMatchers(HttpMethod.POST,   "/api/frequencias").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.PUT,    "/api/frequencias/**").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.DELETE, "/api/frequencias/**").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.GET,    "/api/frequencias/**").authenticated()
+                // ─── ENDPOINTS DE NOTA ──────────────────────────
+                .requestMatchers(HttpMethod.POST,   "/api/notas").hasRole("PROFESSOR")
+                .requestMatchers(HttpMethod.PUT,    "/api/notas/**").hasRole("PROFESSOR")
+                .requestMatchers(HttpMethod.DELETE, "/api/notas/**").hasRole("PROFESSOR")
+                .requestMatchers(HttpMethod.GET,    "/api/notas/**").authenticated()
 
-              // ─── ENDPOINTS DE NOTA ──────────────────────────
-              .requestMatchers(HttpMethod.POST,   "/api/notas").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.PUT,    "/api/notas/**").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.DELETE, "/api/notas/**").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.GET,    "/api/notas/**").authenticated()
-
-=======
-              .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-
-              // ─── RESTRITOS POR PAPEL ─────────────────────────
-              .requestMatchers(HttpMethod.GET,  "/api/secretarias/admin").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.GET,  "/api/alunos/meus-cursos").hasRole("ALUNO")
-              .requestMatchers(HttpMethod.GET,  "/api/professores/minhas-turmas").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.PUT,  "/api/login/aluno/senha").hasRole("ALUNO")
-
-              // ─── ENDPOINTS DE FREQUÊNCIA ────────────────────
-              .requestMatchers(HttpMethod.POST,   "/api/frequencias").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.PUT,    "/api/frequencias/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.DELETE, "/api/frequencias/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.GET,    "/api/frequencias/**").authenticated()
-
-              // ─── ENDPOINTS DE NOTA ──────────────────────────
-              .requestMatchers(HttpMethod.POST,   "/api/notas").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.PUT,    "/api/notas/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.DELETE, "/api/notas/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.GET,    "/api/notas/**").authenticated()
-
->>>>>>> desenvolvimento-Kaiky
-=======
-              .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-
-              // ─── RESTRITOS POR PAPEL ─────────────────────────
-              .requestMatchers(HttpMethod.GET,  "/api/secretarias/admin").hasRole("SECRETARIA")
-              .requestMatchers(HttpMethod.GET,  "/api/alunos/meus-cursos").hasRole("ALUNO")
-              .requestMatchers(HttpMethod.GET,  "/api/professores/minhas-turmas").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.PUT,  "/api/login/aluno/senha").hasRole("ALUNO")
-
-              // ─── ENDPOINTS DE FREQUÊNCIA ────────────────────
-              .requestMatchers(HttpMethod.POST,   "/api/frequencias").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.PUT,    "/api/frequencias/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.DELETE, "/api/frequencias/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.GET,    "/api/frequencias/**").authenticated()
-
-              // ─── ENDPOINTS DE NOTA ──────────────────────────
-              .requestMatchers(HttpMethod.POST,   "/api/notas").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.PUT,    "/api/notas/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.DELETE, "/api/notas/**").hasRole("PROFESSOR")
-              .requestMatchers(HttpMethod.GET,    "/api/notas/**").authenticated()
-
->>>>>>> desenvolvimento-Kaiky
-              // ─── QUALQUER OUTRA ROTA ────────────────────────
-              .anyRequest().authenticated()
-          )
-          .sessionManagement(sm ->
-              sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-          )
-          .addFilterBefore(
-              new JwtFilter(jwtUtil),
-              UsernamePasswordAuthenticationFilter.class
-          )
-          .headers(headers ->
-              headers.frameOptions().disable()
-          );
+                // ─── QUALQUER OUTRA ROTA ────────────────────────
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sm -> sm
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(
+                new JwtFilter(jwtUtil),
+                UsernamePasswordAuthenticationFilter.class
+            )
+            .headers(headers -> headers
+                .frameOptions().disable()
+            );
 
         return http.build();
     }

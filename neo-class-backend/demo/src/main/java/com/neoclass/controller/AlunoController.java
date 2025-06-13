@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/alunos") // <--- RequestMapping da classe
+@RequestMapping("/api/alunos")
 public class AlunoController {
 
     private final AlunoService alunoService;
@@ -47,17 +47,7 @@ public class AlunoController {
         dto.setSituacaoMatricula(a.getSituacaoMatricula());
         dto.setEmailInstitucional(a.getEmailInstitucional());
         // NÃO RETORNA A SENHA NO DTO POR SEGURANÇA!
-<<<<<<< HEAD
-<<<<<<< HEAD
-        // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está ativa
-=======
-        // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está
-        // ativa
->>>>>>> desenvolvimento-Kaiky
-=======
-        // dto.setSenha(a.getSenha()); // <-- Certifique-se de que esta linha NÃO está
-        // ativa
->>>>>>> desenvolvimento-Kaiky
+        // dto.setSenha(a.getSenha());
 
         if (a.getTurma() != null) {
             dto.setTurmaId(a.getTurma().getId());
@@ -68,17 +58,7 @@ public class AlunoController {
         return dto;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     // Converte DTO → entidade (use com cautela para atualizações de perfil: não sobrescrever senha)
-=======
-    // Converte DTO → entidade (use com cautela para atualizações de perfil: não
-    // sobrescrever senha)
->>>>>>> desenvolvimento-Kaiky
-=======
-    // Converte DTO → entidade (use com cautela para atualizações de perfil: não
-    // sobrescrever senha)
->>>>>>> desenvolvimento-Kaiky
     private Aluno toEntity(AlunoDTO dto) {
         Aluno a = new Aluno();
         a.setId(dto.getId());
@@ -101,20 +81,9 @@ public class AlunoController {
         a.setDataMatricula(dto.getDataMatricula());
         a.setSituacaoMatricula(dto.getSituacaoMatricula());
         a.setEmailInstitucional(dto.getEmailInstitucional());
-        // ATENÇÃO: Se este `toEntity` for usado para um PUT/update genérico de perfil,
-        // é crucial NÃO sobrescrever a senha hasheada com uma senha em texto puro.
-<<<<<<< HEAD
-<<<<<<< HEAD
-        // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e salvar.
-=======
-        // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e
-        // salvar.
->>>>>>> desenvolvimento-Kaiky
-=======
-        // O ideal é carregar a entidade existente, copiar os campos ATUALIZÁVEIS e
-        // salvar.
->>>>>>> desenvolvimento-Kaiky
-        a.setSenha(dto.getSenha()); // Mantido conforme seu código, mas com a ressalva acima.
+        // ATENÇÃO: Se este `toEntity` for usado para um PUT de perfil,
+        // NÃO sobrescrever a senha hasheada com uma senha em texto puro.
+        a.setSenha(dto.getSenha());
 
         if (dto.getTurmaId() != null) {
             Long idTurma = dto.getTurmaId();
@@ -145,7 +114,7 @@ public class AlunoController {
     @PostMapping
     public ResponseEntity<AlunoDTO> criar(@RequestBody AlunoDTO dto) {
         Aluno entidade = toEntity(dto);
-        Aluno salva = alunoService.salvar(entidade); // O `alunoService.salvar` agora hasheia a senha se necessário.
+        Aluno salva = alunoService.salvar(entidade);
         return ResponseEntity.status(201).body(toDTO(salva));
     }
 
@@ -164,6 +133,6 @@ public class AlunoController {
         alunoService.excluir(id);
         return ResponseEntity.noContent().build();
     }
-    // O endpoint de alterar senha para aluno (`@PutMapping("/{id}/senha")`)
-    // foi removido daqui e adicionado no AuthController.
+
+    // O endpoint de alterar senha para aluno foi movido para AuthController.
 }
