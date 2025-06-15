@@ -3,6 +3,7 @@ package com.neoclass.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,6 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -27,8 +29,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and()
-            .csrf().disable()
+            // habilita CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // desabilita CSRF para API stateless
+            .csrf(csrf -> csrf.disable())
+
+            // regras de autorização
             .authorizeHttpRequests(auth -> auth
                 // ─── PÚBLICOS ───────────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
@@ -57,16 +64,23 @@ public class SecurityConfig {
                 // ─── QUALQUER OUTRA ROTA ────────────────────────
                 .anyRequest().authenticated()
             )
+
+            // sessão sem estado
             .sessionManagement(sm -> sm
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
+            // filtro JWT antes do filtro padrão de autenticação
             .addFilterBefore(
                 new JwtFilter(jwtUtil),
                 UsernamePasswordAuthenticationFilter.class
             )
+
+            // permite uso de frames (p.ex. H2 console)
             .headers(headers -> headers
                 .frameOptions().disable()
-            );
+            )
+        ;
 
         return http.build();
     }
@@ -79,8 +93,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://localhost:8081", "exp://*"));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        cfg.setAllowedOriginPatterns(List.of(
+            "http://localhost:3000",
+            "http://localhost:8081",
+            "exp://*"
+        ));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
 
