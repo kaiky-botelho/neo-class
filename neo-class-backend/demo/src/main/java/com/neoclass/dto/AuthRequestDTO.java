@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthRequestDTO {
-    /**
-     * Para secretaria e professor aqui vai o e-mail normal,
-     * para alunos deve ser enviado o campo email_institucional.
-     */
+
     private String email;
     private String senha;
 }

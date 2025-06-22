@@ -4,7 +4,7 @@ import com.neoclass.dto.NotaDTO;
 import com.neoclass.model.Nota;
 import com.neoclass.model.Turma;
 import com.neoclass.model.Aluno;
-import com.neoclass.model.Materia; // importe Materia
+import com.neoclass.model.Materia; 
 import com.neoclass.service.NotaService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -62,7 +62,7 @@ public class NotaController {
             dto.setAlunoId(n.getAluno().getId());
         }
         if (n.getMateria() != null) {
-            dto.setMateriaId(n.getMateria().getId()); // adiciona materiaId
+            dto.setMateriaId(n.getMateria().getId()); 
         }
 
         return dto;
@@ -85,7 +85,7 @@ public class NotaController {
         if (dto.getMateriaId() != null) {
             Materia m = new Materia();
             m.setId(dto.getMateriaId());
-            n.setMateria(m); // popula a entidade Materia
+            n.setMateria(m); 
         }
 
         return n;

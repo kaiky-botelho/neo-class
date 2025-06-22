@@ -26,10 +26,6 @@ public class Turma {
     private String turno;
     private String sala;
 
-    /**
-     * Construtor auxiliar que aceita apenas ID, para podermos montar o objeto Turma
-     * mesmo sem precisar buscar toda a entidade do banco (útil ao associar no Aluno).
-     */
     public Turma(Long id) {
         this.id = id;
     }

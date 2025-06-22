@@ -6,14 +6,14 @@ public class FaltaDTO {
     private String materiaNome;
     private Long   totalFaltas;
 
-    // Construtor usado na JPQL acima
+
     public FaltaDTO(Long materiaId, String materiaNome, Long totalFaltas) {
         this.materiaId   = materiaId;
         this.materiaNome = materiaNome;
         this.totalFaltas = totalFaltas;
     }
 
-    // ——— Somente getters (leitura) ———
+
     public Long getMateriaId() {
         return materiaId;
     }

@@ -46,8 +46,6 @@ public class AlunoController {
         dto.setDataMatricula(a.getDataMatricula());
         dto.setSituacaoMatricula(a.getSituacaoMatricula());
         dto.setEmailInstitucional(a.getEmailInstitucional());
-        // NÃO RETORNA A SENHA NO DTO POR SEGURANÇA!
-        // dto.setSenha(a.getSenha());
 
         if (a.getTurma() != null) {
             dto.setTurmaId(a.getTurma().getId());
@@ -58,7 +56,6 @@ public class AlunoController {
         return dto;
     }
 
-    // Converte DTO → entidade (use com cautela para atualizações de perfil: não sobrescrever senha)
     private Aluno toEntity(AlunoDTO dto) {
         Aluno a = new Aluno();
         a.setId(dto.getId());
@@ -81,8 +78,6 @@ public class AlunoController {
         a.setDataMatricula(dto.getDataMatricula());
         a.setSituacaoMatricula(dto.getSituacaoMatricula());
         a.setEmailInstitucional(dto.getEmailInstitucional());
-        // ATENÇÃO: Se este `toEntity` for usado para um PUT de perfil,
-        // NÃO sobrescrever a senha hasheada com uma senha em texto puro.
         a.setSenha(dto.getSenha());
 
         if (dto.getTurmaId() != null) {
@@ -134,5 +129,4 @@ public class AlunoController {
         return ResponseEntity.noContent().build();
     }
 
-    // O endpoint de alterar senha para aluno foi movido para AuthController.
 }

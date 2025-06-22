@@ -13,10 +13,7 @@ import java.util.List;
 @Repository
 public interface FrequenciaRepository extends JpaRepository<Frequencia, Long> {
 
-    /**
-     * Retorna um DTO com (materiaId, materiaNome, totalFaltas) agrupado por matéria
-     * para o aluno cujo ID foi passado como parâmetro.
-     */
+
     @Query("SELECT new com.neoclass.dto.FaltaDTO(" +
            "  f.materia.id, " +
            "  f.materia.nome, " +

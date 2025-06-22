@@ -9,6 +9,5 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "jwt")
 @Data
 public class JwtProperties {
-    /** must be at least 256 bits for HS256 */
     private String secret;
 }

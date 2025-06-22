@@ -61,17 +61,12 @@ public class FrequenciaController {
         frequenciaService.excluir(id);
     }
 
-    // ────────────────────────────────────────────────────────────────────
-    // NOVO ENDPOINT: /api/frequencias/faltas/{alunoId}
-    // → retorna lista de FaltaDTO agrupadas por matéria para aquele aluno
-    // ────────────────────────────────────────────────────────────────────
     @GetMapping("/faltas/{alunoId}")
     public ResponseEntity<List<FaltaDTO>> listarFaltasPorAluno(@PathVariable Long alunoId) {
         List<FaltaDTO> lista = frequenciaService.listarFaltasPorAluno(alunoId);
         return ResponseEntity.ok(lista);
     }
 
-    // ——— Conversor de ENTIDADE → DTO ———
     private FrequenciaDTO toDTO(Frequencia f) {
         FrequenciaDTO dto = new FrequenciaDTO();
         BeanUtils.copyProperties(f, dto);

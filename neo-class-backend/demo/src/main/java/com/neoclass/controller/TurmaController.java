@@ -20,7 +20,6 @@ public class TurmaController {
         this.service = service;
     }
 
-    // Converte entidade Turma → TurmaDTO
     private TurmaDTO toDTO(Turma t) {
         TurmaDTO dto = new TurmaDTO();
         dto.setId(t.getId());
@@ -32,10 +31,10 @@ public class TurmaController {
         return dto;
     }
 
-    // Converte DTO → entidade Turma
+
     private Turma toEntity(TurmaDTO dto) {
         Turma t = new Turma();
-        t.setId(dto.getId());               // Se id == null, o JPA entende como INSERT; se não, UPDATE
+        t.setId(dto.getId());               
         t.setNome(dto.getNome());
         t.setAnoLetivo(dto.getAnoLetivo());
         t.setSerie(dto.getSerie());

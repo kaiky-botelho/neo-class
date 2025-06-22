@@ -12,7 +12,7 @@ public class FrequenciaDTO {
     private Long      materiaId;
 
     public FrequenciaDTO() {
-        // Construtor padrão para deserialização
+
     }
 
     public FrequenciaDTO(Long id, LocalDate data, Boolean presente, Long alunoId, Long turmaId, Long materiaId) {
@@ -24,7 +24,7 @@ public class FrequenciaDTO {
         this.materiaId  = materiaId;
     }
 
-    // ——— Getters e Setters ———
+
 
     public Long getId() {
         return id;

@@ -35,33 +35,23 @@ public class FrequenciaService {
         this.materiaRepo    = materiaRepo;
     }
 
-    /**
-     * Lista todas as frequências (faltas e presenças).
-     */
+
     public List<Frequencia> listarTodos() {
         return frequenciaRepo.findAll();
     }
 
-    /**
-     * Busca uma frequência específica pelo ID.
-     */
+
     public Frequencia buscarPorId(Long id) {
         return frequenciaRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Frequência não encontrada com id: " + id));
     }
 
-    /**
-     * Lista lista de FaltaDTO (agrupado por matéria) para um determinado aluno.
-     */
+
     public List<FaltaDTO> listarFaltasPorAluno(Long alunoId) {
         return frequenciaRepo.findTotalFaltasPorMateriaDoAluno(alunoId);
     }
 
-    /**
-     * Cria uma nova frequência a partir do DTO:
-     * 1) Carrega Aluno, Turma e Matéria pelo ID
-     * 2) Monta objeto Frequencia e salva no banco
-     */
+
     public Frequencia criarFrequencia(FrequenciaDTO dto) {
         Aluno aluno = alunoRepo.findById(dto.getAlunoId())
                         .orElseThrow(() -> new IllegalArgumentException("Aluno não encontrado: " + dto.getAlunoId()));
@@ -82,9 +72,7 @@ public class FrequenciaService {
         return frequenciaRepo.save(freq);
     }
 
-    /**
-     * Atualiza uma frequência existente, substituindo todos os campos.
-     */
+
     public Frequencia atualizarFrequencia(Long id, FrequenciaDTO dto) {
         Frequencia existente = buscarPorId(id);
 
@@ -106,9 +94,7 @@ public class FrequenciaService {
         return frequenciaRepo.save(existente);
     }
 
-    /**
-     * Exclui uma frequência por ID.
-     */
+
     public void excluir(Long id) {
         Frequencia existente = buscarPorId(id);
         frequenciaRepo.delete(existente);

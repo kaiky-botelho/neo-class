@@ -59,9 +59,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            // 1️⃣ JWT Filter primeiro (já é bean)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            // 2️⃣ MobileAccessFilter antes do JwtFilter
             .addFilterBefore(mobileAccessFilter, JwtFilter.class)
             .headers(headers -> headers.frameOptions().disable());
 

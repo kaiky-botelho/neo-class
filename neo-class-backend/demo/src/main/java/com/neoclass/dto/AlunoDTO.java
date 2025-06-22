@@ -28,5 +28,5 @@ public class AlunoDTO {
     private String situacaoMatricula;
     private String emailInstitucional;
     private String senha;
-    private Long turmaId;        // campo que recebe apenas o ID da Turma
+    private Long turmaId;       
 }

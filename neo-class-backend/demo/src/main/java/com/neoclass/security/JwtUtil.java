@@ -15,11 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Classe utilitária para gerar e validar JWT.
- * O campo 'sub' do token será o emailInstitucional do usuário.
- * O campo 'roles' do token será uma lista de String com os papéis do usuário.
- */
 @Component
 public class JwtUtil {
 
@@ -35,27 +30,19 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
-    /**
-     * Gera um JWT assinado com HS256 contendo o 'subject' = emailInstitucional
-     * e um 'claim' personalizado 'roles' com a lista de papéis do usuário.
-     */
     public String gerarToken(String subject, List<String> roles) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-                   .setSubject(subject)       // guarda o emailInstitucional como subject
-                   .claim(ROLES_CLAIM, roles) // Adiciona as roles como um claim personalizado
+                   .setSubject(subject)       
+                   .claim(ROLES_CLAIM, roles) 
                    .setIssuedAt(now)
                    .setExpiration(expiration)
                    .signWith(key, SignatureAlgorithm.HS256)
                    .compact();
     }
 
-    /**
-     * Valida o token e retorna um objeto JwtClaims contendo o 'subject' (emailInstitucional)
-     * e a lista de roles, ou lança JwtException se inválido/expirado.
-     */
     public JwtClaims validarToken(String token) {
         Jws<Claims> claimsJws = Jwts.parserBuilder()
                                    .setSigningKey(key)
@@ -64,14 +51,11 @@ public class JwtUtil {
 
         Claims body = claimsJws.getBody();
         String subject = body.getSubject();
-        List<String> roles = (List<String>) body.get(ROLES_CLAIM); // Obtém as roles do claim
+        List<String> roles = (List<String>) body.get(ROLES_CLAIM);
 
         return new JwtClaims(subject, roles);
     }
 
-    /**
-     * Classe interna para encapsular o subject e as roles extraídas do JWT.
-     */
     public static class JwtClaims {
         private final String subject;
         private final List<String> roles;

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 export const httpClient = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "",
 });
 
 // INTERCEPTOR PARA ADICIONAR O TOKEN AUTOMATICAMENTE

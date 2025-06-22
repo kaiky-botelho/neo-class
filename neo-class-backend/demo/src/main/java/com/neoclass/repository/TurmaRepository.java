@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TurmaRepository extends JpaRepository<Turma, Long> {
-    // Nenhum método extra é necessário, o JpaRepository já fornece findAll(), findById(), save(), deleteById() etc.
+
 }

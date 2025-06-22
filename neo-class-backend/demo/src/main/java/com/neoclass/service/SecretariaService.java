@@ -31,7 +31,6 @@ public class SecretariaService implements CrudService<Secretaria, Long> {
 
     @Override
     public Secretaria salvar(Secretaria s) {
-        // Se quiser manter senha em texto puro, salva direto.
         return repo.save(s);
     }
 
@@ -40,9 +39,7 @@ public class SecretariaService implements CrudService<Secretaria, Long> {
         repo.deleteById(id);
     }
 
-    /**
-     * Autentica secretaria comparando texto puro.
-     */
+
     public Optional<Secretaria> autenticar(String email, String senha) {
         return repo.findByEmailAndSenha(email, senha);
     }

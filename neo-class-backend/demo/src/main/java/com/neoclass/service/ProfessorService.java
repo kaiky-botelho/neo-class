@@ -19,7 +19,7 @@ public class ProfessorService implements CrudService<Professor, Long> {
     @Override public Professor salvar(Professor p)          { return repo.save(p); }
     @Override public void excluir(Long id)                  { repo.deleteById(id); }
 
-    /** para o AuthController **/
+
     public Optional<Professor> autenticar(String email, String senha) {
         return repo.findByEmailInstitucionalAndSenha(email, senha);
     }

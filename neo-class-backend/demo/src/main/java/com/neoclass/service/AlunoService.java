@@ -48,9 +48,6 @@ public class AlunoService implements CrudService<Aluno, Long> {
         repo.deleteById(id);
     }
 
-    /**
-     * Autentica aluno comparando texto puro com hash BCrypt.
-     */
     public Optional<Aluno> autenticar(String emailInstitucional, String senhaTextoPuro) {
         return repo.findByEmailInstitucional(emailInstitucional)
                    .filter(a -> passwordEncoder.matches(senhaTextoPuro, a.getSenha()));
@@ -63,9 +60,6 @@ public class AlunoService implements CrudService<Aluno, Long> {
                            "Aluno não encontrado com e-mail institucional: " + emailInstitucional));
     }
 
-    /**
-     * Altera senha de aluno: recebe texto puro, gera hash e salva.
-     */
     public void alterarSenha(Long alunoId, String novaSenha) {
         Aluno aluno = buscarPorId(alunoId);
         String hash = passwordEncoder.encode(novaSenha);
