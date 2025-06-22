@@ -107,6 +107,7 @@ export type NotaDTO = {
   valor: number;
   turmaId: number;
   alunoId: number;
+  materiaId: number;
 };
 
 export interface FrequenciaDTO {

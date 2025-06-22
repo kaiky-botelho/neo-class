@@ -34,12 +34,13 @@ const CadastroProva: React.FC = () => {
   const [msgCampoVazio, setMsgCampoVazio] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // carrega turmas e matérias
+  // carrega turmas e matérias (filtra apenas matérias do professor)
   useEffect(() => {
     Promise.all([turmaService.listarTodos(), materiaService.listarTodos()])
       .then(([resTur, resMat]) => {
         setTurmas(resTur.data);
-        setMaterias(resMat.data);
+        const materiasDoProfessor = resMat.data.filter((m: MateriaDTO) => m.professorId === professorId);
+        setMaterias(materiasDoProfessor);
       })
       .catch(err => console.error("Erro ao carregar turmas/matérias:", err));
   }, []);
@@ -133,7 +134,7 @@ const CadastroProva: React.FC = () => {
         await provaService.salvar(payload);
         setMsgSucesso("Prova cadastrada com sucesso!");
       }
-      setTimeout(() => navigate(-1), 1200); // volta para página anterior após sucesso
+      setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       console.error("Erro ao salvar prova:", err);
       setMsgErro("Erro ao salvar prova. Tente novamente.");
