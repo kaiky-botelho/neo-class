@@ -3,13 +3,16 @@ package com.neoclass.dto;
 
 import lombok.Data;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-/**
- * Não incluímos mais o campo 'turmaId' porque não precisamos expor a turma.
- */
 @Data
 public class ProfessorDTO {
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
+
     private String nome;
     private LocalDate dataNascimento;
     private String rg;

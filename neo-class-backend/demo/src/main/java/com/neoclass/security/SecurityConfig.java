@@ -20,67 +20,50 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtUtil jwtUtil;
+    private final JwtFilter jwtFilter;
+    private final MobileAccessFilter mobileAccessFilter;
 
-    public SecurityConfig(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public SecurityConfig(JwtFilter jwtFilter, MobileAccessFilter mobileAccessFilter) {
+        this.jwtFilter = jwtFilter;
+        this.mobileAccessFilter = mobileAccessFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // habilita CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-            // desabilita CSRF para API stateless
             .csrf(csrf -> csrf.disable())
-
-            // regras de autorização
             .authorizeHttpRequests(auth -> auth
-                // ─── PÚBLICOS ───────────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/secretarias").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/login/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // ─── RESTRITOS POR PAPEL ─────────────────────────
                 .requestMatchers(HttpMethod.GET,  "/api/secretarias/admin").hasRole("SECRETARIA")
                 .requestMatchers(HttpMethod.GET,  "/api/alunos/meus-cursos").hasRole("ALUNO")
                 .requestMatchers(HttpMethod.GET,  "/api/professores/minhas-turmas").hasRole("PROFESSOR")
                 .requestMatchers(HttpMethod.PUT,  "/api/login/aluno/senha").hasRole("ALUNO")
 
-                // ─── ENDPOINTS DE FREQUÊNCIA ────────────────────
                 .requestMatchers(HttpMethod.POST,   "/api/frequencias").hasRole("PROFESSOR")
                 .requestMatchers(HttpMethod.PUT,    "/api/frequencias/**").hasRole("PROFESSOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/frequencias/**").hasRole("PROFESSOR")
                 .requestMatchers(HttpMethod.GET,    "/api/frequencias/**").authenticated()
 
-                // ─── ENDPOINTS DE NOTA ──────────────────────────
                 .requestMatchers(HttpMethod.POST,   "/api/notas").hasRole("PROFESSOR")
                 .requestMatchers(HttpMethod.PUT,    "/api/notas/**").hasRole("PROFESSOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/notas/**").hasRole("PROFESSOR")
                 .requestMatchers(HttpMethod.GET,    "/api/notas/**").authenticated()
 
-                // ─── QUALQUER OUTRA ROTA ────────────────────────
                 .anyRequest().authenticated()
             )
-
-            // sessão sem estado
             .sessionManagement(sm -> sm
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-
-            // filtro JWT antes do filtro padrão de autenticação
-            .addFilterBefore(
-                new JwtFilter(jwtUtil),
-                UsernamePasswordAuthenticationFilter.class
-            )
-
-            // permite uso de frames (p.ex. H2 console)
-            .headers(headers -> headers
-                .frameOptions().disable()
-            )
-        ;
+            // 1️⃣ JWT Filter primeiro (já é bean)
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            // 2️⃣ MobileAccessFilter antes do JwtFilter
+            .addFilterBefore(mobileAccessFilter, JwtFilter.class)
+            .headers(headers -> headers.frameOptions().disable());
 
         return http.build();
     }
