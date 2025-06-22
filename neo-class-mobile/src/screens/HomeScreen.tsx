@@ -10,6 +10,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,23 +20,20 @@ import homeStyles from '../styles/homeStyles';
 import api from '../services/api';
 import { RootStackParamList } from '../../App';
 
-//
-// Configuração de locale pt-BR para o calendário
-//
 LocaleConfig.locales.pt = {
   monthNames: [
-    'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro',
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
   ],
   monthNamesShort: [
-    'Jan','Fev','Mar','Abr','Mai','Jun',
-    'Jul','Ago','Set','Out','Nov','Dez',
+    'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+    'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
   ],
   dayNames: [
-    'Domingo','Segunda','Terça','Quarta',
-    'Quinta','Sexta','Sábado',
+    'Domingo', 'Segunda', 'Terça', 'Quarta',
+    'Quinta', 'Sexta', 'Sábado',
   ],
-  dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
   today: 'Hoje',
 };
 LocaleConfig.defaultLocale = 'pt';
@@ -45,7 +43,7 @@ type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 interface ProvaDTO {
   id: number;
   nome: string;
-  data: string;    // YYYY-MM-DD
+  data: string;
   turmaId: number;
   nota: number;
 }
@@ -66,7 +64,6 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
 
-  // Busca provas e trabalhos da turma do usuário
   useEffect(() => {
     if (user?.turmaId) {
       setLoading(true);
@@ -83,7 +80,6 @@ export default function HomeScreen() {
     }
   }, [user]);
 
-  // Gera string de hoje em UTC-3
   const getTodayBrazilString = (): string => {
     const now = new Date();
     const utc = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -92,7 +88,6 @@ export default function HomeScreen() {
   };
   const todayString = getTodayBrazilString();
 
-  // Monta markedDates (usando any para customStyles)
   const markedDates: Record<string, any> = {
     [todayString]: { selected: true, selectedColor: '#E6BC51' },
   };
@@ -122,7 +117,6 @@ export default function HomeScreen() {
   const onDayPress = (day: { dateString: string }) =>
     console.log('Dia selecionado:', day.dateString);
 
-  // Perfil / modais
   const openProfileModal = () => setProfileModalVisible(true);
   const closeProfileModal = () => setProfileModalVisible(false);
   const handleNavigateToChangePassword = () => {
@@ -137,7 +131,6 @@ export default function HomeScreen() {
     );
   };
 
-  // Ajuste de margens para Android
   const topBarAndroidMargin = Platform.OS === 'android'
     ? (StatusBar.currentHeight || 0)
     : 0;
@@ -147,7 +140,6 @@ export default function HomeScreen() {
     <>
       <StatusBar barStyle="light-content" backgroundColor="#333C56" />
 
-      {/* HEADER */}
       <SafeAreaView style={homeStyles.topSafe}>
         <View style={[homeStyles.topBar, { marginTop: topBarAndroidMargin }]}>
           <View style={homeStyles.topBarSpacer} />
@@ -163,7 +155,6 @@ export default function HomeScreen() {
         </View>
       </SafeAreaView>
 
-      {/* MODAL DE PERFIL */}
       <Modal
         visible={profileModalVisible}
         transparent
@@ -202,121 +193,119 @@ export default function HomeScreen() {
         </View>
       </Modal>
 
-      {/* CONTEÚDO PRINCIPAL */}
-      <SafeAreaView
-        style={[homeStyles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}
-      >
-        {loading ? (
-          <ActivityIndicator size="large" color="#333" />
-        ) : (
-          <View style={homeStyles.calendarContainer}>
-            <Calendar
-              markingType="custom"
-              markedDates={markedDates}
-              onDayPress={onDayPress}
-              firstDay={1}
-              theme={{
-                arrowColor: '#2D2D2D',
-                todayTextColor: '#2D2D2D',
-                dayTextColor: '#2D2D2D',
-                textDisabledColor: '#B8B8B8',
-                monthTextColor: '#2D2D2D',
-                textMonthFontWeight: 'bold',
-                textDayFontFamily:
-                  Platform.OS === 'android' ? 'Roboto' : 'System',
-                textDayHeaderFontFamily:
-                  Platform.OS === 'android' ? 'Roboto' : 'System',
-                textMonthFontFamily:
-                  Platform.OS === 'android' ? 'Roboto' : 'System',
-              }}
-              style={homeStyles.calendar}
-            />
-          </View>
-        )}
-
-        <TouchableOpacity
-          style={homeStyles.calendarButton}
-          onPress={() => navigation.navigate('AcademicCalendar')}
-        >
-          <Text style={homeStyles.calendarButtonText}>
-            Calendário acadêmico
-          </Text>
-          <Image
-            source={require('../../assets/arrow.png')}
-            style={homeStyles.arrowIcon}
-          />
-        </TouchableOpacity>
-
-        {/* BOTÕES DE NAVEGAÇÃO */}
-        <View style={homeStyles.buttonsWrapper}>
-          <TouchableOpacity
-            style={[homeStyles.discButton, homeStyles.discButtonBlue]}
-            onPress={() => navigation.navigate('Subjects')}
-          >
-            <Image
-              source={require('../../assets/triangulo_inferior.png')}
-              style={[homeStyles.discButtonTriangleTop, homeStyles.triangleDecor]}
-            />
-            <Image
-              source={require('../../assets/triangulo_superior.png')}
-              style={[homeStyles.discButtonTriangleBottom, homeStyles.triangleDecor]}
-            />
-            <Image
-              source={require('../../assets/disciplinas.png')}
-              style={homeStyles.discIcon}
-            />
-            <View style={homeStyles.discTextWrapper}>
-              <Text style={homeStyles.discText}>Disciplinas</Text>
+      <SafeAreaView style={[homeStyles.bottomSafe, { paddingTop: bottomSafeAndroidPaddingTop }]}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+          {loading ? (
+            <ActivityIndicator size="large" color="#333" style={{ marginTop: 40 }} />
+          ) : (
+            <View style={homeStyles.calendarContainer}>
+              <Calendar
+                markingType="custom"
+                markedDates={markedDates}
+                onDayPress={onDayPress}
+                firstDay={1}
+                theme={{
+                  arrowColor: '#2D2D2D',
+                  todayTextColor: '#2D2D2D',
+                  dayTextColor: '#2D2D2D',
+                  textDisabledColor: '#B8B8B8',
+                  monthTextColor: '#2D2D2D',
+                  textMonthFontWeight: 'bold',
+                  textDayFontFamily:
+                    Platform.OS === 'android' ? 'Roboto' : 'System',
+                  textDayHeaderFontFamily:
+                    Platform.OS === 'android' ? 'Roboto' : 'System',
+                  textMonthFontFamily:
+                    Platform.OS === 'android' ? 'Roboto' : 'System',
+                }}
+                style={homeStyles.calendar}
+              />
             </View>
+          )}
+
+          <TouchableOpacity
+            style={homeStyles.calendarButton}
+            onPress={() => navigation.navigate('AcademicCalendar')}
+          >
+            <Text style={homeStyles.calendarButtonText}>
+              Calendário acadêmico
+            </Text>
+            <Image
+              source={require('../../assets/arrow.png')}
+              style={homeStyles.arrowIcon}
+            />
           </TouchableOpacity>
 
-          <View style={homeStyles.rightColumn}>
+          <View style={homeStyles.buttonsWrapper}>
             <TouchableOpacity
-              style={[homeStyles.smallButton, homeStyles.smallButtonWhite]}
-              onPress={() => navigation.navigate('Note')}
+              style={[homeStyles.discButton, homeStyles.discButtonBlue]}
+              onPress={() => navigation.navigate('Subjects')}
             >
               <Image
-                source={require('../../assets/notas.png')}
-                style={homeStyles.smallIcon}
+                source={require('../../assets/triangulo_inferior.png')}
+                style={[homeStyles.discButtonTriangleTop, homeStyles.triangleDecor]}
               />
-              <Text style={[homeStyles.smallText, { color: '#333' }]}>
-                Notas
-              </Text>
+              <Image
+                source={require('../../assets/triangulo_superior.png')}
+                style={[homeStyles.discButtonTriangleBottom, homeStyles.triangleDecor]}
+              />
+              <Image
+                source={require('../../assets/disciplinas.png')}
+                style={homeStyles.discIcon}
+              />
+              <View style={homeStyles.discTextWrapper}>
+                <Text style={homeStyles.discText}>Disciplinas</Text>
+              </View>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[homeStyles.smallButton, homeStyles.smallButtonRed]}
-              onPress={() => navigation.navigate('Lack')}
-            >
-              <Image
-                source={require('../../assets/trianguloFalta.png')}
-                style={[homeStyles.faltaTriangle, homeStyles.triangleDecor]}
-              />
-              <Text style={[homeStyles.smallText, { color: '#2D2D2D' }]}>
-                Faltas
-              </Text>
-            </TouchableOpacity>
+            <View style={homeStyles.rightColumn}>
+              <TouchableOpacity
+                style={[homeStyles.smallButton, homeStyles.smallButtonWhite]}
+                onPress={() => navigation.navigate('Note')}
+              >
+                <Image
+                  source={require('../../assets/notas.png')}
+                  style={homeStyles.smallIcon}
+                />
+                <Text style={[homeStyles.smallText, { color: '#333' }]}>
+                  Notas
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[homeStyles.smallButton, homeStyles.smallButtonRed]}
+                onPress={() => navigation.navigate('Lack')}
+              >
+                <Image
+                  source={require('../../assets/trianguloFalta.png')}
+                  style={[homeStyles.faltaTriangle, homeStyles.triangleDecor]}
+                />
+                <Text style={[homeStyles.smallText, { color: '#2D2D2D' }]}>
+                  Faltas
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        <TouchableOpacity
-          style={[homeStyles.supportButton, homeStyles.supportButtonGrey]}
-          onPress={() => navigation.navigate('Notification')}
-        >
-          <Image
-            source={require('../../assets/trianguloEsquerdo.png')}
-            style={[homeStyles.supportTriangleLeft, homeStyles.triangleDecor]}
-          />
-          <Text style={homeStyles.supportText}>Suporte</Text>
-          <Image
-            source={require('../../assets/suporte.png')}
-            style={homeStyles.supportIcon}
-          />
-          <Image
-            source={require('../../assets/trianguloDireito.png')}
-            style={[homeStyles.supportTriangleRight, homeStyles.triangleDecor]}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[homeStyles.supportButton, homeStyles.supportButtonGrey]}
+            onPress={() => navigation.navigate('Notification')}
+          >
+            <Image
+              source={require('../../assets/trianguloEsquerdo.png')}
+              style={[homeStyles.supportTriangleLeft, homeStyles.triangleDecor]}
+            />
+            <Text style={homeStyles.supportText}>Suporte</Text>
+            <Image
+              source={require('../../assets/suporte.png')}
+              style={homeStyles.supportIcon}
+            />
+            <Image
+              source={require('../../assets/trianguloDireito.png')}
+              style={[homeStyles.supportTriangleRight, homeStyles.triangleDecor]}
+            />
+          </TouchableOpacity>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
