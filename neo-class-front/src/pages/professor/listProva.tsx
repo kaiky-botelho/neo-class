@@ -1,4 +1,3 @@
-// src/pages/professor/ListProvas.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SideBar from "../../components/sideBar/sideBar";
@@ -93,6 +92,9 @@ const ListProvas: React.FC = () => {
     const pageSize = 9;
     const service = new ProvaService();
 
+    // Obtem o ID do professor armazenado (exemplo do localStorage)
+    const professorId = Number(localStorage.getItem("id"));
+
     useEffect(() => {
         service
             .listarTodas()
@@ -103,10 +105,9 @@ const ListProvas: React.FC = () => {
     const provasFiltradas = provas
         .filter(p => p.nome.toLowerCase().includes(searchTerm.toLowerCase()))
         .filter(p =>
-            bimestreFilter
-                ? `${p.bimestre}º Bimestre` === bimestreFilter
-                : true
-        );
+            bimestreFilter ? `${p.bimestre}º Bimestre` === bimestreFilter : true
+        )
+        .filter(p => p.professorId === professorId);  // Filtro pelo professorId
 
     const totalPages = Math.ceil(provasFiltradas.length / pageSize);
     const provasPagina = provasFiltradas.slice((page - 1) * pageSize, page * pageSize);

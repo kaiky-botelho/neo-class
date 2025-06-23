@@ -90,6 +90,9 @@ const ListTrabalhos: React.FC = () => {
     const pageSize = 9;
     const service = new TrabalhoService();
 
+    // Obtem o ID do professor armazenado (exemplo do localStorage)
+    const professorId = Number(localStorage.getItem("id"));
+
     useEffect(() => {
         service
             .listarTodos()
@@ -97,13 +100,15 @@ const ListTrabalhos: React.FC = () => {
             .catch(err => console.error("Erro ao buscar trabalhos:", err));
     }, []);
 
+    // Filtra os trabalhos baseados no nome, bimestre e professorId
     const filtrados = trabalhos
         .filter(t => t.nome.toLowerCase().includes(searchTerm.toLowerCase()))
         .filter(t =>
             bimestreFilter
                 ? `${t.bimestre}º Bimestre` === bimestreFilter
                 : true
-        );
+        )
+        .filter(t => t.professorId === professorId);  // Filtro pelo professorId
 
     const totalPages = Math.ceil(filtrados.length / pageSize);
     const pageItems = filtrados.slice((page - 1) * pageSize, page * pageSize);
